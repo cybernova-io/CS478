@@ -46,12 +46,15 @@ def signup():
             db.session.commit()  # Create new user
             login_user(user)  # Log in as newly created user
             data = {
-                'status': 'New user ' + user.name + ' created.'
+                'status': 201,
+                'msg': 'New user ' + user.name + ' created.'
             }
+
             return data
 
         data = {
-            'status': 'User with that email already exists.'
+            'status': 400,
+            'msg': 'User with that email already exists.'
         }
 
         return data
@@ -73,13 +76,18 @@ def login():
     """
 
     if request.method == 'GET':
-        return 'Must login through POST request form.'
+        data = {
+            'status': 400,
+            'msg': 'No user logged in.'
+        }
+        return data
 
     if request.method == 'POST':
         # Bypass if user is logged in
         if current_user.is_authenticated:
             data = {
-                'status': str(current_user.name) + ' already logged in.' 
+                'status': 400,
+                'msg': str(current_user.name) + ' already logged in.' 
             }
             return data
 
@@ -96,7 +104,8 @@ def login():
     
             login_user(user)
             data = {
-                'status': str(user.name) + ' logged in.'
+                'status': 200,
+                'msg': str(user.name) + ' logged in.'
             }
 
             user.set_last_login()
@@ -104,7 +113,8 @@ def login():
             return data
         #User exists but password does not match password in db
         data = {
-            'status': 'Invalid username/password combination'
+            'status': 400,
+            'msg': 'Invalid username/password combination'
         }
         
         #Return already logged in status message
@@ -130,7 +140,8 @@ def logout():
     """User log-out logic."""
 
     data = {
-        'status': str(current_user.name) + ' logged out.'
+        'status': 200,
+        'msg': str(current_user.name) + ' logged out.'
     }
 
     logout_user()
@@ -142,6 +153,7 @@ def logout():
 def profile():
     
     data = {
+        'status': 200,
         'user_id': current_user.id,
         'user_name': current_user.name,
         'user_email': current_user.email,
