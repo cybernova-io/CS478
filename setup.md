@@ -6,7 +6,7 @@ Create a python virtual environment
 python -m venv venv
 ```
 
-Make sure youre interpreter is configured to use the virtual environment python interpreter.
+Make sure your interpreter is configured to use the virtual environment python interpreter.
 
 Next, install the required packages to the virtual environment.
 
