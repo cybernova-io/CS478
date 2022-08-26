@@ -2,6 +2,7 @@
 from . import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 
 class User(UserMixin, db.Model):
@@ -10,7 +11,6 @@ class User(UserMixin, db.Model):
     __tablename__ = 'Users'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100),nullable=False,unique=False)
-
     email = db.Column(db.String(40), unique=True, nullable=False)
     password = db.Column(db.String(200), primary_key=False, unique=False, nullable=False)
     website = db.Column(db.String(60), index=False, unique=False, nullable=True)
@@ -23,6 +23,13 @@ class User(UserMixin, db.Model):
             password,
             method='sha256'
         )
+
+    def set_creation_date(self):
+        self.created_on = datetime.today()
+
+    def set_last_login(self):
+        self.last_login = datetime.today()
+        db.session.commit()
 
     def check_password(self, password):
         """Check hashed password."""

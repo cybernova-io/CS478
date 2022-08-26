@@ -3,6 +3,7 @@ from flask_login import login_required, logout_user, current_user, login_user
 from ..models import db, User
 from .. import login_manager
 from flask_login import logout_user
+from datetime import datetime
 
 auth_bp = Blueprint('auth_bp', __name__)
 
@@ -40,6 +41,7 @@ def signup():
             )
 
             user.set_password(password)
+            user.set_creation_date()
             db.session.add(user)
             db.session.commit()  # Create new user
             login_user(user)  # Log in as newly created user
@@ -91,10 +93,14 @@ def login():
 
         if user and user.check_password(password=password):
             #User exists and password matches password in db
+    
             login_user(user)
             data = {
                 'status': str(user.name) + ' logged in.'
             }
+
+            user.set_last_login()
+            
             return data
         #User exists but password does not match password in db
         data = {
