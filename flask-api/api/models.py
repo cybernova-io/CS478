@@ -37,3 +37,14 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
+
+class Post(db.Model):
+    """Posts model."""
+
+    __tablename__ = 'Posts'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), unique=False, nullable=False)
+    content = db.Column(db.String(), unique=False, nullable=False)
+    owner = db.Column(db.String(16), unique=False, nullable=False)
+    
+
