@@ -8,7 +8,7 @@ from datetime import datetime
 auth_bp = Blueprint('auth_bp', __name__)
 
 
-@auth_bp.route('/signup', methods=['GET', 'POST'])
+@auth_bp.route('/api/signup', methods=['GET', 'POST'])
 def signup():
     """
     User sign-up page.
@@ -60,7 +60,7 @@ def signup():
         return data
     
 
-@auth_bp.route('/login', methods=['GET', 'POST'])
+@auth_bp.route('/api/login', methods=['GET', 'POST'])
 def login():
     """
     Log-in page for registered users.
@@ -134,7 +134,7 @@ def unauthorized():
     flash('You must be logged in to view that page.')
     return redirect(url_for('auth_bp.login'))
 
-@auth_bp.route("/logout", methods=['GET'])
+@auth_bp.route("/api/logout", methods=['GET'])
 @login_required
 def logout():
     """User log-out logic."""
@@ -148,7 +148,7 @@ def logout():
 
     return data
 
-@auth_bp.route('/profile', methods = ['GET'])
+@auth_bp.route('/api/profile', methods = ['GET'])
 @login_required
 def profile():
     
