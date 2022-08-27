@@ -85,9 +85,44 @@ def delete_post():
 
     return data
 
-
-#update
-@post_bp.route('/api/post/update', methods=['GET', 'POST'])
+#update posts
+@post_bp.route('/api/post/update/', methods=['PUT'])
 @login_required
 def update_post():
-    pass
+    """
+    Updates Post
+    """
+    try:
+            id = request.form['id']
+            title = request.form['title']
+            content = request.form['content']
+            post = Post.query.get(id)
+
+            post = Post(
+                title = title,
+                content = content,
+                owner = current_user.id,
+            )
+            title = request.form['title',Post.title]
+            content = request.form['content',Post.content]
+
+            db.session.update(post)
+            db.session.commit()
+            data = {
+                'status': 200,
+                'title': post.title,
+                'content': post.content
+            }
+
+            return data
+    
+    except werkzeug.exceptions.BadRequestKeyError:
+        if post is None:
+            abort(404)
+        data = {
+            'status': 200,
+            'title': post.title,
+            'content': post.content
+        }
+
+        return data
