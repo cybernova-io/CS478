@@ -71,7 +71,8 @@ def delete_post():
     """
     Deletes Post
     """
-    post = post.query.get(id)
+    id = request.form['id']
+    post = Post.query.get(id)
     if post is None:
         abort(404)
     
