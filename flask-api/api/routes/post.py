@@ -16,18 +16,16 @@ def get_post():
     
     """
     data = {}
-    
+
     try:
         id = request.form['id']
-        print(id)
-
+        
         post = Post.query.get(id)
         data = {
             'status': 200,
             'title': post.title,
             'content': post.content
         }
-
         return data
 
     except werkzeug.exceptions.BadRequestKeyError:
@@ -40,11 +38,11 @@ def get_post():
             }
         return data
 
-    
+
+#create post
 @post_bp.route('/api/post/create/', methods=['POST'])
 @login_required
 def create_post():
-
     title = request.form['title']
     content = request.form['content']
 
@@ -62,6 +60,7 @@ def create_post():
     }
 
     return data
+
 
 
 #delete function
@@ -84,7 +83,6 @@ def delete_post():
     }
 
     return data
-
 #update posts
 @post_bp.route('/api/post/update/', methods=['PUT'])
 @login_required
