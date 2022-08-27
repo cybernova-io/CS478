@@ -50,10 +50,13 @@ def create_post():
     post = Post(
         title = title,
         content = content,
-        owner = current_user.id
+        owner = current_user.id,
+        
     )
 
+
     db.session.add(post)
+    #db.session.add(post.post_id)
     db.session.commit()
 
     data = {
@@ -71,6 +74,7 @@ def delete_post():
 
     title = request.form['title']
     content = request.form['content']
+    
 
     post = Post(
         title = title,
@@ -79,11 +83,13 @@ def delete_post():
     )
 
     db.session.delete(post)
+    db.session.delete(post.post_id)
     db.session.commit()
 
     data = {
         'status': 200,
-        'msg': str(post.title) + ' deleted.' 
+        'msg': str(post.title) + ' deleted.' ,
+        'msg': str(post.post_id) + 'deleted'
     }
 
     return data

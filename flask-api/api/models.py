@@ -46,5 +46,6 @@ class Post(db.Model):
     title = db.Column(db.String(100), unique=False, nullable=False)
     content = db.Column(db.String(), unique=False, nullable=False)
     owner = db.Column(db.String(16), unique=False, nullable=False)
+    #post_id = db.Column(db.Integer, unique=True, nullable= False)
     
 
