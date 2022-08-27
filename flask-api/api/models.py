@@ -16,6 +16,7 @@ class User(UserMixin, db.Model):
     website = db.Column(db.String(60), index=False, unique=False, nullable=True)
     created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)
     last_login = db.Column(db.DateTime, index=False, unique=False,nullable=True)
+    
 
     def set_password(self, password):
         """Create hashed password."""
@@ -46,6 +47,6 @@ class Post(db.Model):
     title = db.Column(db.String(100), unique=False, nullable=False)
     content = db.Column(db.String(), unique=False, nullable=False)
     owner = db.Column(db.String(16), unique=False, nullable=False)
-    #post_id = db.Column(db.Integer, unique=True, nullable= False)
+    
     
 

@@ -1,3 +1,4 @@
+from os import abort
 from flask import Blueprint, redirect, render_template, flash, request, session, url_for
 from flask_login import login_required, logout_user, current_user, login_user
 from ..models import db, Post
@@ -51,49 +52,37 @@ def create_post():
         title = title,
         content = content,
         owner = current_user.id,
-        
     )
-
-
     db.session.add(post)
-    #db.session.add(post.post_id)
     db.session.commit()
 
     data = {
         'status': 200,
-        'msg': str(post.title) + ' created.' 
+        'msg': str(post.title) + ' created.' ,
     }
 
     return data
 
 
 #delete function
-@post_bp.route('/api/post/delete/', methods=['POST'])
+@post_bp.route('/api/post/delete/', methods=['DELETE'])
 @login_required
 def delete_post():
-
-    title = request.form['title']
-    content = request.form['content']
+    """
+    Deletes Post
+    """
+    post = post.query.get(id)
+    if post is None:
+        abort(404)
     
-
-    post = Post(
-        title = title,
-        content = content,
-        owner = current_user.id
-    )
-
     db.session.delete(post)
-    db.session.delete(post.post_id)
     db.session.commit()
-
     data = {
         'status': 200,
-        'msg': str(post.title) + ' deleted.' ,
-        'msg': str(post.post_id) + 'deleted'
+        'msg': str(post.title) + ' deleted.'
     }
 
     return data
-
 
 
 #update
