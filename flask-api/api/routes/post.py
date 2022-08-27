@@ -64,7 +64,34 @@ def create_post():
     return data
 
 
+#delete function
+@post_bp.route('/api/post/delete/', methods=['POST'])
+@login_required
+def delete_post():
+
+    title = request.form['title']
+    content = request.form['content']
+
+    post = Post(
+        title = title,
+        content = content,
+        owner = current_user.id
+    )
+
+    db.session.delete(post)
+    db.session.commit()
+
+    data = {
+        'status': 200,
+        'msg': str(post.title) + ' deleted.' 
+    }
+
+    return data
 
 
 
-
+#update
+@post_bp.route('/api/post/update', methods=['GET', 'POST'])
+@login_required
+def update_post():
+    pass
