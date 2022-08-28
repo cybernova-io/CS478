@@ -162,6 +162,9 @@ def logout():
 @auth_bp.route('/api/profile', methods = ['GET'])
 @login_required
 def profile():
+    """
+    GET: Returns all user attributes to be displayed in profile
+    """
     
     data = {
         'status': 200,
@@ -178,8 +181,12 @@ def profile():
 @login_required
 def profile_picture():
     """
-    GET: Returns the current users profile picture
-    POST:
+    GET: Returns the current users profile picture.
+    POST: Allows user to submit a picture to be used as their profile picture.
+
+    Profile Picture Form
+
+    picture = file to be used as profile picture. must be jpeg, jpg, or png
     """
 
     if request.method == 'GET':
