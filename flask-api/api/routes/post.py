@@ -17,45 +17,42 @@ def get_post():
     """
     data = {}
 
-    try:
-        id = request.form['id']
-        
-        post = Post.query.get(id)
-        data = {
+    posts = Post.query.all()
+    for i in posts:
+        data[i.id] = {
             'status': 200,
-            'title': post.title,
-            'content': post.content
+            'title': i.title,
+            'content': i.content
         }
-        return data
 
-    except werkzeug.exceptions.BadRequestKeyError:
-        posts = Post.query.all()
-        for i in posts:
-            data[i.id] = {
-                'status': 200,
-                'title': i.title,
-                'content': i.content
-            }
-        return data
+    return data
 
 
-@post_bp.route('/api/post/<int:id>/', methods=['GET'])
+@post_bp.route('/api/post/<int:id>', methods=['GET'])
 def get_singlePost(id):
     """
     GET: return specific post of individual user 
     """
     data = {}
 
-    id = request.form['id']
     post = Post.query.get(id)
 
-    if id == id:
+    if Post is None:
+
+        data = {
+            'status': 404,
+            'msg': 'No post found with that id.'
+        }
+        return data
+
+    else:
         data = {
             'status': 200,
             'title': post.title,
             'content': post.content
         }
-        return data
+
+    return data
 
 
 #create post
