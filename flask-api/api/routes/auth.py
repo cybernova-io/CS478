@@ -165,7 +165,7 @@ def profile():
     """
     GET: Returns all user attributes to be displayed in profile
     """
-    
+
     data = {
         'status': 200,
         'user_id': current_user.id,
@@ -189,12 +189,15 @@ def profile_picture():
     picture = file to be used as profile picture. must be jpeg, jpg, or png
     """
 
+    #request for just getting profile picture
     if request.method == 'GET':
         
         if current_user.profile_pic is not None:
             path = current_user.profile_pic
             path = 'profile-pics/' + path
             return send_from_directory('static', path)
+        else:
+            return None
 
     if request.method == 'POST':
         #check if request has the file part
@@ -207,6 +210,7 @@ def profile_picture():
 
         picture = request.files['picture']
 
+        #make sure filename is not empty
         if picture.filename == '':
             data = {
                 'status': 404,
@@ -214,8 +218,9 @@ def profile_picture():
             }
             return data
         
+        #make sure picture exists, and file extension is in allowed extensions
         if picture and allowed_file(picture.filename):
-
+            
             filename = secure_filename(picture.filename)
             filename = str(current_user.id) + '_' + filename
             
