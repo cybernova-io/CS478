@@ -53,7 +53,8 @@ def get_singlePost(id):
         data = {
             'status': 200,
             'title': post.title,
-            'content': post.content
+            'content': post.content,
+            'msg': str(post.title) + 'Retrieved.' 
         }
         return data
 
@@ -80,8 +81,6 @@ def create_post():
 
     return data
 
-
-
 #delete function
 @post_bp.route('/api/post/delete/', methods=['DELETE'])
 @login_required
@@ -106,7 +105,7 @@ def delete_post():
     }
 
     return data
-    
+
 #update posts
 @post_bp.route('/api/post/update/', methods=['PUT'])
 @login_required
@@ -121,8 +120,7 @@ def update_post():
             
     post.title = title
     post.content = content
-            #i dont think you need the update part. check out the flask-sqlalchemy documentation
-    
+
     db.session.commit()
             
     data = {
