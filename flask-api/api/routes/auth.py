@@ -1,12 +1,23 @@
-from flask import Blueprint, redirect, render_template, flash, request, session, url_for
+from flask import Blueprint, redirect, render_template, flash, request, session, url_for, send_from_directory
 from flask_login import login_required, logout_user, current_user, login_user
 from ..models import db, User
 from .. import login_manager
 from flask_login import logout_user
 from datetime import datetime
+from werkzeug.utils import secure_filename
+import os
+from flask import current_app as app
+
 
 auth_bp = Blueprint('auth_bp', __name__)
 
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @auth_bp.route('/api/signup', methods=['GET', 'POST'])
 def signup():
@@ -163,3 +174,53 @@ def profile():
 
     return data
     
+@auth_bp.route('/api/profile-picture/', methods= ['GET', 'POST'])
+@login_required
+def profile_picture():
+
+    if request.method == 'GET':
+        
+        if current_user.profile_pic is not None:
+            path = current_user.profile_pic
+            path = 'profile-pics/' + path
+            return send_from_directory('static', path)
+
+    if request.method == 'POST':
+        #check if request has the file part
+        if 'picture' not in request.files:
+            data = {
+                'status': 404,
+                'msg': 'No picture provided.'
+            }
+            return data
+
+        picture = request.files['picture']
+
+        if picture.filename == '':
+            data = {
+                'status': 404,
+                'msg': 'Picture provided has no filename.'
+            }
+            return data
+        
+        if picture and allowed_file(picture.filename):
+
+            filename = secure_filename(picture.filename)
+            filename = str(current_user.id) + '_' + filename
+            
+            picture.save(os.path.join(app.config['PROFILE_PICS'], filename))
+            current_user.profile_pic = filename
+            db.session.commit()
+
+            data = {
+                'status': 200,
+                'msg': 'Profile picture uploaded.'
+            }
+
+            return data
+
+
+
+
+
+
