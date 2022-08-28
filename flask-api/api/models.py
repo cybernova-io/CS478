@@ -1,4 +1,5 @@
 """Database models."""
+from email.policy import default
 from . import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -41,12 +42,31 @@ class User(UserMixin, db.Model):
 
 class Post(db.Model):
     """Posts model."""
-
+# added FK relationship between user id and owner id 
     __tablename__ = 'Posts'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), unique=False, nullable=False)
     content = db.Column(db.String(), unique=False, nullable=False)
+    owner = db.Column(db.String(16), db.ForeignKey(User.id),unique=False, nullable=False)
+    
+class Comment(db.Model):
+    """
+    Comments Model.
+    """
+    #FK relationship between commentsid and postid
+    __tablename__ = 'Comments'
+    id = db.Column(db.Integer, db.ForeignKey(Post.id), primary_key=True)
     owner = db.Column(db.String(16), unique=False, nullable=False)
-    
-    
-
+    text = db.Column(db.String(200), nullable=False)
+    created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)
+   
+class Likes(db.Model):
+    """
+    Likes Model.
+    """
+    #FK relationship betwee likesid and postid
+    __tablename__= 'Likes'
+    id = db.Column(db.Integer, db.ForeignKey(Post.id), primary_key=True)
+    owner = db.Column(db.String(16), unique=False, nullable=False)
+    created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)
+   

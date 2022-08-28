@@ -1,7 +1,7 @@
 from os import abort
 from flask import Blueprint, redirect, render_template, flash, request, session, url_for
 from flask_login import login_required, logout_user, current_user, login_user
-from ..models import db, Post
+from ..models import Likes, db, Post
 from .. import login_manager
 from flask_login import logout_user
 import werkzeug
@@ -50,7 +50,7 @@ def get_singlePost(id):
             'status': 200,
             'title': post.title,
             'content': post.content,
-            'msg': str(post.title) + 'Retrieved.' 
+            'msg': str(post.title) + ' Retrieved.' 
         }
 
     return data
@@ -78,7 +78,7 @@ def create_post():
 
     return data
 
-#delete function
+#delete post
 @post_bp.route('/api/post/delete/', methods=['DELETE'])
 @login_required
 def delete_post():
@@ -128,3 +128,48 @@ def update_post():
     }
 
     return data
+
+#like post
+@post_bp.route('/api/post/like/<int:id>/', methods=['POST'])
+@login_required
+def likePost(id):
+    """
+    Logic for like/dislike user posts.
+    """
+    post = Post.query.get(id)
+    if Post is None:
+
+        data = {
+            'status': 404,
+            'msg': 'No post found with that id.'
+        }
+        return data
+    
+    else:
+        like = Likes.query.get(id)
+
+        db.session.add(id)
+        db.session.commit()
+
+        data = {
+            'status': 200,
+            'title': post.title,
+            'msg': str(like.id) + ' liked this post.',
+            'msg': str(like.created_on) + ' : date created.'
+
+        }
+        return data
+
+
+
+#comment on a post
+@post_bp.route('/api/post/comment/<int:id>/<action>', methods=['POST'])
+@login_required
+def commentPost():
+    """
+    Logic for commenting on a post.
+    """
+    pass
+
+
+
