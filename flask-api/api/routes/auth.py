@@ -177,6 +177,10 @@ def profile():
 @auth_bp.route('/api/profile-picture/', methods= ['GET', 'POST'])
 @login_required
 def profile_picture():
+    """
+    GET: Returns the current users profile picture
+    POST:
+    """
 
     if request.method == 'GET':
         
