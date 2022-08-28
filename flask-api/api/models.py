@@ -4,11 +4,16 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
+friend = db.Table('friends',
+    db.Column('friend0_id', db.Integer, db.ForeignKey('Users.id')),
+    db.Column('friend1_id', db.Integer, db.ForeignKey('Users.id'))
+)
 
 class User(UserMixin, db.Model):
     """User account model."""
 
     __tablename__ = 'Users'
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100),nullable=False,unique=False)
     email = db.Column(db.String(40), unique=True, nullable=False)
@@ -17,8 +22,14 @@ class User(UserMixin, db.Model):
     created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)
     last_login = db.Column(db.DateTime, index=False, unique=False,nullable=True)
     profile_pic = db.Column(db.String(), index=False, unique=False, nullable=True)
+    #posts = db.relationship('Post', backref='author', lazy='dynamic')
+    friends = db.relationship('User', 
+                               secondary=friend, 
+                               primaryjoin=(friend.c.friend0_id == id), 
+                               secondaryjoin=(friend.c.friend1_id == id), 
+                               backref=db.backref('friend', lazy='dynamic'), 
+                               lazy='dynamic')
     
-
     def set_password(self, password):
         """Create hashed password."""
         self.password = generate_password_hash(
@@ -40,6 +51,25 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return '<User {}>'.format(self.username)
 
+    def add_friend(self, user):
+        if not self.is_following(user):
+            self.friends.append(user)
+            return self
+
+    def remove_friend(self, user):
+        if self.is_following(user):
+            self.friends.remove(user)
+            return self
+
+    def is_following(self, user):
+        return self.friends.filter(friend.c.friend1_id == user.id).count() > 0
+
+    def serialize(self):
+        return {
+            'user_id': self.id,
+            'user_name': self.name,
+        }
+
 class Post(db.Model):
     """Posts model."""
 
@@ -47,12 +77,9 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), unique=False, nullable=False)
     content = db.Column(db.String(), unique=False, nullable=False)
-    owner_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
+    #owner_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
 
-friends = db.Table('friends',
-    db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
-    db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
-)
+
 
 
     

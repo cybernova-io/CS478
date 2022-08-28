@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, render_template, flash, request, session, url_for, send_from_directory
+from flask import Blueprint, redirect, render_template, flash, request, session, url_for, send_from_directory, jsonify
 from flask_login import login_required, logout_user, current_user, login_user
 from ..models import db, User
 from .. import login_manager
@@ -23,7 +23,6 @@ def profile():
     """
     GET: Returns all user attributes to be displayed in profile
     """
-
     data = {
         'status': 200,
         'user_id': current_user.id,
@@ -92,3 +91,102 @@ def profile_picture():
             }
 
             return data
+
+@user_bp.route('/api/add-friend/', methods = ['POST'])
+@login_required
+def add_friend():
+
+    data = {}
+    friend_id = request.form['friend_id']
+    friend = User.query.get(friend_id)
+
+    # check for no id passed for friend
+    if friend is None:
+        data = {
+            'status': 404,
+            'msg': 'Specified user does not exist.'
+        }
+        return data
+
+    #check if id passed is current user
+    if friend.id == current_user.id:
+        data = {
+            'status': 404,
+            'msg': 'You cannot add yourself as a friend.'
+        }
+        return data
+
+    added = current_user.add_friend(friend)
+
+    #check to make sure friend was added to user object
+    if added is None:
+        data = {
+            'status': 404,
+            'msg': 'Error in adding friend.'
+        }
+        return data
+    db.session.add(added)
+    db.session.commit()
+
+    data = {
+        'status': 200,
+        'msg': 'You are now friends with ' + friend.name + '.'
+    }
+
+    return data
+
+@user_bp.route('/api/remove-friend/', methods = ['DELETE'])
+@login_required
+def remove_friend():
+
+    data = {}
+    friend_id = request.form['friend_id']
+    friend = User.query.get(friend_id)
+
+    # check for no id passed for friend
+    if friend is None:
+        data = {
+            'status': 404,
+            'msg': 'Specified user does not exist.'
+        }
+        return data
+
+    #check if id passed is current user
+    if friend.id == current_user.id:
+        data = {
+            'status': 404,
+            'msg': 'You cannot remove yourself as a friend.'
+        }
+        return data
+
+    
+    removed = current_user.remove_friend(friend)
+    
+    #check to make sure friend was added to user object
+    if removed is None:
+        data = {
+            'status': 404,
+            'msg': 'You are not currently friends with this user.'
+        }
+        return data
+
+    db.session.add(removed)
+    db.session.commit()
+
+    data = {
+        'status': 200,
+        'msg': 'You are no longer friends with ' + friend.name + '.'
+    }
+
+    return data
+
+@user_bp.route('/api/friends/', methods = ['GET'])
+def get_friends():
+
+    friends = current_user.friends
+    data = {}
+    
+    for i in friends:
+        data['friend'] = i.serialize()
+
+    return data

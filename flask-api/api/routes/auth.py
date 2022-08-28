@@ -43,6 +43,7 @@ def signup():
         password = request.form['password']
 
         existing_user = User.query.filter_by(email=email).first()
+        
         if existing_user is None:
             user = User(
                 name= name,
