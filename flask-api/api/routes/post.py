@@ -19,8 +19,6 @@ def get_post():
     
     try:
         id = request.form['id']
-        print(id)
-
         post = Post.query.get(id)
         data = {
             'status': 200,
