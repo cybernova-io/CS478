@@ -103,6 +103,7 @@ def delete_post():
     }
 
     return data
+    
 #update posts
 @post_bp.route('/api/post/update/', methods=['PUT'])
 @login_required
@@ -110,47 +111,22 @@ def update_post():
     """
     Updates Post
     """
-    try:
-
-            id = request.form['id']
-            title = request.form['title']
-            content = request.form['content']
-            post = Post.query.get(id)
-
-            # we already have the post object, i think you just want to update the attributes
-            # ex. post.title = title
-            # person submitting the update request should be the owner of the post, dont need to update id
+    id = request.form['id']
+    title = request.form['title']
+    content = request.form['content']
+    post = Post.query.get(id)
             
-            post = Post(
-                title = title,
-                content = content,
-                owner = current_user.id,
-            )
-            
-            #what are these doing here?
-            title = request.form['title',Post.title]
-            content = request.form['content',Post.content]
-
+    post.title = title
+    post.content = content
             #i dont think you need the update part. check out the flask-sqlalchemy documentation
-            db.session.update(post)
-            db.session.commit()
-            #in our data responses, try to include a 'msg': with an explanation of what happened. easier for me to remember lol
-            data = {
-                'status': 200,
-                'title': post.title,
-                'content': post.content
-            }
-
-            return data
     
-    #i dont think you need this exception, it was a quick hack to make the get function work
-    except werkzeug.exceptions.BadRequestKeyError:
-        if post is None:
-            abort(404)
-        data = {
-            'status': 200,
-            'title': post.title,
-            'content': post.content
-        }
+    db.session.commit()
+            
+    data = {
+    'status': 200,
+    'title': post.title,
+    'content': post.content,
+    'msg': str(post.title) + ' created.'
+    }
 
-        return data
+    return data
