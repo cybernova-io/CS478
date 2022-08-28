@@ -39,6 +39,25 @@ def get_post():
         return data
 
 
+@post_bp.route('/api/post/<int:id>/', methods=['GET'])
+def get_singlePost(id):
+    """
+    GET: return specific post of individual user 
+    """
+    data = {}
+
+    id = request.form['id']
+    post = Post.query.get(id)
+
+    if id == id:
+        data = {
+            'status': 200,
+            'title': post.title,
+            'content': post.content
+        }
+        return data
+
+
 #create post
 @post_bp.route('/api/post/create/', methods=['POST'])
 @login_required
