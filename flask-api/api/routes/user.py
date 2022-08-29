@@ -107,7 +107,6 @@ def add_friend():
             'msg': 'Specified user does not exist.'
         }
         return data
-
     #check if id passed is current user
     if friend.id == current_user.id:
         data = {
@@ -117,7 +116,6 @@ def add_friend():
         return data
 
     added = current_user.add_friend(friend)
-
     #check to make sure friend was added to user object
     if added is None:
         data = {
@@ -130,7 +128,7 @@ def add_friend():
 
     data = {
         'status': 200,
-        'msg': 'You are now friends with ' + friend.name + '.'
+        'msg': 'Friend request sent to ' + friend.name + '.'
     }
 
     return data
@@ -159,9 +157,7 @@ def remove_friend():
         }
         return data
 
-    
     removed = current_user.remove_friend(friend)
-    
     #check to make sure friend was added to user object
     if removed is None:
         data = {
@@ -186,7 +182,39 @@ def get_friends():
     friends = current_user.friends
     data = {}
     
+    if friends.count() == 0:
+        data = {
+            'status': 404,
+            'msg': current_user.name + ' has no friends.' 
+        }
+        return data
+
     for i in friends:
         data['friend'] = i.serialize()
 
     return data
+
+@user_bp.route('/api/friends/pending-friends/', methods = ['GET'])
+def get_pending_friends():
+
+    pending_friends = current_user.pending_friends
+    data = {}
+    
+    if pending_friends.count() == 0:
+        data = {
+            'status': 404,
+            'msg': current_user.name + ' has no pending friends.' 
+        }
+        return data
+
+    for i in pending_friends:
+        data['friend_request'] = i.serialize()
+
+    return data
+
+@user_bp.route('/api/friends/pending-friends/<string:action>', methods = ['GET', 'POST'])
+def handle_pending_friend(action):
+
+    if request.method == 'GET':
+        if action == 'accept':
+            
