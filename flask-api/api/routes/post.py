@@ -55,7 +55,6 @@ def get_singlePost(id):
 
     return data
 
-
 #create post
 @post_bp.route('/api/post/create/', methods=['POST'])
 @login_required
@@ -135,6 +134,7 @@ def update_post():
 def likePost(id):
     """
     Logic to like user posts.
+    Note** Remember to add a 'like' counter++
     """
     post = Post.query.get(id)
     if Post is None:
@@ -147,8 +147,11 @@ def likePost(id):
     
     else:
         like = Likes.query.get(id)
+       
+        
 
         db.session.add(id)
+        db.session.count(id)
         db.session.commit()
 
         data = {

@@ -42,7 +42,7 @@ class User(UserMixin, db.Model):
 
 class Post(db.Model):
     """Posts model."""
-# added FK relationship between user id and owner id 
+
     __tablename__ = 'Posts'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), unique=False, nullable=False)
@@ -53,7 +53,7 @@ class Comment(db.Model):
     """
     Comments Model.
     """
-    #FK relationship between commentsid and postid
+   
     __tablename__ = 'Comments'
     id = db.Column(db.Integer, primary_key=True)
     owner = db.Column(db.String(16), unique=False, nullable=False)
@@ -64,7 +64,7 @@ class Likes(db.Model):
     """
     Likes Model.
     """
-    #FK relationship betwee likesid and postid
+    #FK relationship between likesid and Postid
     __tablename__= 'Likes'
     id = db.Column(db.Integer, primary_key=True)
     owner = db.Column(db.String(16), unique=False, nullable=False)
