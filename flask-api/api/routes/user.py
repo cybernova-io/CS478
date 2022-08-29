@@ -95,6 +95,13 @@ def profile_picture():
 @user_bp.route('/api/add-friend/', methods = ['POST'])
 @login_required
 def add_friend():
+    """
+    POST: Allows a user to send a friend request to another user. The users then have a relationship in pending_friends.
+
+    Form:
+
+    friend_id = id of user being added as a friend.
+    """
 
     data = {}
     friend_id = request.form['friend_id']
@@ -136,6 +143,13 @@ def add_friend():
 @user_bp.route('/api/remove-friend/', methods = ['DELETE'])
 @login_required
 def remove_friend():
+    """
+    DELETE: Allows user to delete a user that is currently their friend.
+
+    Form:
+
+    friend_id = id of friend being deleted from current_user
+    """
 
     data = {}
     friend_id = request.form['friend_id']
@@ -178,6 +192,9 @@ def remove_friend():
 
 @user_bp.route('/api/friends/', methods = ['GET'])
 def get_friends():
+    """
+    GET: Returns all friends of current user.
+    """
 
     friends = current_user.friends
     data = {}
@@ -196,6 +213,9 @@ def get_friends():
 
 @user_bp.route('/api/friends/pending-friends/', methods = ['GET'])
 def get_pending_friends():
+    """
+    GET: Returns all pending friends of current user.
+    """
 
     pending_friends = current_user.pending_friends
     data = {}
@@ -212,9 +232,83 @@ def get_pending_friends():
 
     return data
 
-@user_bp.route('/api/friends/pending-friends/<string:action>', methods = ['GET', 'POST'])
-def handle_pending_friend(action):
+@user_bp.route('/api/friends/pending-friends/<string:action>/<int:id>', methods = ['GET', 'POST'])
+def handle_pending_friend(action, id):
+    """
+    GET: Allows current user to accept or decline a pending friend request.
+    POST:
+    """
+
+    data = {}
 
     if request.method == 'GET':
         if action == 'accept':
+            pending_friends = current_user.pending_friends
+
+            if pending_friends.count() == 0:
+                data = {
+                    'status': 404,
+                    'msg': current_user.name + ' has no pending friends.' 
+                }
+
+                return data
+
+            if id in map(lambda pending_friend: pending_friend.id, pending_friends):
+                pending_friend = User.query.get(id)
+                added = current_user.add_pending_friend(pending_friend)
+
+                if added is None:
+                    data = {
+                        'status': 404,
+                        'msg': 'Error in adding friend.'
+                    }
+                    return data
+
+                db.session.add(added)
+                db.session.commit()
+                
+                data = {
+                    'status': 200,
+                    'msg': pending_friend.name + '\'s friend request accepted.'
+                }
+
+                return data
+
+        elif action == 'decline':
+            pending_friends = current_user.pending_friends
+
+            if pending_friends.count() == 0:
+                data = {
+                    'status': 404,
+                    'msg': current_user.name + ' has no pending friends.' 
+                }
+
+                return data
+            
+            if id in map(lambda pending_friend: pending_friend.id, pending_friends):
+                pending_friend = User.query.get(id)
+                removed = current_user.remove_pending_friend(pending_friend)
+
+                if removed is None:
+                    data = {
+                        'status': 404,
+                        'msg': 'Error in declining friend request.'
+                    }
+                    return data
+                
+                db.session.add(removed)
+                db.session.commit()
+
+                data = {
+                    'status': 200,
+                    'msg': pending_friend.name + '\'s friend request declined.'
+                }
+
+                return data
+
+
+
+            
+        
+        
             

@@ -71,6 +71,17 @@ class User(UserMixin, db.Model):
         if self.is_friend(user):
             self.friends.remove(user)
             return self
+
+    def add_pending_friend(self, user):
+        if not self.is_friend(user):
+            self.friends.append(user)
+            self.pending_friends.remove(user)
+            return self
+
+    def remove_pending_friend(self, user):
+        if not self.is_friend(user):
+            self.pending_friends.remove(user)
+            return self
     
     def get_pending_friends(self):
         return [user.serialize() for user in pending_friend]
