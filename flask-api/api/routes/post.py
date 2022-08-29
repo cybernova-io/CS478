@@ -134,7 +134,7 @@ def update_post():
 @login_required
 def likePost(id):
     """
-    Logic for like/dislike user posts.
+    Logic to like user posts.
     """
     post = Post.query.get(id)
     if Post is None:
@@ -159,8 +159,6 @@ def likePost(id):
 
         }
         return data
-
-
 
 #comment on a post
 @post_bp.route('/api/post/comment/<int:id>/<action>', methods=['POST'])

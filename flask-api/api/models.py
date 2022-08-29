@@ -47,7 +47,7 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), unique=False, nullable=False)
     content = db.Column(db.String(), unique=False, nullable=False)
-    owner = db.Column(db.String(16), db.ForeignKey(User.id),unique=False, nullable=False)
+    owner = db.Column(db.String(16),unique=False, nullable=False)
     
 class Comment(db.Model):
     """
@@ -55,7 +55,7 @@ class Comment(db.Model):
     """
     #FK relationship between commentsid and postid
     __tablename__ = 'Comments'
-    id = db.Column(db.Integer, db.ForeignKey(Post.id), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     owner = db.Column(db.String(16), unique=False, nullable=False)
     text = db.Column(db.String(200), nullable=False)
     created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)
@@ -66,7 +66,7 @@ class Likes(db.Model):
     """
     #FK relationship betwee likesid and postid
     __tablename__= 'Likes'
-    id = db.Column(db.Integer, db.ForeignKey(Post.id), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     owner = db.Column(db.String(16), unique=False, nullable=False)
     created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)
    
