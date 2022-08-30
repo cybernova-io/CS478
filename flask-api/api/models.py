@@ -64,7 +64,7 @@ class Likes(db.Model):
     """
     Likes Model.
     """
-    #FK relationship between likesid and Postid
+    
     __tablename__= 'Likes'
     id = db.Column(db.Integer, primary_key=True)
     owner = db.Column(db.String(16), unique=False, nullable=False)

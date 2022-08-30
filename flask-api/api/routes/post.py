@@ -136,6 +136,7 @@ def likePost(id):
     Logic to like user posts.
     Note** Remember to add a 'like' counter++
     """
+    numLikes = 0
     post = Post.query.get(id)
     if Post is None:
 
@@ -144,22 +145,16 @@ def likePost(id):
             'msg': 'No post found with that id.'
         }
         return data
-    
     else:
-        like = Likes.query.get(id)
-       
-        
-
-        db.session.add(id)
-        db.session.count(id)
+        numLikes = numLikes + 1
         db.session.commit()
-
         data = {
             'status': 200,
             'title': post.title,
-            'msg': str(like.id) + ' liked this post.',
-            'msg': str(like.created_on) + ' : date created.'
-
+            'content': post.content,
+            'msg': str(current_user.name) + ' liked this post.',
+            'msg': str(numLikes) + ': number of likes for post.'
+           
         }
         return data
 
