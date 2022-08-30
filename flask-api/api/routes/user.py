@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, render_template, flash, request, session, url_for, send_from_directory, jsonify
+from flask import Blueprint, redirect, render_template, flash, request, session, url_for, send_from_directory, jsonify, Response
 from flask_login import login_required, logout_user, current_user, login_user
 from ..models import db, User
 from .. import login_manager
@@ -24,13 +24,15 @@ def profile():
     GET: Returns all user attributes to be displayed in profile
     """
     data = {
-        'status': 200,
         'user_id': current_user.id,
         'user_name': current_user.name,
         'user_email': current_user.email,
         'user_creation_date': current_user.created_on,
         'user_last_login': current_user.last_login
     }
+
+    resp = jsonify(data)
+    resp.status_code = 200
 
     return data
 
@@ -48,32 +50,40 @@ def profile_picture():
 
     #request for just getting profile picture
     if request.method == 'GET':
-        
         if current_user.profile_pic is not None:
             path = current_user.profile_pic
             path = 'profile-pics/' + path
             return send_from_directory('static', path)
         else:
-            return None
+            data = {
+                'msg': 'User has no profile picture.'
+            }
+            resp = jsonify(data)
+            resp.status_code = 400
+
+            return resp
 
     if request.method == 'POST':
         #check if request has the file part
         if 'picture' not in request.files:
             data = {
-                'status': 404,
                 'msg': 'No picture provided.'
             }
-            return data
+            resp = jsonify(data)
+            resp.status_code = 400
+
+            return resp
 
         picture = request.files['picture']
 
         #make sure filename is not empty
         if picture.filename == '':
             data = {
-                'status': 404,
                 'msg': 'Picture provided has no filename.'
             }
-            return data
+            resp = jsonify(data)
+            resp.status_code = 400
+            return resp
         
         #make sure picture exists, and file extension is in allowed extensions
         if picture and allowed_file(picture.filename):
@@ -86,11 +96,12 @@ def profile_picture():
             db.session.commit()
 
             data = {
-                'status': 200,
                 'msg': 'Profile picture uploaded.'
             }
+            resp = jsonify(data)
+            resp.status_code = 201
 
-            return data
+            return resp
 
 @user_bp.route('/api/add-friend/', methods = ['POST'])
 @login_required
@@ -110,35 +121,41 @@ def add_friend():
     # check for no id passed for friend
     if friend is None:
         data = {
-            'status': 404,
             'msg': 'Specified user does not exist.'
         }
-        return data
+        resp = jsonify(data)
+        resp.status_code = 404
+
+        return resp
     #check if id passed is current user
     if friend.id == current_user.id:
         data = {
-            'status': 404,
             'msg': 'You cannot add yourself as a friend.'
         }
-        return data
+        resp = jsonify(data)
+        resp.status_code = 400
+        return resp
 
     added = current_user.add_friend(friend)
     #check to make sure friend was added to user object
     if added is None:
         data = {
-            'status': 404,
             'msg': 'Error in adding friend.'
         }
-        return data
+        resp = jsonify(data)
+        resp.status_code = 400
+        return resp
+
     db.session.add(added)
     db.session.commit()
 
     data = {
-        'status': 200,
         'msg': 'Friend request sent to ' + friend.name + '.'
     }
+    resp = jsonify(data)
+    resp.status_code = 200
 
-    return data
+    return resp
 
 @user_bp.route('/api/remove-friend/', methods = ['DELETE'])
 @login_required
@@ -158,37 +175,41 @@ def remove_friend():
     # check for no id passed for friend
     if friend is None:
         data = {
-            'status': 404,
             'msg': 'Specified user does not exist.'
         }
-        return data
+        resp = jsonify(data)
+        resp.status_code = 404
+        return resp
 
     #check if id passed is current user
     if friend.id == current_user.id:
         data = {
-            'status': 404,
             'msg': 'You cannot remove yourself as a friend.'
         }
-        return data
+        resp = jsonify(data)
+        resp.status_code = 400
+        return resp
 
     removed = current_user.remove_friend(friend)
     #check to make sure friend was added to user object
     if removed is None:
         data = {
-            'status': 404,
             'msg': 'You are not currently friends with this user.'
         }
+        resp = jsonify(data)
+        resp.status_code = 400
         return data
 
     db.session.add(removed)
     db.session.commit()
 
     data = {
-        'status': 200,
         'msg': 'You are no longer friends with ' + friend.name + '.'
     }
+    resp = jsonify(data)
+    resp.status_code = 200
 
-    return data
+    return resp
 
 @user_bp.route('/api/friends/', methods = ['GET'])
 def get_friends():
@@ -201,15 +222,19 @@ def get_friends():
     
     if friends.count() == 0:
         data = {
-            'status': 404,
             'msg': current_user.name + ' has no friends.' 
         }
-        return data
+        resp = jsonify(data)
+        resp.status_code = 400
+
+        return resp
 
     for i in friends:
         data['friend'] = i.serialize()
+    resp = jsonify(data)
+    resp.status_code = 200
 
-    return data
+    return resp
 
 @user_bp.route('/api/friends/pending-friends/', methods = ['GET'])
 def get_pending_friends():
@@ -222,15 +247,18 @@ def get_pending_friends():
     
     if pending_friends.count() == 0:
         data = {
-            'status': 404,
             'msg': current_user.name + ' has no pending friends.' 
         }
-        return data
+        resp = jsonify(data)
+        resp.status_code = 400
+        return resp
 
     for i in pending_friends:
         data['friend_request'] = i.serialize()
+    resp = jsonify(data)
+    resp.status_code = 200
 
-    return data
+    return resp
 
 @user_bp.route('/api/friends/pending-friends/<string:action>/<int:id>', methods = ['GET', 'POST'])
 def handle_pending_friend(action, id):
@@ -247,11 +275,13 @@ def handle_pending_friend(action, id):
 
             if pending_friends.count() == 0:
                 data = {
-                    'status': 404,
                     'msg': current_user.name + ' has no pending friends.' 
                 }
 
-                return data
+                resp = jsonify(data)
+                resp.status_code = 400
+
+                return resp
 
             if id in map(lambda pending_friend: pending_friend.id, pending_friends):
                 pending_friend = User.query.get(id)
@@ -259,18 +289,21 @@ def handle_pending_friend(action, id):
 
                 if added is None:
                     data = {
-                        'status': 404,
                         'msg': 'Error in adding friend.'
                     }
-                    return data
+                    resp = jsonify(data)
+                    resp.status_code = 400
+
+                    return resp
 
                 db.session.add(added)
                 db.session.commit()
                 
                 data = {
-                    'status': 200,
                     'msg': pending_friend.name + '\'s friend request accepted.'
                 }
+                resp = jsonify(data)
+                resp.status_code = 200
 
                 return data
 
@@ -279,11 +312,12 @@ def handle_pending_friend(action, id):
 
             if pending_friends.count() == 0:
                 data = {
-                    'status': 404,
                     'msg': current_user.name + ' has no pending friends.' 
                 }
+                resp = jsonify(data)
+                resp.status_code = 400
 
-                return data
+                return resp
             
             if id in map(lambda pending_friend: pending_friend.id, pending_friends):
                 pending_friend = User.query.get(id)
@@ -291,20 +325,23 @@ def handle_pending_friend(action, id):
 
                 if removed is None:
                     data = {
-                        'status': 404,
                         'msg': 'Error in declining friend request.'
                     }
-                    return data
+                    resp = jsonify(data)
+                    resp.status_code = 400
+
+                    return resp
                 
                 db.session.add(removed)
                 db.session.commit()
 
                 data = {
-                    'status': 200,
                     'msg': pending_friend.name + '\'s friend request declined.'
                 }
+                resp = jsonify(data)
+                resp.status_code = 200
 
-                return data
+                return resp
 
 
 
