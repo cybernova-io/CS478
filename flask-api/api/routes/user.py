@@ -154,6 +154,8 @@ def add_friend():
         resp.status_code = 400
         return resp
 
+    
+
     added = current_user.add_friend(friend)
     friend_added = friend.add_friend(current_user)
     #check to make sure friend was added to user object

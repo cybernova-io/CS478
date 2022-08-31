@@ -68,7 +68,7 @@ class User(UserMixin, db.Model):
 
     def add_friend(self, user):
         if not self.is_friend(user):
-            self.pending_friends.append(user)
+            self.pending_friends.append(user, requestor = 1)
         return self
 
     def remove_friend(self, user):
