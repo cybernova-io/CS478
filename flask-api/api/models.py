@@ -6,6 +6,19 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 
+
+likes = db.Table('like',
+db.Column('like0_id',db.Integer, db.ForeignKey('Users.id')),
+db.Column('like1_id',db.Integer, db.ForeignKey('Users.id'))
+)
+
+comment = db.Table('comment',
+db.Column('comment0_id',db.Integer, db.ForeignKey('Users.id')),
+db.Column('comment1_id',db.Integer, db.ForeignKey('Users.id'))
+)
+
+
+
 class User(UserMixin, db.Model):
     """User account model."""
 
@@ -17,7 +30,7 @@ class User(UserMixin, db.Model):
     website = db.Column(db.String(60), index=False, unique=False, nullable=True)
     created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)
     last_login = db.Column(db.DateTime, index=False, unique=False,nullable=True)
-    
+
 
     def set_password(self, password):
         """Create hashed password."""
@@ -48,7 +61,9 @@ class Post(db.Model):
     title = db.Column(db.String(100), unique=False, nullable=False)
     content = db.Column(db.String(), unique=False, nullable=False)
     owner = db.Column(db.String(16),unique=False, nullable=False)
-    
+    date_posted = db.Column(db.DateTime)
+   
+
 class Comment(db.Model):
     """
     Comments Model.
@@ -56,7 +71,6 @@ class Comment(db.Model):
    
     __tablename__ = 'Comments'
     id = db.Column(db.Integer, primary_key=True)
-    owner = db.Column(db.String(16), unique=False, nullable=False)
     text = db.Column(db.String(200), nullable=False)
     created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)
    
@@ -67,6 +81,5 @@ class Likes(db.Model):
     
     __tablename__= 'Likes'
     id = db.Column(db.Integer, primary_key=True)
-    owner = db.Column(db.String(16), unique=False, nullable=False)
     created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)
    

@@ -5,6 +5,7 @@ from ..models import Likes, db, Post
 from .. import login_manager
 from flask_login import logout_user
 import werkzeug
+from flask import Response
 
 post_bp = Blueprint('post_bp', __name__)
 
@@ -27,7 +28,7 @@ def get_post():
 
     return data
 
-
+#get specific post
 @post_bp.route('/api/post/<int:id>', methods=['GET'])
 def get_singlePost(id):
     """
@@ -72,7 +73,7 @@ def create_post():
 
     data = {
         'status': 200,
-        'msg': str(post.title) + ' created.' ,
+        'msg': str(current_user) + ' created ' (post.title)
     }
 
     return data
@@ -128,38 +129,20 @@ def update_post():
 
     return data
 
-#like post
-@post_bp.route('/api/post/like/<int:id>/', methods=['POST'])
+
+
+
+@post_bp.route('/api/post/like/<int:id>/<action>/', methods=['GET', 'POST'])
 @login_required
-def likePost(id):
+def likePost(action, id):
     """
     Logic to like user posts.
     Note** Remember to add a 'like' counter++
     """
-    numLikes = 0
-    post = Post.query.get(id)
-    if Post is None:
+    pass
 
-        data = {
-            'status': 404,
-            'msg': 'No post found with that id.'
-        }
-        return data
-    else:
-        numLikes = numLikes + 1
-        db.session.commit()
-        data = {
-            'status': 200,
-            'title': post.title,
-            'content': post.content,
-            'msg': str(current_user.name) + ' liked this post.',
-            'msg': str(numLikes) + ': number of likes for post.'
-           
-        }
-        return data
 
-#comment on a post
-@post_bp.route('/api/post/comment/<int:id>/<action>', methods=['POST'])
+@post_bp.route('/api/post/comment/<int:id>/<action>/', methods=['GET', 'POST'])
 @login_required
 def commentPost():
     """
