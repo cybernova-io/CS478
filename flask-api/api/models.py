@@ -28,6 +28,8 @@ class User(UserMixin, db.Model):
     last_login = db.Column(db.DateTime, index=False, unique=False,nullable=True)
     profile_pic = db.Column(db.String(), index=False, unique=False, nullable=True)
     #posts = db.relationship('Post', backref='author', lazy='dynamic')
+    friend_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    
     pending_friends = db.relationship('User', 
                                secondary=pending_friend, 
                                primaryjoin=(pending_friend.c.pending_friend0_id == id), 
@@ -41,6 +43,7 @@ class User(UserMixin, db.Model):
                                secondaryjoin=(friend.c.friend1_id == id), 
                                backref=db.backref('friend', lazy='dynamic'), 
                                lazy='dynamic')
+    
     
     def set_password(self, password):
         """Create hashed password."""
@@ -66,7 +69,7 @@ class User(UserMixin, db.Model):
     def add_friend(self, user):
         if not self.is_friend(user):
             self.pending_friends.append(user)
-            return self
+        return self
 
     def remove_friend(self, user):
         if self.is_friend(user):

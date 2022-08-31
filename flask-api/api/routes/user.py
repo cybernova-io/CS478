@@ -115,7 +115,7 @@ def add_friend():
     """
 
     data = {}
-    friend_id = request.form['friend_id']
+    friend_id = int(request.form['friend_id'])
     friend = User.query.get(friend_id)
 
     # check for no id passed for friend
@@ -132,6 +132,24 @@ def add_friend():
         data = {
             'msg': 'You cannot add yourself as a friend.'
         }
+        resp = jsonify(data)
+        resp.status_code = 400
+        return resp
+
+    #check if pending friend request already exists
+    if friend.id in map(lambda pending_friend: pending_friend.id, current_user.pending_friends):
+        data = {
+            'msg': 'Pending friend request already exists.'
+        }
+        resp = jsonify(data)
+        resp.status_code = 400
+        return resp
+    #check if user is already friends with pending friend
+    if friend.id in map(lambda pending_friend: pending_friend.id, current_user.friends):
+        data = {
+            'msg': 'You are already friends with this user.'
+        }
+
         resp = jsonify(data)
         resp.status_code = 400
         return resp
@@ -162,8 +180,9 @@ def add_friend():
     data = {
         'msg': 'Friend request sent to ' + friend.name + '.'
     }
+
     resp = jsonify(data)
-    resp.status_code = 200
+    resp.status_code = 201
 
     return resp
 
@@ -321,6 +340,7 @@ def handle_pending_friend(action, id):
             if id in map(lambda pending_friend: pending_friend.id, pending_friends):
                 pending_friend = User.query.get(id)
                 added = current_user.add_pending_friend(pending_friend)
+                friend_added = pending_friend.add_pending_friend(current_user)
 
                 if added is None:
                     data = {
@@ -332,6 +352,7 @@ def handle_pending_friend(action, id):
                     return resp
 
                 db.session.add(added)
+                db.session.add(friend_added)
                 db.session.commit()
                 
                 data = {
@@ -357,8 +378,9 @@ def handle_pending_friend(action, id):
             if id in map(lambda pending_friend: pending_friend.id, pending_friends):
                 pending_friend = User.query.get(id)
                 removed = current_user.remove_pending_friend(pending_friend)
+                friend_removed = pending_friend.remove_pending_friend(current_user)
 
-                if removed is None:
+                if removed or friend_removed is None:
                     data = {
                         'msg': 'Error in declining friend request.'
                     }
@@ -368,11 +390,13 @@ def handle_pending_friend(action, id):
                     return resp
                 
                 db.session.add(removed)
+                db.session.add(friend_removed)
                 db.session.commit()
 
                 data = {
                     'msg': pending_friend.name + '\'s friend request declined.'
                 }
+
                 resp = jsonify(data)
                 resp.status_code = 200
 
