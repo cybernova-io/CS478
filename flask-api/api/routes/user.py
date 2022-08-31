@@ -137,6 +137,7 @@ def add_friend():
         return resp
 
     added = current_user.add_friend(friend)
+    friend_added = friend.add_friend(current_user)
     #check to make sure friend was added to user object
     if added is None:
         data = {
@@ -146,7 +147,16 @@ def add_friend():
         resp.status_code = 400
         return resp
 
+    if friend_added is None:
+        data = {
+            'msg': 'Error in adding friend.'
+        }
+        resp = jsonify(data)
+        resp.status_code = 400
+        return resp
+
     db.session.add(added)
+    db.session.add(friend_added)
     db.session.commit()
 
     data = {
@@ -191,6 +201,7 @@ def remove_friend():
         return resp
 
     removed = current_user.remove_friend(friend)
+    friend_removed = friend.remove_friend(current_user)
     #check to make sure friend was added to user object
     if removed is None:
         data = {
@@ -200,7 +211,16 @@ def remove_friend():
         resp.status_code = 400
         return data
 
+    if friend_removed is None:
+        data = {
+            'msg': 'You are not currently friends with this user.'
+        }
+        resp = jsonify(data)
+        resp.status_code = 400
+        return data
+
     db.session.add(removed)
+    db.session.add(friend_removed)
     db.session.commit()
 
     data = {
@@ -270,6 +290,21 @@ def handle_pending_friend(action, id):
     data = {}
 
     if request.method == 'GET':
+
+        if action == 'test':
+
+            user = None
+
+            for i in current_user.pending_friends:
+                user = i
+            
+            user = User.query.get(user.id)
+
+            for i in user.pending_friends:
+                print(i)
+
+            return None
+
         if action == 'accept':
             pending_friends = current_user.pending_friends
 
