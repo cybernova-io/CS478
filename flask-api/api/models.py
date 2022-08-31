@@ -11,7 +11,8 @@ friend = db.Table('friends',
 
 pending_friend = db.Table('pending_friends',
     db.Column('pending_friend0_id', db.Integer, db.ForeignKey('Users.id')),
-    db.Column('pending_friend1_id', db.Integer, db.ForeignKey('Users.id'))
+    db.Column('pending_friend1_id', db.Integer, db.ForeignKey('Users.id')),
+    db.Column('requestor', db.Integer)
 )
 
 class User(UserMixin, db.Model):
@@ -31,7 +32,7 @@ class User(UserMixin, db.Model):
                                secondary=pending_friend, 
                                primaryjoin=(pending_friend.c.pending_friend0_id == id), 
                                secondaryjoin=(pending_friend.c.pending_friend1_id == id), 
-                               backref=db.backref('pending_friend', lazy='dynamic'), 
+                               backref=db.backref('pending_friend', lazy='dynamic'),
                                lazy='dynamic')
 
     friends = db.relationship('User', 
