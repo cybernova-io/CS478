@@ -3,6 +3,10 @@ from . import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from sqlalchemy import create_engine
+from flask import current_app as app
+
+engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 
 friend = db.Table('friends',
     db.Column('friend0_id', db.Integer, db.ForeignKey('Users.id')),
@@ -68,7 +72,8 @@ class User(UserMixin, db.Model):
 
     def add_friend(self, user):
         if not self.is_friend(user):
-            self.pending_friends.append(user, requestor = 1)
+            self.pending_friends.append(user)
+            
         return self
 
     def remove_friend(self, user):

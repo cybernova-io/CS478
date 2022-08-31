@@ -1,13 +1,15 @@
 from flask import Blueprint, redirect, render_template, flash, request, session, url_for, send_from_directory, jsonify, Response
 from flask_login import login_required, logout_user, current_user, login_user
-from ..models import db, User
+from ..models import db, User, pending_friend
 from .. import login_manager
 from flask_login import logout_user
 from datetime import datetime
 from werkzeug.utils import secure_filename
 import os
 from flask import current_app as app
+from sqlalchemy import engine, create_engine
 
+engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 
 user_bp = Blueprint('user_bp', __name__)
 
@@ -157,6 +159,12 @@ def add_friend():
     
 
     added = current_user.add_friend(friend)
+    db.session.commit()
+
+    engine.execute(pending_friend.update().where(
+                pending_friend.c.pending_friend0_id == current_user.id).values(requestor=1))
+
+
     friend_added = friend.add_friend(current_user)
     #check to make sure friend was added to user object
     if added is None:
