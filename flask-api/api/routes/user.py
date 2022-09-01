@@ -9,6 +9,7 @@ import os
 from flask import current_app as app
 from sqlalchemy import engine, create_engine
 from ..services.WebHelpers import WebHelpers
+import logging
 
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 

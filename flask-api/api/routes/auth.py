@@ -8,7 +8,7 @@ from werkzeug.utils import secure_filename
 import os
 from flask import current_app as app
 from ..services.WebHelpers import WebHelpers
-
+import logging
 
 auth_bp = Blueprint('auth_bp', __name__)
 
@@ -49,6 +49,7 @@ def signup():
             user.set_creation_date()
             db.session.add(user)
             db.session.commit()  # Create new user
+            logging.debug('New user created - ' + str(user.id) + ' - ' + str(user.name))
             login_user(user)  # Log in as newly created user
             
             return WebHelpers.EasyResponse('New user ' + user.name + ' created.' , 201)

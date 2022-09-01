@@ -5,3 +5,4 @@ development.db
 __pycache__
 api/static/profile-pics/*
 api/uploads/*
+record.log
