@@ -6,7 +6,7 @@ from flask_login import logout_user
 from sqlalchemy import create_engine, MetaData
 import json
 from flask import current_app as app
-
+from ..services import WebUtils
 
 
 app_bp = Blueprint('app_bp', __name__)
@@ -23,14 +23,13 @@ def dump_sqlalchemy():
     meta.reflect(bind=engine)  # http://docs.sqlalchemy.org/en/rel_0_9/core/reflection.html
     result = {}
     for table in meta.sorted_tables:
-        if table.name != 'User':
-            result[table.name] = [dict(row) for row in engine.execute(table.select())]
+        result[table.name] = [dict(row) for row in engine.execute(table.select())]
 
-    with open('app/uploads/database.json', 'w') as file:
-        json.dump(result, file)
+    with open(app.config['UPLOADS'] +'/database.json', 'w') as file:
+        json.dump(result, file, default=str)
     file.close()
 
-    return send_from_directory('uploads', 'database.json', as_attachment=True)
+    return send_from_directory(app.config['UPLOADS'], 'database.json', as_attachment=True)
 
 @app_bp.route('/upload_db', methods=['GET', 'POST'])
 def load_sqlalchemy():
@@ -55,9 +54,9 @@ def load_sqlalchemy():
         file = open(file_path)
         data = json.load(file)
 
-        for row in data['TableName']:
+        for row in data['User']:
             engine.execute(
-                TableName.__table__.insert(),
+                User.__table__.insert(),
                 row
             )
 

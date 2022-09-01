@@ -159,12 +159,6 @@ def add_friend():
     
 
     added = current_user.add_friend(friend)
-    db.session.commit()
-
-    engine.execute(pending_friend.update().where(
-                pending_friend.c.pending_friend0_id == current_user.id).values(requestor=1))
-
-
     friend_added = friend.add_friend(current_user)
     #check to make sure friend was added to user object
     if added is None:
@@ -320,22 +314,30 @@ def handle_pending_friend(action, id):
 
     if request.method == 'GET':
 
-        if action == 'test':
-
-            user = None
-
-            for i in current_user.pending_friends:
-                user = i
-            
-            user = User.query.get(user.id)
-
-            for i in user.pending_friends:
-                print(i)
-
-            return None
-
         if action == 'accept':
+
             pending_friends = current_user.pending_friends
+            pending_friend = User.query.get(id)
+
+            if pending_friend == None:
+                data = {
+                    'msg': 'The friend to add does not exist.'
+                }
+
+                resp = jsonify(data)
+                resp.status_code = 400
+                
+                return resp
+
+            if current_user.is_requestor(pending_friend) == True:
+                data = {
+                    'msg': 'You cannot accept your own sent friend request.'
+                }
+
+                resp = jsonify(data)
+                resp.status_code = 400
+
+                return resp
 
             if pending_friends.count() == 0:
                 data = {
@@ -348,7 +350,7 @@ def handle_pending_friend(action, id):
                 return resp
 
             if id in map(lambda pending_friend: pending_friend.id, pending_friends):
-                pending_friend = User.query.get(id)
+
                 added = current_user.add_pending_friend(pending_friend)
                 friend_added = pending_friend.add_pending_friend(current_user)
 
@@ -375,6 +377,7 @@ def handle_pending_friend(action, id):
 
         elif action == 'decline':
             pending_friends = current_user.pending_friends
+            pending_friend = User.query.get(id)
 
             if pending_friends.count() == 0:
                 data = {
@@ -384,13 +387,33 @@ def handle_pending_friend(action, id):
                 resp.status_code = 400
 
                 return resp
+
+            if pending_friend == None:
+                data = {
+                    'msg': 'The friend to add does not exist.'
+                }
+
+                resp = jsonify(data)
+                resp.status_code = 400
+                
+                return resp
             
             if id in map(lambda pending_friend: pending_friend.id, pending_friends):
-                pending_friend = User.query.get(id)
                 removed = current_user.remove_pending_friend(pending_friend)
                 friend_removed = pending_friend.remove_pending_friend(current_user)
+                
+                db.session.commit()
 
-                if removed or friend_removed is None:
+                if removed is None:
+                    data = {
+                        'msg': 'Error in declining friend request.'
+                    }
+                    resp = jsonify(data)
+                    resp.status_code = 400
+
+                    return resp
+
+                if friend_removed is None:
                     data = {
                         'msg': 'Error in declining friend request.'
                     }
@@ -399,9 +422,6 @@ def handle_pending_friend(action, id):
 
                     return resp
                 
-                db.session.add(removed)
-                db.session.add(friend_removed)
-                db.session.commit()
 
                 data = {
                     'msg': pending_friend.name + '\'s friend request declined.'

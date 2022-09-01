@@ -73,6 +73,9 @@ class User(UserMixin, db.Model):
     def add_friend(self, user):
         if not self.is_friend(user):
             self.pending_friends.append(user)
+            db.session.commit()
+            engine.execute(pending_friend.update().where(
+                pending_friend.c.pending_friend0_id == user.id).values(requestor=1))
             
         return self
 
@@ -97,6 +100,19 @@ class User(UserMixin, db.Model):
 
     def is_friend(self, user):
         return self.friends.filter(friend.c.friend1_id == user.id).count() > 0
+
+    def is_requestor(self, friend):
+        #Retrieves the value from db to see if current user is requestor, looking for 1 in requestor column
+        user_who_sent_request = engine.execute(pending_friend.select(pending_friend.c.requestor).where(
+                                    pending_friend.c.pending_friend0_id == self.id, pending_friend.c.pending_friend1_id == friend.id)).fetchall()
+        try:
+            if user_who_sent_request[0][2] == 1:
+                return True
+            else:
+                return False
+        except IndexError as e:
+            return False
+
 
     def serialize(self):
         return {
