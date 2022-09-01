@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from sqlalchemy import create_engine
 from flask import current_app as app
+from .Messages import Message
 
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 
@@ -46,6 +47,16 @@ class User(UserMixin, db.Model):
                                secondaryjoin=(friend.c.friend1_id == id), 
                                backref=db.backref('friend', lazy='dynamic'), 
                                lazy='dynamic')
+
+    messages_sent = db.relationship('Message',
+                                    foreign_keys='Message.sender_id',
+                                    backref='author', lazy='dynamic')
+
+    messages_received = db.relationship('Message',
+                                        foreign_keys='Message.recipient_id',
+                                        backref='recipient', lazy='dynamic')
+
+    last_message_read_time = db.Column(db.DateTime)
     
     
     def set_password(self, password):
@@ -111,6 +122,11 @@ class User(UserMixin, db.Model):
                 return False
         except IndexError as e:
             return False
+
+    def new_messages(self):
+        last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
+        return Message.query.filter_by(recipient=self).filter(
+            Message.timestamp > last_read_time).count()
 
     def serialize(self):
         return {
