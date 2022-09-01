@@ -9,9 +9,10 @@ import os
 from flask import current_app as app
 from sqlalchemy import engine, create_engine
 from ..services.WebHelpers import WebHelpers
+import logging
 
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
-webHelpers = WebHelpers
+
 
 user_bp = Blueprint('user_bp', __name__)
 
@@ -60,29 +61,20 @@ def profile_picture():
             return send_from_directory('static', path)
         else:
 
-            return webHelpers.EasyResponse('User has no profile picture.', 400)
+            return WebHelpers.EasyResponse('User has no profile picture.', 400)
 
     if request.method == 'POST':
         #check if request has the file part
         if 'picture' not in request.files:
-            data = {
-                'msg': 'No picture provided.'
-            }
-            resp = jsonify(data)
-            resp.status_code = 400
-
-            return resp
+            
+            return WebHelpers.EasyResponse('No picture provided.', 400)
 
         picture = request.files['picture']
 
         #make sure filename is not empty
         if picture.filename == '':
-            data = {
-                'msg': 'Picture provided has no filename.'
-            }
-            resp = jsonify(data)
-            resp.status_code = 400
-            return resp
+
+            return WebHelpers.EasyResponse('No picture provided.', 400)
         
         #make sure picture exists, and file extension is in allowed extensions
         if picture and allowed_file(picture.filename):
@@ -94,13 +86,7 @@ def profile_picture():
             current_user.profile_pic = filename
             db.session.commit()
 
-            data = {
-                'msg': 'Profile picture uploaded.'
-            }
-            resp = jsonify(data)
-            resp.status_code = 201
-
-            return resp
+            return WebHelpers.EasyResponse('Profile picture uploaded.', 200)
 
 @user_bp.route('/api/add-friend/', methods = ['POST'])
 @login_required
@@ -119,73 +105,41 @@ def add_friend():
 
     # check for no id passed for friend
     if friend is None:
-        data = {
-            'msg': 'Specified user does not exist.'
-        }
-        resp = jsonify(data)
-        resp.status_code = 404
 
-        return resp
+        return WebHelpers.EasyResponse('Specified user does not exist.', 404)
     #check if id passed is current user
     if friend.id == current_user.id:
-        data = {
-            'msg': 'You cannot add yourself as a friend.'
-        }
-        resp = jsonify(data)
-        resp.status_code = 400
-        return resp
+        return WebHelpers.EasyResponse('You cannot add yourself as a friend.', 400)
 
     #check if pending friend request already exists
     if friend.id in map(lambda pending_friend: pending_friend.id, current_user.pending_friends):
-        data = {
-            'msg': 'Pending friend request already exists.'
-        }
-        resp = jsonify(data)
-        resp.status_code = 400
-        return resp
+        
+        return WebHelpers.EasyResponse('Pending friend request already exists.', 400)
+
     #check if user is already friends with pending friend
     if friend.id in map(lambda pending_friend: pending_friend.id, current_user.friends):
-        data = {
-            'msg': 'You are already friends with this user.'
-        }
+        
+        return WebHelpers.EasyResponse('You are already friends with this user.', 400)
 
-        resp = jsonify(data)
-        resp.status_code = 400
-        return resp
-
-    
 
     added = current_user.add_friend(friend)
     friend_added = friend.add_friend(current_user)
     #check to make sure friend was added to user object
     if added is None:
-        data = {
-            'msg': 'Error in adding friend.'
-        }
-        resp = jsonify(data)
-        resp.status_code = 400
-        return resp
+        
+        return WebHelpers.EasyResponse('Error in adding friend.', 400)
 
     if friend_added is None:
-        data = {
-            'msg': 'Error in adding friend.'
-        }
-        resp = jsonify(data)
-        resp.status_code = 400
-        return resp
+        
+        return WebHelpers.EasyResponse('Error in adding friend.', 400)
 
+    # dont think i need the add here
     db.session.add(added)
     db.session.add(friend_added)
     db.session.commit()
 
-    data = {
-        'msg': 'Friend request sent to ' + friend.name + '.'
-    }
+    return WebHelpers.EasyResponse('Friend request sent to ' + friend.name, 201)
 
-    resp = jsonify(data)
-    resp.status_code = 201
-
-    return resp
 
 @user_bp.route('/api/remove-friend/', methods = ['DELETE'])
 @login_required
@@ -204,52 +158,31 @@ def remove_friend():
 
     # check for no id passed for friend
     if friend is None:
-        data = {
-            'msg': 'Specified user does not exist.'
-        }
-        resp = jsonify(data)
-        resp.status_code = 404
-        return resp
+        
+        return WebHelpers.EasyResponse('Specified user does not exist.', 404)
 
     #check if id passed is current user
     if friend.id == current_user.id:
-        data = {
-            'msg': 'You cannot remove yourself as a friend.'
-        }
-        resp = jsonify(data)
-        resp.status_code = 400
-        return resp
-
+        
+        return WebHelpers.EasyResponse('You cannot remove yourself as friend.', 400)
+        
     removed = current_user.remove_friend(friend)
     friend_removed = friend.remove_friend(current_user)
     #check to make sure friend was added to user object
     if removed is None:
-        data = {
-            'msg': 'You are not currently friends with this user.'
-        }
-        resp = jsonify(data)
-        resp.status_code = 400
-        return data
+        
+        return WebHelpers.EasyResponse('You are not currently friends with this user.', 400)
 
     if friend_removed is None:
-        data = {
-            'msg': 'You are not currently friends with this user.'
-        }
-        resp = jsonify(data)
-        resp.status_code = 400
-        return data
+        
+        return WebHelpers.EasyResponse('You are not currently friends with this user.', 400)
 
+    #not sure if i need the add
     db.session.add(removed)
     db.session.add(friend_removed)
     db.session.commit()
 
-    data = {
-        'msg': 'You are no longer friends with ' + friend.name + '.'
-    }
-    resp = jsonify(data)
-    resp.status_code = 200
-
-    return resp
+    return WebHelpers.EasyResponse('You are no longer friends with ' + friend.name + '.', 200)
 
 @user_bp.route('/api/friends/', methods = ['GET'])
 def get_friends():
@@ -261,13 +194,8 @@ def get_friends():
     data = {}
     
     if friends.count() == 0:
-        data = {
-            'msg': current_user.name + ' has no friends.' 
-        }
-        resp = jsonify(data)
-        resp.status_code = 400
 
-        return resp
+        return WebHelpers.EasyResponse(current_user.name + 'has no friends.', 400)
 
     for i in friends:
         data['friend'] = i.serialize()
@@ -317,34 +245,16 @@ def handle_pending_friend(action, id):
             pending_friend = User.query.get(id)
 
             if pending_friend == None:
-                data = {
-                    'msg': 'The friend to add does not exist.'
-                }
-
-                resp = jsonify(data)
-                resp.status_code = 400
+                return WebHelpers.EasyResponse('The friend to add does not exist.', 400)
                 
-                return resp
 
             if current_user.is_requestor(pending_friend) == True:
-                data = {
-                    'msg': 'You cannot accept your own sent friend request.'
-                }
-
-                resp = jsonify(data)
-                resp.status_code = 400
-
-                return resp
+            
+                return WebHelpers.EasyResponse('You cannot accept your own sent friend request.', 400)
 
             if pending_friends.count() == 0:
-                data = {
-                    'msg': current_user.name + ' has no pending friends.' 
-                }
-
-                resp = jsonify(data)
-                resp.status_code = 400
-
-                return resp
+                
+                return WebHelpers.EasyResponse(current_user.name + 'has no pending friends.', 400)
 
             if id in map(lambda pending_friend: pending_friend.id, pending_friends):
 
@@ -352,48 +262,26 @@ def handle_pending_friend(action, id):
                 friend_added = pending_friend.add_pending_friend(current_user)
 
                 if added is None:
-                    data = {
-                        'msg': 'Error in adding friend.'
-                    }
-                    resp = jsonify(data)
-                    resp.status_code = 400
+                    return WebHelpers.EasyResponse('Error in adding friend.', 400)
 
-                    return resp
-
+                #not sure if add is needed
                 db.session.add(added)
                 db.session.add(friend_added)
                 db.session.commit()
                 
-                data = {
-                    'msg': pending_friend.name + '\'s friend request accepted.'
-                }
-                resp = jsonify(data)
-                resp.status_code = 200
-
-                return data
+                return WebHelpers.EasyResponse(pending_friend.name + '\'s friend request accepted.', 200)
 
         elif action == 'decline':
             pending_friends = current_user.pending_friends
             pending_friend = User.query.get(id)
 
             if pending_friends.count() == 0:
-                data = {
-                    'msg': current_user.name + ' has no pending friends.' 
-                }
-                resp = jsonify(data)
-                resp.status_code = 400
-
-                return resp
+                
+                return WebHelpers.EasyResponse(current_user.name + ' has no pending friends.', 400)
 
             if pending_friend == None:
-                data = {
-                    'msg': 'The friend to add does not exist.'
-                }
-
-                resp = jsonify(data)
-                resp.status_code = 400
                 
-                return resp
+                return WebHelpers.EasyResponse('The friend to add does not exist.', 400)
             
             if id in map(lambda pending_friend: pending_friend.id, pending_friends):
                 removed = current_user.remove_pending_friend(pending_friend)
@@ -402,32 +290,15 @@ def handle_pending_friend(action, id):
                 db.session.commit()
 
                 if removed is None:
-                    data = {
-                        'msg': 'Error in declining friend request.'
-                    }
-                    resp = jsonify(data)
-                    resp.status_code = 400
-
-                    return resp
+                    
+                    return WebHelpers.EasyResponse('Error in declining friend request.', 400)
 
                 if friend_removed is None:
-                    data = {
-                        'msg': 'Error in declining friend request.'
-                    }
-                    resp = jsonify(data)
-                    resp.status_code = 400
-
-                    return resp
+                    
+                    return WebHelpers.EasyResponse('Error in declining friend request.', 400)
                 
 
-                data = {
-                    'msg': pending_friend.name + '\'s friend request declined.'
-                }
-
-                resp = jsonify(data)
-                resp.status_code = 200
-
-                return resp
+                return WebHelpers.EasyResponse(pending_friend.name + '\'s friend request declined.', 400)
 
 
 

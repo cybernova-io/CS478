@@ -7,7 +7,8 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 import os
 from flask import current_app as app
-
+from ..services.WebHelpers import WebHelpers
+import logging
 
 auth_bp = Blueprint('auth_bp', __name__)
 
@@ -28,13 +29,7 @@ def signup():
     """
     if request.method == 'GET':
 
-        data = {
-            'msg': 'Use POST method for creating a new user.'
-        }
-        resp = jsonify(data)
-        resp.status_code = 405
-
-        return resp
+        return WebHelpers.EasyResponse('Use POST method for creating a new user.', 405)
     
     if request.method == 'POST':
 
@@ -54,25 +49,12 @@ def signup():
             user.set_creation_date()
             db.session.add(user)
             db.session.commit()  # Create new user
+            logging.debug('New user created - ' + str(user.id) + ' - ' + str(user.name))
             login_user(user)  # Log in as newly created user
-            data = {
-                'msg': 'New user ' + user.name + ' created.'
-            }
+            
+            return WebHelpers.EasyResponse('New user ' + user.name + ' created.' , 201)
 
-            resp = jsonify(data)
-            resp.status_code = 201
-
-            return resp
-
-        data = {
-            'msg': 'User with that email already exists.'
-        }
-
-        resp = jsonify(data)
-        resp.status_code = 400
-
-        return resp
-    
+        return WebHelpers.EasyResponse('User with that email already exists. ', 400)    
 
 @auth_bp.route('/api/login', methods=['GET', 'POST'])
 def login():
@@ -90,25 +72,12 @@ def login():
     """
 
     if request.method == 'GET':
-        data = {
-            'msg': 'Login with POST method.'
-        }
-        resp = jsonify(data)
-        resp.status_code = 405
-
-        return resp
+        return WebHelpers.EasyResponse('Login with POST method.', 405)
 
     if request.method == 'POST':
         # Bypass if user is logged in
         if current_user.is_authenticated:
-            data = {
-                'msg': str(current_user.name) + ' already logged in.' 
-            }
-
-            resp = jsonify(data)
-            resp.status_code = 400
-
-            return resp
+            return WebHelpers.EasyResponse(current_user.name + ' already logged in.', 400)
 
         
         email = request.form['email']
@@ -122,26 +91,12 @@ def login():
             #User exists and password matches password in db
     
             login_user(user)
-
-            data = {
-                'msg': str(user.name) + ' logged in.'
-            }
-
-            resp = jsonify(data)
-            resp.status_code = 200
-
             user.set_last_login()
+
+            return WebHelpers.EasyResponse(user.name + ' logged in.' , 405)
             
-            return resp
         #User exists but password does not match password in db
-        data = {
-            'msg': 'Invalid username/password combination'
-        }
-        resp = jsonify(data)
-        resp.status_code = 400
-        
-        #Return already logged in status message
-        return resp
+        return WebHelpers.EasyResponse('Invalid username/password combination.', 405)
 
 
 @login_manager.user_loader
@@ -162,16 +117,9 @@ def unauthorized():
 def logout():
     """User log-out logic."""
 
-    data = {
-        'msg': str(current_user.name) + ' logged out.'
-    }
-
-    resp = jsonify(data)
-    resp.status_code = 200
-
     logout_user()
 
-    return resp
+    return WebHelpers.EasyResponse(current_user.name + ' logged out.', 405)
 
 
 
