@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, render_template, flash, request, session, url_for, send_from_directory
 from flask_login import login_required, logout_user, current_user, login_user
-from ..models import db, User
+from ..models.Users import db, User
 from .. import login_manager
 from flask_login import logout_user
 from sqlalchemy import create_engine, MetaData
