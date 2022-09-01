@@ -1,13 +1,15 @@
 from flask import Blueprint, redirect, render_template, flash, request, session, url_for, send_from_directory, jsonify, Response
 from flask_login import login_required, logout_user, current_user, login_user
-from ..models import db, User
+from ..models import db, User, pending_friend
 from .. import login_manager
 from flask_login import logout_user
 from datetime import datetime
 from werkzeug.utils import secure_filename
 import os
 from flask import current_app as app
+from sqlalchemy import engine, create_engine
 
+engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 
 user_bp = Blueprint('user_bp', __name__)
 
@@ -115,7 +117,7 @@ def add_friend():
     """
 
     data = {}
-    friend_id = request.form['friend_id']
+    friend_id = int(request.form['friend_id'])
     friend = User.query.get(friend_id)
 
     # check for no id passed for friend
@@ -136,7 +138,28 @@ def add_friend():
         resp.status_code = 400
         return resp
 
+    #check if pending friend request already exists
+    if friend.id in map(lambda pending_friend: pending_friend.id, current_user.pending_friends):
+        data = {
+            'msg': 'Pending friend request already exists.'
+        }
+        resp = jsonify(data)
+        resp.status_code = 400
+        return resp
+    #check if user is already friends with pending friend
+    if friend.id in map(lambda pending_friend: pending_friend.id, current_user.friends):
+        data = {
+            'msg': 'You are already friends with this user.'
+        }
+
+        resp = jsonify(data)
+        resp.status_code = 400
+        return resp
+
+    
+
     added = current_user.add_friend(friend)
+    friend_added = friend.add_friend(current_user)
     #check to make sure friend was added to user object
     if added is None:
         data = {
@@ -146,14 +169,24 @@ def add_friend():
         resp.status_code = 400
         return resp
 
+    if friend_added is None:
+        data = {
+            'msg': 'Error in adding friend.'
+        }
+        resp = jsonify(data)
+        resp.status_code = 400
+        return resp
+
     db.session.add(added)
+    db.session.add(friend_added)
     db.session.commit()
 
     data = {
         'msg': 'Friend request sent to ' + friend.name + '.'
     }
+
     resp = jsonify(data)
-    resp.status_code = 200
+    resp.status_code = 201
 
     return resp
 
@@ -191,6 +224,7 @@ def remove_friend():
         return resp
 
     removed = current_user.remove_friend(friend)
+    friend_removed = friend.remove_friend(current_user)
     #check to make sure friend was added to user object
     if removed is None:
         data = {
@@ -200,7 +234,16 @@ def remove_friend():
         resp.status_code = 400
         return data
 
+    if friend_removed is None:
+        data = {
+            'msg': 'You are not currently friends with this user.'
+        }
+        resp = jsonify(data)
+        resp.status_code = 400
+        return data
+
     db.session.add(removed)
+    db.session.add(friend_removed)
     db.session.commit()
 
     data = {
@@ -270,8 +313,31 @@ def handle_pending_friend(action, id):
     data = {}
 
     if request.method == 'GET':
+
         if action == 'accept':
+
             pending_friends = current_user.pending_friends
+            pending_friend = User.query.get(id)
+
+            if pending_friend == None:
+                data = {
+                    'msg': 'The friend to add does not exist.'
+                }
+
+                resp = jsonify(data)
+                resp.status_code = 400
+                
+                return resp
+
+            if current_user.is_requestor(pending_friend) == True:
+                data = {
+                    'msg': 'You cannot accept your own sent friend request.'
+                }
+
+                resp = jsonify(data)
+                resp.status_code = 400
+
+                return resp
 
             if pending_friends.count() == 0:
                 data = {
@@ -284,8 +350,9 @@ def handle_pending_friend(action, id):
                 return resp
 
             if id in map(lambda pending_friend: pending_friend.id, pending_friends):
-                pending_friend = User.query.get(id)
+
                 added = current_user.add_pending_friend(pending_friend)
+                friend_added = pending_friend.add_pending_friend(current_user)
 
                 if added is None:
                     data = {
@@ -297,6 +364,7 @@ def handle_pending_friend(action, id):
                     return resp
 
                 db.session.add(added)
+                db.session.add(friend_added)
                 db.session.commit()
                 
                 data = {
@@ -309,6 +377,7 @@ def handle_pending_friend(action, id):
 
         elif action == 'decline':
             pending_friends = current_user.pending_friends
+            pending_friend = User.query.get(id)
 
             if pending_friends.count() == 0:
                 data = {
@@ -318,10 +387,22 @@ def handle_pending_friend(action, id):
                 resp.status_code = 400
 
                 return resp
+
+            if pending_friend == None:
+                data = {
+                    'msg': 'The friend to add does not exist.'
+                }
+
+                resp = jsonify(data)
+                resp.status_code = 400
+                
+                return resp
             
             if id in map(lambda pending_friend: pending_friend.id, pending_friends):
-                pending_friend = User.query.get(id)
                 removed = current_user.remove_pending_friend(pending_friend)
+                friend_removed = pending_friend.remove_pending_friend(current_user)
+                
+                db.session.commit()
 
                 if removed is None:
                     data = {
@@ -331,13 +412,21 @@ def handle_pending_friend(action, id):
                     resp.status_code = 400
 
                     return resp
+
+                if friend_removed is None:
+                    data = {
+                        'msg': 'Error in declining friend request.'
+                    }
+                    resp = jsonify(data)
+                    resp.status_code = 400
+
+                    return resp
                 
-                db.session.add(removed)
-                db.session.commit()
 
                 data = {
                     'msg': pending_friend.name + '\'s friend request declined.'
                 }
+
                 resp = jsonify(data)
                 resp.status_code = 200
 

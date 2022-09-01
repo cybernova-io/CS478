@@ -127,7 +127,7 @@ def login():
                 'msg': str(user.name) + ' logged in.'
             }
 
-            resp = data(jsonify)
+            resp = jsonify(data)
             resp.status_code = 200
 
             user.set_last_login()

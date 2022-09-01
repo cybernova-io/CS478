@@ -3,6 +3,10 @@ from . import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from sqlalchemy import create_engine
+from flask import current_app as app
+
+engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 
 friend = db.Table('friends',
     db.Column('friend0_id', db.Integer, db.ForeignKey('Users.id')),
@@ -11,7 +15,8 @@ friend = db.Table('friends',
 
 pending_friend = db.Table('pending_friends',
     db.Column('pending_friend0_id', db.Integer, db.ForeignKey('Users.id')),
-    db.Column('pending_friend1_id', db.Integer, db.ForeignKey('Users.id'))
+    db.Column('pending_friend1_id', db.Integer, db.ForeignKey('Users.id')),
+    db.Column('requestor', db.Integer)
 )
 
 class User(UserMixin, db.Model):
@@ -27,11 +32,13 @@ class User(UserMixin, db.Model):
     last_login = db.Column(db.DateTime, index=False, unique=False,nullable=True)
     profile_pic = db.Column(db.String(), index=False, unique=False, nullable=True)
     #posts = db.relationship('Post', backref='author', lazy='dynamic')
+    friend_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    
     pending_friends = db.relationship('User', 
                                secondary=pending_friend, 
                                primaryjoin=(pending_friend.c.pending_friend0_id == id), 
                                secondaryjoin=(pending_friend.c.pending_friend1_id == id), 
-                               backref=db.backref('pending_friend', lazy='dynamic'), 
+                               backref=db.backref('pending_friend', lazy='dynamic'),
                                lazy='dynamic')
 
     friends = db.relationship('User', 
@@ -40,6 +47,7 @@ class User(UserMixin, db.Model):
                                secondaryjoin=(friend.c.friend1_id == id), 
                                backref=db.backref('friend', lazy='dynamic'), 
                                lazy='dynamic')
+    
     
     def set_password(self, password):
         """Create hashed password."""
@@ -65,7 +73,11 @@ class User(UserMixin, db.Model):
     def add_friend(self, user):
         if not self.is_friend(user):
             self.pending_friends.append(user)
-            return self
+            db.session.commit()
+            engine.execute(pending_friend.update().where(
+                pending_friend.c.pending_friend0_id == user.id).values(requestor=1))
+            
+        return self
 
     def remove_friend(self, user):
         if self.is_friend(user):
@@ -88,6 +100,19 @@ class User(UserMixin, db.Model):
 
     def is_friend(self, user):
         return self.friends.filter(friend.c.friend1_id == user.id).count() > 0
+
+    def is_requestor(self, friend):
+        #Retrieves the value from db to see if current user is requestor, looking for 1 in requestor column
+        user_who_sent_request = engine.execute(pending_friend.select(pending_friend.c.requestor).where(
+                                    pending_friend.c.pending_friend0_id == self.id, pending_friend.c.pending_friend1_id == friend.id)).fetchall()
+        try:
+            if user_who_sent_request[0][2] == 1:
+                return True
+            else:
+                return False
+        except IndexError as e:
+            return False
+
 
     def serialize(self):
         return {

@@ -5,6 +5,7 @@ from flask_login import LoginManager
 
 
 PROFILE_PICS = 'api/static/profile-pics'
+UPLOADS = 'api/uploads'
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -16,6 +17,7 @@ def create_app():
     # Application Configuration
     app.config.from_object('config.Config')
     app.config['PROFILE_PICS'] = PROFILE_PICS
+    app.config['UPLOADS'] = UPLOADS
 
     #authentication
     app.config['LOGIN_DISABLED'] = True
