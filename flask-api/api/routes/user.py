@@ -16,12 +16,6 @@ engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 
 user_bp = Blueprint('user_bp', __name__)
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 @user_bp.route('/api/profile', methods = ['GET'])
 @login_required
 def profile():
@@ -171,13 +165,16 @@ def get_friends():
 
     friends = current_user.friends
     data = {}
+    counter = 1
     
     if friends.count() == 0:
 
         return WebHelpers.EasyResponse(current_user.name + 'has no friends.', 400)
 
     for i in friends:
-        data['friend'] = i.serialize()
+        data[f'friend{counter}'] = i.serialize()
+        counter += 1
+        
     resp = jsonify(data)
     resp.status_code = 200
 
@@ -191,6 +188,7 @@ def get_pending_friends():
 
     pending_friends = current_user.pending_friends
     data = {}
+    counter = 1
     
     if pending_friends.count() == 0:
         data = {
@@ -201,7 +199,8 @@ def get_pending_friends():
         return resp
 
     for i in pending_friends:
-        data['friend_request'] = i.serialize()
+        data[f'friend_request{counter}'] = i.serialize()
+        counter += 1
     resp = jsonify(data)
     resp.status_code = 200
 
