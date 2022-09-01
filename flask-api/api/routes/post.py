@@ -66,14 +66,13 @@ def create_post():
     post = Post(
         title = title,
         content = content,
-        owner = current_user.id,
     )
     db.session.add(post)
     db.session.commit()
 
     data = {
         'status': 200,
-        'msg': str(current_user) + ' created ' (post.title)
+        'msg': (post.title) + ' created.'
     }
 
     return data
@@ -130,8 +129,6 @@ def update_post():
     return data
 
 
-
-
 @post_bp.route('/api/post/like/<int:id>/<action>/', methods=['GET', 'POST'])
 @login_required
 def likePost(action, id):
@@ -140,6 +137,9 @@ def likePost(action, id):
     Note** Remember to add a 'like' counter++
     """
     pass
+
+
+
 
 
 @post_bp.route('/api/post/comment/<int:id>/<action>/', methods=['GET', 'POST'])

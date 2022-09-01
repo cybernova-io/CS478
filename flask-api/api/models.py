@@ -6,18 +6,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 
-
-likes = db.Table('like',
-db.Column('like0_id',db.Integer, db.ForeignKey('Users.id')),
-db.Column('like1_id',db.Integer, db.ForeignKey('Users.id'))
+like = db.Table('likes',
+    db.Column('like0_id', db.Integer, db.ForeignKey('Users.id')),
+    db.Column('like1_id ', db.Integer, db.ForeignKey('Users.id'))
 )
-
-comment = db.Table('comment',
-db.Column('comment0_id',db.Integer, db.ForeignKey('Users.id')),
-db.Column('comment1_id',db.Integer, db.ForeignKey('Users.id'))
-)
-
-
 
 class User(UserMixin, db.Model):
     """User account model."""
@@ -60,8 +52,8 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), unique=False, nullable=False)
     content = db.Column(db.String(), unique=False, nullable=False)
-    owner = db.Column(db.String(16),unique=False, nullable=False)
-    date_posted = db.Column(db.DateTime)
+    
+    
    
 
 class Comment(db.Model):
