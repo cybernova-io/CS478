@@ -1,10 +1,11 @@
 from os import abort
 from flask import Blueprint, redirect, render_template, flash, request, session, url_for
 from flask_login import login_required, logout_user, current_user, login_user
-from ..models import db, Post
+from ..models import Likes, db, Post
 from .. import login_manager
 from flask_login import logout_user
 import werkzeug
+from flask import Response
 
 post_bp = Blueprint('post_bp', __name__)
 
@@ -16,53 +17,74 @@ def get_post():
     
     """
     data = {}
-    
+
+
+    posts = Post.query.all()
+    for i in posts:
+        data[i.id] = {
+        
     try:
         id = request.form['id']
         post = Post.query.get(id)
         data = {
+
             'status': 200,
-            'title': post.title,
-            'content': post.content
+            'title': i.title,
+            'content': i.content
         }
 
+    return data
+
+#get specific post
+@post_bp.route('/api/post/<int:id>', methods=['GET'])
+def get_singlePost(id):
+    """
+    GET: return specific post of individual user 
+    """
+    data = {}
+
+    post = Post.query.get(id)
+
+    if Post is None:
+
+        data = {
+            'status': 404,
+            'msg': 'No post found with that id.'
+        }
         return data
 
-    except werkzeug.exceptions.BadRequestKeyError:
-        posts = Post.query.all()
-        for i in posts:
-            data[i.id] = {
-                'status': 200,
-                'title': i.title,
-                'content': i.content
-            }
-        return data
+    else:
+        data = {
+            'status': 200,
+            'title': post.title,
+            'content': post.content,
+            'msg': str(post.title) + ' Retrieved.' 
+        }
 
-    
+    return data
+
+#create post
 @post_bp.route('/api/post/create/', methods=['POST'])
 @login_required
 def create_post():
-
     title = request.form['title']
     content = request.form['content']
 
     post = Post(
         title = title,
         content = content,
-        owner = current_user.id,
     )
     db.session.add(post)
     db.session.commit()
 
     data = {
         'status': 200,
-        'msg': str(post.title) + ' created.' ,
+        'msg': (post.title) + ' created.'
     }
 
     return data
 
-
-#delete function
+#delete post
 @post_bp.route('/api/post/delete/', methods=['DELETE'])
 @login_required
 def delete_post():
@@ -72,6 +94,10 @@ def delete_post():
     id = request.form['id']
     post = Post.query.get(id)
     if post is None:
+        """
+        abort(404) returns an error
+        i think crafting a data response with a 404 error code returned will work
+        """
         abort(404)
     
     db.session.delete(post)
@@ -83,9 +109,53 @@ def delete_post():
 
     return data
 
-
-#update
-@post_bp.route('/api/post/update', methods=['GET', 'POST'])
+#update posts
+@post_bp.route('/api/post/update/', methods=['PUT'])
 @login_required
 def update_post():
+    """
+    Updates Post
+    """
+    id = request.form['id']
+    title = request.form['title']
+    content = request.form['content']
+    post = Post.query.get(id)
+            
+    post.title = title
+    post.content = content
+
+    db.session.commit()
+            
+    data = {
+    'status': 200,
+    'title': post.title,
+    'content': post.content,
+    'msg': str(post.title) + ' created.'
+    }
+
+    return data
+
+
+@post_bp.route('/api/post/like/<int:id>/<action>/', methods=['GET', 'POST'])
+@login_required
+def likePost(action, id):
+    """
+    Logic to like user posts.
+    Note** Remember to add a 'like' counter++
+    """
     pass
+
+
+
+
+
+@post_bp.route('/api/post/comment/<int:id>/<action>/', methods=['GET', 'POST'])
+@login_required
+def commentPost():
+    """
+    Logic for commenting on a post.
+    """
+    pass
+
+
+
