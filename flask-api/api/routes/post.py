@@ -1,7 +1,7 @@
 from os import abort
 from flask import Blueprint, redirect, render_template, flash, request, session, url_for
 from flask_login import login_required, logout_user, current_user, login_user
-from ..models import Likes, db, Post
+from ..models.Posts import Likes, db, Post
 from .. import login_manager
 from flask_login import logout_user
 import werkzeug
@@ -22,12 +22,6 @@ def get_post():
     posts = Post.query.all()
     for i in posts:
         data[i.id] = {
-        
-    try:
-        id = request.form['id']
-        post = Post.query.get(id)
-        data = {
-
             'status': 200,
             'title': i.title,
             'content': i.content
