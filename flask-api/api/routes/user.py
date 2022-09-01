@@ -269,7 +269,8 @@ def handle_pending_friend(action, id):
                 db.session.add(friend_added)
                 db.session.commit()
                 
-                return WebHelpers.EasyResponse(pending_friend.name + '\'s friend request accepted.', 200)
+                return WebHelpers.EasyResponse(str(pending_friend.name) + '\'s friend request accepted.', 200)
+            return WebHelpers.EasyResponse('Specified user is not a pending friend. ', 200)
 
         elif action == 'decline':
             pending_friends = current_user.pending_friends

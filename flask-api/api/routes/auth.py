@@ -117,9 +117,10 @@ def unauthorized():
 def logout():
     """User log-out logic."""
 
+    name = current_user.name
     logout_user()
 
-    return WebHelpers.EasyResponse(current_user.name + ' logged out.', 405)
+    return WebHelpers.EasyResponse(name + ' logged out.', 200)
 
 
 

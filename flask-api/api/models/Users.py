@@ -33,8 +33,6 @@ class User(UserMixin, db.Model):
 
     profile_pic = db.Column(db.String(), index=False, unique=False, nullable=True)
     #posts = db.relationship('Post', backref='author', lazy='dynamic')
-    friend_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
-    
     pending_friends = db.relationship('User', 
                                secondary=pending_friend, 
                                primaryjoin=(pending_friend.c.pending_friend0_id == id), 
