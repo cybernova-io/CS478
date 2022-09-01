@@ -18,9 +18,16 @@ def get_post():
     """
     data = {}
 
+
     posts = Post.query.all()
     for i in posts:
         data[i.id] = {
+        
+    try:
+        id = request.form['id']
+        post = Post.query.get(id)
+        data = {
+
             'status': 200,
             'title': i.title,
             'content': i.content

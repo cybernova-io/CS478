@@ -1,12 +1,15 @@
-from flask import Blueprint, redirect, render_template, flash, request, session, url_for
+from flask import Blueprint, redirect, render_template, flash, request, session, url_for, send_from_directory, Response, jsonify
 from flask_login import login_required, logout_user, current_user, login_user
 from ..models import db, User
 from .. import login_manager
 from flask_login import logout_user
 from datetime import datetime
+from werkzeug.utils import secure_filename
+import os
+from flask import current_app as app
+
 
 auth_bp = Blueprint('auth_bp', __name__)
-
 
 @auth_bp.route('/api/signup', methods=['GET', 'POST'])
 def signup():
@@ -23,9 +26,15 @@ def signup():
     email = User email associated with new account.
     password = Password associated with new account.
     """
-
     if request.method == 'GET':
-        pass
+
+        data = {
+            'msg': 'Use POST method for creating a new user.'
+        }
+        resp = jsonify(data)
+        resp.status_code = 405
+
+        return resp
     
     if request.method == 'POST':
 
@@ -34,6 +43,7 @@ def signup():
         password = request.form['password']
 
         existing_user = User.query.filter_by(email=email).first()
+        
         if existing_user is None:
             user = User(
                 name= name,
@@ -46,18 +56,22 @@ def signup():
             db.session.commit()  # Create new user
             login_user(user)  # Log in as newly created user
             data = {
-                'status': 201,
                 'msg': 'New user ' + user.name + ' created.'
             }
 
-            return data
+            resp = jsonify(data)
+            resp.status_code = 201
+
+            return resp
 
         data = {
-            'status': 400,
             'msg': 'User with that email already exists.'
         }
 
-        return data
+        resp = jsonify(data)
+        resp.status_code = 400
+
+        return resp
     
 
 @auth_bp.route('/api/login', methods=['GET', 'POST'])
@@ -77,19 +91,24 @@ def login():
 
     if request.method == 'GET':
         data = {
-            'status': 400,
-            'msg': 'No user logged in.'
+            'msg': 'Login with POST method.'
         }
-        return data
+        resp = jsonify(data)
+        resp.status_code = 405
+
+        return resp
 
     if request.method == 'POST':
         # Bypass if user is logged in
         if current_user.is_authenticated:
             data = {
-                'status': 400,
                 'msg': str(current_user.name) + ' already logged in.' 
             }
-            return data
+
+            resp = jsonify(data)
+            resp.status_code = 400
+
+            return resp
 
         
         email = request.form['email']
@@ -103,22 +122,26 @@ def login():
             #User exists and password matches password in db
     
             login_user(user)
+
             data = {
-                'status': 200,
                 'msg': str(user.name) + ' logged in.'
             }
 
+            resp = jsonify(data)
+            resp.status_code = 200
+
             user.set_last_login()
             
-            return data
+            return resp
         #User exists but password does not match password in db
         data = {
-            'status': 400,
             'msg': 'Invalid username/password combination'
         }
+        resp = jsonify(data)
+        resp.status_code = 400
         
         #Return already logged in status message
-        return data
+        return resp
 
 
 @login_manager.user_loader
@@ -140,26 +163,19 @@ def logout():
     """User log-out logic."""
 
     data = {
-        'status': 200,
         'msg': str(current_user.name) + ' logged out.'
     }
 
+    resp = jsonify(data)
+    resp.status_code = 200
+
     logout_user()
 
-    return data
+    return resp
 
-@auth_bp.route('/api/profile', methods = ['GET'])
-@login_required
-def profile():
-    
-    data = {
-        'status': 200,
-        'user_id': current_user.id,
-        'user_name': current_user.name,
-        'user_email': current_user.email,
-        'user_creation_date': current_user.created_on,
-        'user_last_login': current_user.last_login
-    }
 
-    return data
-    
+
+
+
+
+
