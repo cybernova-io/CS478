@@ -8,8 +8,10 @@ from werkzeug.utils import secure_filename
 import os
 from flask import current_app as app
 from sqlalchemy import engine, create_engine
+from ..services.WebHelpers import WebHelpers
 
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+webHelpers = WebHelpers
 
 user_bp = Blueprint('user_bp', __name__)
 
@@ -57,13 +59,8 @@ def profile_picture():
             path = 'profile-pics/' + path
             return send_from_directory('static', path)
         else:
-            data = {
-                'msg': 'User has no profile picture.'
-            }
-            resp = jsonify(data)
-            resp.status_code = 400
 
-            return resp
+            return webHelpers.EasyResponse('User has no profile picture.', 400)
 
     if request.method == 'POST':
         #check if request has the file part
