@@ -30,13 +30,14 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(200), nullable=False)
     created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)
-   
+
+"""
 class Likes(db.Model):
-    """
+    
     Likes Model.
-    """
     
     __tablename__= 'Likes'
     id = db.Column(db.Integer, primary_key=True)
     created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)
+"""
    
