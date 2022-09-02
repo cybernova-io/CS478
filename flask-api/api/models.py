@@ -20,9 +20,13 @@ pending_friend = db.Table('pending_friends',
     db.Column('requestor', db.Integer)
 )
 
-like = db.Table('likes',
-    db.Column('like0_id', db.Integer, db.ForeignKey('Users.id')),
-    db.Column('like1_id ', db.Integer, db.ForeignKey('Users.id'))
+comments = db.Table('comments',
+    db.Column('comment_id', db.Integer, db.ForeignKey('Users.id')),
+    db.Column('comment_author', db.String(), db.ForeignKey('Users.id'))
+)
+likes = db.Table('likes',
+    db.Column('like_id', db.Integer, db.ForeignKey('Users.id')),
+    db.Column('like_author', db.String(), db.ForeignKey('Users.id'))
 )
 
 class User(UserMixin, db.Model):
@@ -37,8 +41,24 @@ class User(UserMixin, db.Model):
     created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)
     last_login = db.Column(db.DateTime, index=False, unique=False,nullable=True)
 
+
+    comments = db.relationship('Comment', db.relationship('User', 
+                               secondary=pending_friend, 
+                               primaryjoin=(pending_friend.c.pending_friend0_id == id), 
+                               secondaryjoin=(pending_friend.c.pending_friend1_id == id), 
+                               backref=db.backref('pending_friend', lazy='dynamic'),
+                               lazy='dynamic'))
+
+
+    likes = db.relationship('Likes', db.relationship('User', 
+                               secondary=likes, 
+                               primaryjoin=(likes.like_id == id), 
+                               secondaryjoin=(pending_friend.c.pending_friend1_id == id), 
+                               backref=db.backref('pending_friend', lazy='dynamic'),
+                               lazy='dynamic'))
+
+
     profile_pic = db.Column(db.String(), index=False, unique=False, nullable=True)
-    #posts = db.relationship('Post', backref='author', lazy='dynamic')
     friend_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
     
     pending_friends = db.relationship('User', 
@@ -134,27 +154,28 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), unique=False, nullable=False)
     content = db.Column(db.String(), unique=False, nullable=False)
-    #owner_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
-    
-    
-   
+    comments = db.relationship('Comment', backref='post', passive_deletes=True)
+    likes = db.relationship('Likes', backref='post', passive_deletes=True)
 
+
+
+"""
 class Comment(db.Model):
-    """
-    Comments Model.
-    """
    
-    __tablename__ = 'Comments'
+   __tablename__ = 'Comments'
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(200), nullable=False)
     created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)
-   
+    author = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)   
 class Likes(db.Model):
-    """
-    Likes Model.
-    """
     
     __tablename__= 'Likes'
     id = db.Column(db.Integer, primary_key=True)
     created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)
-   
+    author = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+
+"""
+
+ 

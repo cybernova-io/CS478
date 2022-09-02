@@ -1,12 +1,15 @@
 from os import abort
-from flask import Blueprint, redirect, render_template, flash, request, session, url_for
+from flask import Blueprint, redirect, render_template, flash, request, session, url_for, jsonify, Response
 from flask_login import login_required, logout_user, current_user, login_user
-from ..models import Likes, db, Post
+from ..models import Post, db
 from .. import login_manager
 from flask_login import logout_user
 import werkzeug
-from flask import Response
+import os
+from flask import current_app as app
+from sqlalchemy import engine, create_engine
 
+import logging
 post_bp = Blueprint('post_bp', __name__)
 
 @post_bp.route('/api/post/', methods=['GET'])
@@ -130,22 +133,48 @@ def update_post():
     return data
 
 
-@post_bp.route('/api/post/like/<int:id>/<action>/', methods=['GET', 'POST'])
+@post_bp.route('/api/post/like-post/<post_id>/', methods=['POST'])
 @login_required
-def likePost(action, id):
+def interact_post(post_id):
     """
     Logic to like user posts.
     Note** Remember to add a 'like' counter++
     """
-    pass
+    post = post.query.get(post_id)
+    # checks to see if the current user has already like the current post.
+    like = like.query.get(author=current_user.id, post_id=post_id).first()
+    # check to see if post exists
+    if post is None:
+        data = {
+                'status': 404,
+                'msg': str('post does not exist.')
+        }
+        return data
+        
 
+    # check to see if user has already like the post
+    elif like:
+        db.session.delete(like)
+        db.session.commit()
+    else:
+        like = Likes(author=current_user.id, post_id=post_id)
+        db.session.add(like)
+        db.session.commit()
 
+        logging.dubug(f'{current_user.name} liked {post_id}.')
+
+    data = {
+        'status': 200,
+        'title': post.title,
+        'msg': str(f'{current_user.name} liked {post_id}.')
+    }
+    return data
 
 
 
 @post_bp.route('/api/post/comment/<int:id>/<action>/', methods=['GET', 'POST'])
 @login_required
-def commentPost():
+def comment_post():
     """
     Logic for commenting on a post.
     """
