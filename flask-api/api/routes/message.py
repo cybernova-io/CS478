@@ -10,6 +10,7 @@ from flask import current_app as app
 from sqlalchemy import engine, create_engine
 from ..services.WebHelpers import WebHelpers
 import logging
+from ..models.Notifications import Notification
 
 message_bp = Blueprint('message_bp', __name__)
 
@@ -17,9 +18,10 @@ message_bp = Blueprint('message_bp', __name__)
 @login_required
 def messages():
 
-    
     if request.method == 'GET':
+
         current_user.last_message_read_time = datetime.utcnow()
+        current_user.add_notification('unread_message_count', 0)
         db.session.commit()
 
         data = {}
@@ -32,9 +34,9 @@ def messages():
             Message.timestamp.desc()).paginate(
                 page, app.config['MESSAGES_PER_PAGE'], False)
             
-        next_url = url_for('main.messages', page=messages.next_num) \
+        next_url = url_for('message_bp.messages', page=messages.next_num) \
             if messages.has_next else None
-        prev_url = url_for('main.messages', page=messages.prev_num) \
+        prev_url = url_for('message_bp.messages', page=messages.prev_num) \
             if messages.has_prev else None
 
         for i in messages.items:
@@ -52,7 +54,6 @@ def messages():
     
 
 @message_bp.route('/api/send-message/<recipient>', methods=['GET', 'POST'])
-
 @login_required
 def send_message(recipient):
     """
@@ -82,7 +83,19 @@ def send_message(recipient):
 
     db.session.add(msg)
     db.session.commit()
+    user.add_notification('unread_message_count', user.new_messages())
+    db.session.commit()
 
     logging.debug(f'{current_user.name} sent message to {user.name}')
 
     return WebHelpers.EasyResponse('Message sent.', 201)
+
+@message_bp.route('/api/notifications')
+@login_required
+def notifications():
+
+    since = request.args.get('since', 0.0, type=float)
+    notifications = current_user.notifications.filter(
+        Notification.timestamp > since).order_by(Notification.timestamp.asc())
+
+    return jsonify([{'name': n.name,'data': n.get_data(),'timestamp': n.timestamp} for n in notifications])
