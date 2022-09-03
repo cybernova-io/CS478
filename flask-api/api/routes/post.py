@@ -8,7 +8,7 @@ import werkzeug
 import os
 from flask import current_app as app
 from sqlalchemy import engine, create_engine
-
+from django.views import View
 import logging
 post_bp = Blueprint('post_bp', __name__)
 

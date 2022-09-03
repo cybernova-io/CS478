@@ -42,19 +42,9 @@ class User(UserMixin, db.Model):
     last_login = db.Column(db.DateTime, index=False, unique=False,nullable=True)
 
 
-    comments = db.relationship('Comment', db.relationship('User', 
-                               secondary=pending_friend, 
-                               primaryjoin=(pending_friend.c.pending_friend0_id == id), 
-                               secondaryjoin=(pending_friend.c.pending_friend1_id == id), 
-                               backref=db.backref('pending_friend', lazy='dynamic'),
-                               lazy='dynamic'))
-
 
     likes = db.relationship('Likes', db.relationship('User', 
-                               secondary=likes, 
-                               primaryjoin=(likes.like_id == id), 
-                               secondaryjoin=(pending_friend.c.pending_friend1_id == id), 
-                               backref=db.backref('pending_friend', lazy='dynamic'),
+                               backref=db.backref('likes', lazy='dynamic'),
                                lazy='dynamic'))
 
 
