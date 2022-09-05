@@ -14,9 +14,23 @@ from ..models.Notifications import Notification
 
 message_bp = Blueprint('message_bp', __name__)
 
-@message_bp.route('/api/messages')
+@message_bp.route('/api/messages', methods = ['GET'])
 @login_required
 def messages():
+    
+    if request.method == 'GET':
+        messages = current_user.messages_received
+        
+        data = jsonify([xfor x in messages])
+
+        resp = data
+        resp.status_code
+        return resp
+    
+
+@message_bp.route('/api/messages/<string:user>')
+@login_required
+def messages_user():
 
     if request.method == 'GET':
 
@@ -67,11 +81,14 @@ def send_message(recipient):
     """
 
     # find recipient and user and get message to be sent
-    user = User.query.filter_by(name=recipient).first()
+    user = User.query.filter_by(username=recipient).first()
     message = request.form['message']
+
+    if user == current_user:
+        return WebHelpers.EasyResponse('You cannot send a message to yourself.', 400)
     
     if recipient is None:
-        return WebHelpers.EasyResponse('User with that name does not exist.', 404)
+        return WebHelpers.EasyResponse('User with that username does not exist.', 404)
 
     if message is None:
         return WebHelpers.EasyResponse('Can not send empty message.', 400)
@@ -88,7 +105,7 @@ def send_message(recipient):
 
     logging.debug(f'{current_user.name} sent message to {user.name}')
 
-    return WebHelpers.EasyResponse('Message sent.', 201)
+    return WebHelpers.EasyResponse(f'Message sent to {user.username}.', 201)
 
 @message_bp.route('/api/notifications')
 @login_required

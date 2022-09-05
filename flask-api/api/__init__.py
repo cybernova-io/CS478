@@ -43,15 +43,17 @@ def create_app():
         from .routes.auth import auth_bp
         from .routes.app import app_bp
         from .routes.post import post_bp
-        from .routes.user import user_bp
+        from .routes.friends import friend_bp
         from .routes.message import message_bp
+        from .routes.profile import profile_bp
         # Register Blueprints
         
         app.register_blueprint(auth_bp)
         app.register_blueprint(app_bp)
         app.register_blueprint(post_bp)
-        app.register_blueprint(user_bp)
+        app.register_blueprint(friend_bp)
         app.register_blueprint(message_bp)
+        app.register_blueprint(profile_bp)
         # Create Database Models
         db.create_all()
 
