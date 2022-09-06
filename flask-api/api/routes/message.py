@@ -11,6 +11,7 @@ from sqlalchemy import engine, create_engine
 from ..services.WebHelpers import WebHelpers
 import logging
 from ..models.Notifications import Notification
+from .message import Message
 
 message_bp = Blueprint('message_bp', __name__)
 
@@ -19,18 +20,18 @@ message_bp = Blueprint('message_bp', __name__)
 def messages():
     
     if request.method == 'GET':
-        messages = current_user.messages_received
-        
-        data = jsonify([xfor x in messages])
+        messages = Message.query.filter((Message.sender_id == current_user.id) | (Message.recipient_id == current_user.id)).all()
+       
+        data = jsonify([x.serialize() for x in messages])
 
         resp = data
         resp.status_code
-        return resp
+        return data
     
 
 @message_bp.route('/api/messages/<string:user>')
 @login_required
-def messages_user():
+def messages_user(user):
 
     if request.method == 'GET':
 
@@ -39,26 +40,23 @@ def messages_user():
         db.session.commit()
 
         data = {}
-        counter = 1
-
-        # support for pagination, i.e. only display 10 messages per page
-        page = request.args.get('page', 1, type=int)
-
-        messages = current_user.messages_received.order_by(
-            Message.timestamp.desc()).paginate(
-                page, app.config['MESSAGES_PER_PAGE'], False)
-            
-        next_url = url_for('message_bp.messages', page=messages.next_num) \
-            if messages.has_next else None
-        prev_url = url_for('message_bp.messages', page=messages.prev_num) \
-            if messages.has_prev else None
-
-        for i in messages.items:
-            data[f'message_{counter}'] = i.serialize()
-
-        data['next_url'] = next_url
-        data['prev_ul'] = prev_url
         
+        friend = User.query.filter_by(username=user).first()
+
+        if friend is None:
+            return WebHelpers.EasyResponse('Specified user does not exist.', 404)
+
+        
+
+        #messages = current_user.messages_received.order_by(Message.timestamp.desc()).paginate(page, app.config['MESSAGES_PER_PAGE'], False )
+        messages = current_user.messages_received.where(Message.sender_id == friend.id).all()
+        
+
+        if messages is None:
+            return WebHelpers.EasyResponse('You have no messages with this user.', 400)
+            
+        data = [x.serialize() for x in messages]
+
         resp = jsonify(data)
         resp.status_code = 200
 
