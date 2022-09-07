@@ -1,15 +1,16 @@
+from datetime import datetime
 from os import abort
 from flask import Blueprint, redirect, render_template, flash, request, session, url_for, jsonify, Response
 from flask_login import login_required, logout_user, current_user, login_user
-from ..models import Post, db
+from ..models import Post, PostLike, db
 from .. import login_manager
 from flask_login import logout_user
 import werkzeug
 import os
 from flask import current_app as app
 from sqlalchemy import engine, create_engine
-from django.views import View
 import logging
+
 post_bp = Blueprint('post_bp', __name__)
 
 @post_bp.route('/api/post/', methods=['GET'])
@@ -125,60 +126,34 @@ def update_post():
             
     data = {
     'status': 200,
-    'title': post.title,
     'content': post.content,
-    'msg': str(post.title) + ' created.'
+    'msg': str(post.title) + ' updated.'
     }
-
     return data
 
-
-@post_bp.route('/api/post/like-post/<post_id>/', methods=['POST'])
+# like post action
+@post_bp.route('/api/post/like-post/<int:post_id>', methods=['GET', 'POST'])
 @login_required
-def interact_post(post_id):
-    """
-    Logic to like user posts.
-    Note** Remember to add a 'like' counter++
-    """
-    post = post.query.get(post_id)
-    # checks to see if the current user has already like the current post.
-    like = like.query.get(author=current_user.id, post_id=post_id).first()
-    # check to see if post exists
-    if post is None:
-        data = {
-                'status': 404,
-                'msg': str('post does not exist.')
-        }
-        return data
-        
-
-    # check to see if user has already like the post
-    elif like:
-        db.session.delete(like)
-        db.session.commit()
-    else:
-        like = Likes(author=current_user.id, post_id=post_id)
-        db.session.add(like)
-        db.session.commit()
-
-        logging.dubug(f'{current_user.name} liked {post_id}.')
+def like_action(post_id):
+    data = {}
+    post = Post.query.get(post_id)
+    current_user.like_post(post_id)
+    db.session.commit()
 
     data = {
         'status': 200,
-        'title': post.title,
-        'msg': str(f'{current_user.name} liked {post_id}.')
+        'msg': {current_user.name} +' has liked '+ {post.title}
     }
     return data
 
-
-
-@post_bp.route('/api/post/comment/<int:id>/<action>/', methods=['GET', 'POST'])
+# comment action
+@post_bp.route('/api/post/comment/<int:id>', methods=['GET', 'POST'])
 @login_required
-def comment_post():
+def comment_action():
     """
     Logic for commenting on a post.
     """
-    pass
-
+pass
+    
 
 

@@ -1,5 +1,6 @@
 """Database models."""
 from email.policy import default
+from enum import unique
 from . import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -20,15 +21,6 @@ pending_friend = db.Table('pending_friends',
     db.Column('requestor', db.Integer)
 )
 
-comments = db.Table('comments',
-    db.Column('comment_id', db.Integer, db.ForeignKey('Users.id')),
-    db.Column('comment_author', db.String(), db.ForeignKey('Users.id'))
-)
-likes = db.Table('likes',
-    db.Column('like_id', db.Integer, db.ForeignKey('Users.id')),
-    db.Column('like_author', db.String(), db.ForeignKey('Users.id'))
-)
-
 class User(UserMixin, db.Model):
     """User account model."""
 
@@ -40,14 +32,6 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(200), primary_key=False, unique=False, nullable=False)
     created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)
     last_login = db.Column(db.DateTime, index=False, unique=False,nullable=True)
-
-
-
-    likes = db.relationship('Likes', db.relationship('User', 
-                               backref=db.backref('likes', lazy='dynamic'),
-                               lazy='dynamic'))
-
-
     profile_pic = db.Column(db.String(), index=False, unique=False, nullable=True)
     friend_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
     
@@ -64,8 +48,26 @@ class User(UserMixin, db.Model):
                                secondaryjoin=(friend.c.friend1_id == id), 
                                backref=db.backref('friend', lazy='dynamic'), 
                                lazy='dynamic')
-    
-    
+
+
+    liked = db.relationship('PostLike', foreign_keys='PostLike.user_id', backref='Users', lazy='dynamic')
+
+    def like_post(self, post):
+        if not self.has_liked_post(post):
+            like = PostLike(user_id=self.id, post_id=Post.id)
+            db.session.add(like)  
+
+    def unlike_post(self, post):
+        if self.has_liked_post(post):
+            PostLike.query.filter_by(
+                user_id=self.id,
+                post_id=Post.id).delete()
+
+    def has_liked_post(self, post):
+        return PostLike.query.filter(
+            PostLike.user_id == self.id,
+            PostLike.post_id == Post.id).count() > 0
+
     def set_password(self, password):
         """Create hashed password."""
         self.password = generate_password_hash(
@@ -130,7 +132,6 @@ class User(UserMixin, db.Model):
         except IndexError as e:
             return False
 
-
     def serialize(self):
         return {
             'user_id': self.id,
@@ -139,33 +140,26 @@ class User(UserMixin, db.Model):
 
 class Post(db.Model):
     """Posts model."""
-
     __tablename__ = 'Posts'
+
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), unique=False, nullable=False)
     content = db.Column(db.String(), unique=False, nullable=False)
-    comments = db.relationship('Comment', backref='post', passive_deletes=True)
-    likes = db.relationship('Likes', backref='post', passive_deletes=True)
+    date_created = db.Column(db.DateTime, nullable=False, default=datetime.now())
+
+    author = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    recipient_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
+
+    likes = db.relationship('PostLike', backref='Posts')
+    # backref adds a new column on the child (child being PostLike))
+
+class PostLike(db.Model):
+    __tablename__= 'post_like'
 
 
-
-"""
-class Comment(db.Model):
-   
-   __tablename__ = 'Comments'
     id = db.Column(db.Integer, primary_key=True)
-    text = db.Column(db.String(200), nullable=False)
-    created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)
-    author = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)   
-class Likes(db.Model):
+    # put FK on the child 
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('Posts.id'))
+
     
-    __tablename__= 'Likes'
-    id = db.Column(db.Integer, primary_key=True)
-    created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)
-    author = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-
-"""
-
- 
