@@ -1,4 +1,5 @@
 from email.policy import default
+from enum import unique
 from .. import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -33,9 +34,9 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(200), primary_key=False, unique=False, nullable=False)
     created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)
     last_login = db.Column(db.DateTime, index=False, unique=False,nullable=True)
-
     profile_pic = db.Column(db.String(), index=False, unique=False, nullable=True)
-    #posts = db.relationship('Post', backref='author', lazy='dynamic')
+    friend_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    
     pending_friends = db.relationship('User', 
                                secondary=pending_friend, 
                                primaryjoin=(pending_friend.c.pending_friend0_id == id), 
