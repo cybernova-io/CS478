@@ -34,6 +34,7 @@ def signup():
     if request.method == 'POST':
 
         name = request.form['name']
+        username = request.form['username']
         email = request.form['email']
         password = request.form['password']
 
@@ -42,6 +43,7 @@ def signup():
         if existing_user is None:
             user = User(
                 name= name,
+                username=username,
                 email= email
             )
 
@@ -49,10 +51,10 @@ def signup():
             user.set_creation_date()
             db.session.add(user)
             db.session.commit()  # Create new user
-            logging.debug('New user created - ' + str(user.id) + ' - ' + str(user.name))
+            logging.info('New user created - ' + str(user.id) + ' - ' + str(user.username))
             login_user(user)  # Log in as newly created user
             
-            return WebHelpers.EasyResponse('New user ' + user.name + ' created.' , 201)
+            return WebHelpers.EasyResponse('New user ' + user.username + ' created.' , 201)
 
         return WebHelpers.EasyResponse('User with that email already exists. ', 400)    
 

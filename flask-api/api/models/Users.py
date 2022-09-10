@@ -30,6 +30,7 @@ class User(UserMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100),nullable=False,unique=False)
+    username = db.Column(db.String(16), nullable=False, unique=True)
     email = db.Column(db.String(40), unique=True, nullable=False)
     password = db.Column(db.String(200), primary_key=False, unique=False, nullable=False)
     created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)

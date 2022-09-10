@@ -11,12 +11,27 @@ from sqlalchemy import engine, create_engine
 from ..services.WebHelpers import WebHelpers
 import logging
 from ..models.Notifications import Notification
+from .message import Message
 
 message_bp = Blueprint('message_bp', __name__)
 
-@message_bp.route('/api/messages')
+@message_bp.route('/api/messages', methods = ['GET'])
 @login_required
 def messages():
+    
+    if request.method == 'GET':
+        messages = Message.query.filter((Message.sender_id == current_user.id) | (Message.recipient_id == current_user.id)).all()
+       
+        data = jsonify([x.serialize() for x in messages])
+
+        resp = data
+        resp.status_code
+        return data
+    
+
+@message_bp.route('/api/messages/<string:user>')
+@login_required
+def messages_user(user):
 
     if request.method == 'GET':
 
@@ -25,26 +40,23 @@ def messages():
         db.session.commit()
 
         data = {}
-        counter = 1
-
-        # support for pagination, i.e. only display 10 messages per page
-        page = request.args.get('page', 1, type=int)
-
-        messages = current_user.messages_received.order_by(
-            Message.timestamp.desc()).paginate(
-                page, app.config['MESSAGES_PER_PAGE'], False)
-            
-        next_url = url_for('message_bp.messages', page=messages.next_num) \
-            if messages.has_next else None
-        prev_url = url_for('message_bp.messages', page=messages.prev_num) \
-            if messages.has_prev else None
-
-        for i in messages.items:
-            data[f'message_{counter}'] = i.serialize()
-
-        data['next_url'] = next_url
-        data['prev_ul'] = prev_url
         
+        friend = User.query.filter_by(username=user).first()
+
+        if friend is None:
+            return WebHelpers.EasyResponse('Specified user does not exist.', 404)
+
+        
+
+        #messages = current_user.messages_received.order_by(Message.timestamp.desc()).paginate(page, app.config['MESSAGES_PER_PAGE'], False )
+        messages = current_user.messages_received.where(Message.sender_id == friend.id).all()
+        
+
+        if messages is None:
+            return WebHelpers.EasyResponse('You have no messages with this user.', 400)
+            
+        data = [x.serialize() for x in messages]
+
         resp = jsonify(data)
         resp.status_code = 200
 
@@ -67,11 +79,14 @@ def send_message(recipient):
     """
 
     # find recipient and user and get message to be sent
-    user = User.query.filter_by(name=recipient).first()
+    user = User.query.filter_by(username=recipient).first()
     message = request.form['message']
+
+    if user == current_user:
+        return WebHelpers.EasyResponse('You cannot send a message to yourself.', 400)
     
     if recipient is None:
-        return WebHelpers.EasyResponse('User with that name does not exist.', 404)
+        return WebHelpers.EasyResponse('User with that username does not exist.', 404)
 
     if message is None:
         return WebHelpers.EasyResponse('Can not send empty message.', 400)
@@ -88,7 +103,7 @@ def send_message(recipient):
 
     logging.debug(f'{current_user.name} sent message to {user.name}')
 
-    return WebHelpers.EasyResponse('Message sent.', 201)
+    return WebHelpers.EasyResponse(f'Message sent to {user.username}.', 201)
 
 @message_bp.route('/api/notifications')
 @login_required
