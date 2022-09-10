@@ -1,2 +1,4 @@
-2022-09-07 19:17:33,742 WARNING werkzeug :  * Debugger is active!
-2022-09-07 19:17:33,744 INFO werkzeug :  * Debugger PIN: 564-061-026
+2022-09-10 14:24:28,126 WARNING werkzeug :  * Debugger is active!
+2022-09-10 14:24:28,134 INFO werkzeug :  * Debugger PIN: 678-910-919
+2022-09-10 14:26:49,374 INFO root : New user created - 3 - fagboi
+2022-09-10 14:26:49,378 INFO werkzeug : 127.0.0.1 - - [10/Sep/2022 14:26:49] "[35m[1mPOST /api/signup HTTP/1.1[0m" 201 -

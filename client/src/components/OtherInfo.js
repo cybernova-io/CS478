@@ -16,7 +16,7 @@ function OtherInfo({ formData, setFormData }) {
         placeholder="Graduation Year..."
         value={formData.gradYear}
         onChange={(e) => {
-          setFormData({ ...formData, other: e.target.value });
+          setFormData({ ...formData, gradYear: e.target.value });
         }}
       />
     </div>

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import SignUpInfo from "./SignUpInfo";
 import PersonalInfo from "./PersonalInfo";
 import OtherInfo from "./OtherInfo";
+import Axios  from "axios";
+
 
 function Form() {
   const [page, setPage] = useState(0);
@@ -27,6 +29,33 @@ function Form() {
       return <OtherInfo formData={formData} setFormData={setFormData} />;
     }
   };
+  /*
+  function PrepareData(){
+    var bodyFormData = new FormData();
+    bodyFormData.append('firstName', formData.firstName)
+  }
+  */
+  const SubmitData = () => {
+    var form = new FormData()
+    
+    for (const[key,value] of Object.entries(formData)){
+      form.append(key,value)
+    }
+
+    Axios({
+      method: "post",
+      url: "/signup",
+      data: form
+    })
+      .then(function (response) {
+        //handle success
+        console.log(response);
+      })
+      .catch(function (response) {
+        //handle error
+        console.log(response);
+      });
+  }
 
   return (
     <div className="form">
@@ -54,6 +83,7 @@ function Form() {
               if (page === FormTitles.length - 1) {
                 alert("Submitted");
                 console.log(formData);
+                SubmitData();
               } else {
                 setPage((currPage) => currPage + 1);
               }

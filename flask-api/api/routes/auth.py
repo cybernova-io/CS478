@@ -12,12 +12,10 @@ import logging
 
 auth_bp = Blueprint('auth_bp', __name__)
 
-@auth_bp.route('/api/signup', methods=['GET', 'POST'])
+@auth_bp.route('/api/signup', methods=['POST'])
 def signup():
     """
     User sign-up page.
-
-    GET requests serve sign-up page.
     POST requests handle user creation.
     """
 
@@ -27,13 +25,13 @@ def signup():
     email = User email associated with new account.
     password = Password associated with new account.
     """
-    if request.method == 'GET':
 
-        return WebHelpers.EasyResponse('Use POST method for creating a new user.', 405)
-    
     if request.method == 'POST':
 
-        name = request.form['name']
+        first_name = request.form['firstName']
+        last_name = request.form['lastName']
+        major = request.form['major']
+        grad_year = request.form['gradYear']
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
@@ -42,7 +40,10 @@ def signup():
         
         if existing_user is None:
             user = User(
-                name= name,
+                first_name=first_name,
+                last_name=last_name,
+                major=major,
+                grad_year=grad_year,
                 username=username,
                 email= email
             )

@@ -1,12 +1,16 @@
-import "./App.css";
-import Form from "./components/Form";
+import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom';
+import Form from './components/Form'
+import Container from 'react-bootstrap/Container';
 
-function App() {
+export default function App(){
+
   return (
-    <div className="App">
-      <Form />
-    </div>
+    <Container fluid className="App">
+        <BrowserRouter>
+          <Routes>
+            <Route path="/signup" element={<Form/>}/>
+          </Routes>
+        </BrowserRouter>
+      </Container>
   );
 }
-
-export default App;
