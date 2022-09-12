@@ -29,7 +29,10 @@ class User(UserMixin, db.Model):
     __tablename__ = 'Users'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100),nullable=False,unique=False)
+    first_name = db.Column(db.String(25),nullable=False,unique=False)
+    last_name = db.Column(db.String(25), nullable=False, unique=False)
+    major = db.Column(db.String(30), nullable=False, unique=False)
+    grad_year = db.Column(db.String(4), nullable=False, unique=False)
     username = db.Column(db.String(16), nullable=False, unique=True)
     email = db.Column(db.String(40), unique=True, nullable=False)
     password = db.Column(db.String(200), primary_key=False, unique=False, nullable=False)
