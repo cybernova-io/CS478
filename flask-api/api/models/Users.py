@@ -11,72 +11,78 @@ from .Notifications import Notification
 import json
 from .Posts import PostLike
 
-engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
 
-friend = db.Table('friends',
-    db.Column('friend0_id', db.Integer, db.ForeignKey('Users.id')),
-    db.Column('friend1_id', db.Integer, db.ForeignKey('Users.id'))
+friend = db.Table(
+    "friends",
+    db.Column("friend0_id", db.Integer, db.ForeignKey("Users.id")),
+    db.Column("friend1_id", db.Integer, db.ForeignKey("Users.id")),
 )
 
-pending_friend = db.Table('pending_friends',
-    db.Column('pending_friend0_id', db.Integer, db.ForeignKey('Users.id')),
-    db.Column('pending_friend1_id', db.Integer, db.ForeignKey('Users.id')),
-    db.Column('requestor', db.Integer)
+pending_friend = db.Table(
+    "pending_friends",
+    db.Column("pending_friend0_id", db.Integer, db.ForeignKey("Users.id")),
+    db.Column("pending_friend1_id", db.Integer, db.ForeignKey("Users.id")),
+    db.Column("requestor", db.Integer),
 )
+
 
 class User(UserMixin, db.Model):
     """User account model."""
 
-    __tablename__ = 'Users'
+    __tablename__ = "Users"
 
     id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(25),nullable=False,unique=False)
+    first_name = db.Column(db.String(25), nullable=False, unique=False)
     last_name = db.Column(db.String(25), nullable=False, unique=False)
     major = db.Column(db.String(30), nullable=False, unique=False)
     grad_year = db.Column(db.String(4), nullable=False, unique=False)
     username = db.Column(db.String(16), nullable=False, unique=True)
     email = db.Column(db.String(40), unique=True, nullable=False)
-    password = db.Column(db.String(200), primary_key=False, unique=False, nullable=False)
-    created_on = db.Column(db.DateTime, index=False, unique=False,nullable=True)
-    last_login = db.Column(db.DateTime, index=False, unique=False,nullable=True)
+    password = db.Column(
+        db.String(200), primary_key=False, unique=False, nullable=False
+    )
+    created_on = db.Column(db.DateTime, index=False, unique=False, nullable=True)
+    last_login = db.Column(db.DateTime, index=False, unique=False, nullable=True)
     profile_pic = db.Column(db.String(), index=False, unique=False, nullable=True)
-    friend_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
-    
-    pending_friends = db.relationship('User', 
-                               secondary=pending_friend, 
-                               primaryjoin=(pending_friend.c.pending_friend0_id == id), 
-                               secondaryjoin=(pending_friend.c.pending_friend1_id == id), 
-                               backref=db.backref('pending_friend', lazy='dynamic'),
-                               lazy='dynamic')
+    friend_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
 
-    friends = db.relationship('User', 
-                               secondary=friend, 
-                               primaryjoin=(friend.c.friend0_id == id), 
-                               secondaryjoin=(friend.c.friend1_id == id), 
-                               backref=db.backref('friend', lazy='dynamic'), 
-                               lazy='dynamic')
+    pending_friends = db.relationship(
+        "User",
+        secondary=pending_friend,
+        primaryjoin=(pending_friend.c.pending_friend0_id == id),
+        secondaryjoin=(pending_friend.c.pending_friend1_id == id),
+        backref=db.backref("pending_friend", lazy="dynamic"),
+        lazy="dynamic",
+    )
 
-    messages_sent = db.relationship('Message',
-                                    foreign_keys='Message.sender_id',
-                                    backref='author', lazy='dynamic')
+    friends = db.relationship(
+        "User",
+        secondary=friend,
+        primaryjoin=(friend.c.friend0_id == id),
+        secondaryjoin=(friend.c.friend1_id == id),
+        backref=db.backref("friend", lazy="dynamic"),
+        lazy="dynamic",
+    )
 
-    messages_received = db.relationship('Message',
-                                        foreign_keys='Message.recipient_id',
-                                        backref='recipient', lazy='dynamic')
+    messages_sent = db.relationship(
+        "Message", foreign_keys="Message.sender_id", backref="author", lazy="dynamic"
+    )
+
+    messages_received = db.relationship(
+        "Message",
+        foreign_keys="Message.recipient_id",
+        backref="recipient",
+        lazy="dynamic",
+    )
 
     last_message_read_time = db.Column(db.DateTime)
 
-    notifications = db.relationship('Notification', backref='user',
-                                    lazy='dynamic')
-    
-
+    notifications = db.relationship("Notification", backref="user", lazy="dynamic")
 
     def set_password(self, password):
         """Create hashed password."""
-        self.password = generate_password_hash(
-            password,
-            method='sha256'
-        )
+        self.password = generate_password_hash(password, method="sha256")
 
     def set_creation_date(self):
         self.created_on = datetime.today()
@@ -90,15 +96,18 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password, password)
 
     def __repr__(self):
-        return '<User {}>'.format(self.name)
+        return "<User {}>".format(self.name)
 
     def add_friend(self, user):
         if not self.is_friend(user):
             self.pending_friends.append(user)
             db.session.commit()
-            engine.execute(pending_friend.update().where(
-                pending_friend.c.pending_friend0_id == user.id).values(requestor=1))
-            
+            engine.execute(
+                pending_friend.update()
+                .where(pending_friend.c.pending_friend0_id == user.id)
+                .values(requestor=1)
+            )
+
         return self
 
     def remove_friend(self, user):
@@ -116,7 +125,7 @@ class User(UserMixin, db.Model):
         if not self.is_friend(user):
             self.pending_friends.remove(user)
             return self
-    
+
     def get_pending_friends(self):
         return [user.serialize() for user in pending_friend]
 
@@ -124,9 +133,13 @@ class User(UserMixin, db.Model):
         return self.friends.filter(friend.c.friend1_id == user.id).count() > 0
 
     def is_requestor(self, friend):
-        #Retrieves the value from db to see if current user is requestor, looking for 1 in requestor column
-        user_who_sent_request = engine.execute(pending_friend.select(pending_friend.c.requestor).where(
-                                    pending_friend.c.pending_friend0_id == self.id, pending_friend.c.pending_friend1_id == friend.id)).fetchall()
+        # Retrieves the value from db to see if current user is requestor, looking for 1 in requestor column
+        user_who_sent_request = engine.execute(
+            pending_friend.select(pending_friend.c.requestor).where(
+                pending_friend.c.pending_friend0_id == self.id,
+                pending_friend.c.pending_friend1_id == friend.id,
+            )
+        ).fetchall()
         try:
             if user_who_sent_request[0][2] == 1:
                 return True
@@ -137,8 +150,11 @@ class User(UserMixin, db.Model):
 
     def new_messages(self):
         last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
-        return Message.query.filter_by(recipient=self).filter(
-            Message.timestamp > last_read_time).count()
+        return (
+            Message.query.filter_by(recipient=self)
+            .filter(Message.timestamp > last_read_time)
+            .count()
+        )
 
     def add_notification(self, name, data):
         self.notifications.filter_by(name=name).delete()
@@ -148,8 +164,6 @@ class User(UserMixin, db.Model):
 
     def serialize(self):
         return {
-            'user_id': self.id,
-            'user_name': self.name,
+            "user_id": self.id,
+            "user_name": self.name,
         }
-    
-    
