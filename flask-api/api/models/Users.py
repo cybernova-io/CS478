@@ -9,6 +9,7 @@ from flask import current_app as app
 from .Messages import Message
 from .Notifications import Notification
 import json
+from .Posts import PostLike
 
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 
@@ -68,7 +69,8 @@ class User(UserMixin, db.Model):
     notifications = db.relationship('Notification', backref='user',
                                     lazy='dynamic')
     
-    
+
+
     def set_password(self, password):
         """Create hashed password."""
         self.password = generate_password_hash(
@@ -149,3 +151,5 @@ class User(UserMixin, db.Model):
             'user_id': self.id,
             'user_name': self.name,
         }
+    
+    

@@ -2,7 +2,7 @@ from datetime import datetime
 from os import abort
 from flask import Blueprint, redirect, render_template, flash, request, session, url_for, jsonify, Response
 from flask_login import login_required, logout_user, current_user, login_user
-from ..models.Posts import Post, PostLike, db
+from ..models.Posts import Post, db
 from .. import login_manager
 from flask_login import logout_user
 import werkzeug
@@ -10,6 +10,7 @@ import os
 from flask import current_app as app
 from sqlalchemy import engine, create_engine
 import logging
+from ..services.WebHelpers import WebHelpers
 
 post_bp = Blueprint('post_bp', __name__)
 
@@ -131,4 +132,18 @@ def update_post():
     }
     return data
 
-
+@post_bp.route('/api/post/like/<int:post_id>/', methods=['PUT'])
+@login_required
+def user_likes_post(post_id):
+    """
+    Like a post
+    """
+    
+    post = Post.query.filter_by(id=post_id).first_or_404()
+    
+    if post is None:
+        return WebHelpers.EasyResponse('Specified post does not exist.', 404)
+    else:
+        current_user.like_post(post)
+        db.session.commit()
+        return WebHelpers.EasyResponse('success', 200)
