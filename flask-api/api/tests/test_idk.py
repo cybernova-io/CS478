@@ -10,7 +10,7 @@ class TestWebApp(unittest.TestCase):
         self.app = create_app()
         self.appctx = self.app.app_context()
         self.appctx.push()
-        
+
     def tearDown(self):
         self.appctx.pop()
         self.app = None
