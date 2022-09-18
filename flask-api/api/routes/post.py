@@ -166,22 +166,3 @@ def user_unlike_post(post_id):
         db.session.delete(post_like)
         db.session.commit()
         return WebHelpers.EasyResponse("success", 200)
-
-
-
-
-
-
-
-@post_bp.route("/api/post/comment/<int:post_id>/", methods=[("PUT")])
-@login_required
-def user_comment_post(post_id):
-    """
-    Comment on a post
-    """
-    post = Post.query.filter_by(id=post_id).first_or_404()
-
-    if post is None:
-        return WebHelpers.EasyResponse("Specified post does not exist.", 404)
-    else: 
-        pass
