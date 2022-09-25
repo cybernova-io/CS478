@@ -1,4 +1,0 @@
-2022-09-24 20:38:36,272 WARNING werkzeug :  * Debugger is active!
-2022-09-24 20:38:36,275 INFO werkzeug :  * Debugger PIN: 142-485-993
-2022-09-24 20:38:38,831 INFO werkzeug : 127.0.0.1 - - [24/Sep/2022 20:38:38] "POST /api/post/like/1/ HTTP/1.1" 200 -
-2022-09-24 20:39:37,260 INFO werkzeug : 127.0.0.1 - - [24/Sep/2022 20:39:37] "POST /api/post/unlike/1/ HTTP/1.1" 200 -

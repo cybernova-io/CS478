@@ -46,6 +46,7 @@ class User(UserMixin, db.Model):
     last_login = db.Column(db.DateTime, index=False, unique=False, nullable=True)
     profile_pic = db.Column(db.String(), index=False, unique=False, nullable=True)
     friend_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
+    feed = db.Column(db.Integer, db.ForeignKey('Feed.id'))
 
     pending_friends = db.relationship(
         "User",

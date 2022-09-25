@@ -4,3 +4,4 @@
 development.db
 __pycache__
 record.log
+flask-api/record*
