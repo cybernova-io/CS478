@@ -28,6 +28,7 @@ liked = db.relationship(
     "PostLike", db.ForeignKey("PostLike.user_id"), backref="user", lazy="dynamic"
 )
 
+
 class Post(db.Model):
     """Posts model."""
 
@@ -39,7 +40,7 @@ class Post(db.Model):
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
     likes = db.relationship("PostLike", backref="Posts", lazy="dynamic")
-    comments = db.relationship("PostComment", backref="Posts", lazy= "dynamic")
+    comments = db.relationship("PostComment", backref="Posts", lazy="dynamic")
 
 
 class PostLike(db.Model):

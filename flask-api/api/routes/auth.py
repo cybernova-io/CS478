@@ -45,14 +45,10 @@ def signup():
         user.set_creation_date()
         db.session.add(user)
         db.session.commit()  # Create new user
-        logging.info(
-            "New user created - " + str(user.id) + " - " + str(user.username)
-        )
+        logging.info("New user created - " + str(user.id) + " - " + str(user.username))
         login_user(user)  # Log in as newly created user
 
-        return WebHelpers.EasyResponse(
-            "New user " + user.username + " created.", 201
-        )
+        return WebHelpers.EasyResponse("New user " + user.username + " created.", 201)
 
     return WebHelpers.EasyResponse("User with that email already exists. ", 400)
 
@@ -65,9 +61,7 @@ def login():
 
     # Bypass if user is logged in
     if current_user.is_authenticated:
-        return WebHelpers.EasyResponse(
-            current_user.name + " already logged in.", 400
-        )
+        return WebHelpers.EasyResponse(current_user.name + " already logged in.", 400)
 
     email = request.form["email"]
     password = request.form["password"]

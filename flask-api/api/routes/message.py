@@ -18,7 +18,6 @@ message_bp = Blueprint("message_bp", __name__)
 @message_bp.get("/api/messages")
 @login_required
 def messages():
-
     messages = Message.query.filter(
         (Message.sender_id == current_user.id)
         | (Message.recipient_id == current_user.id)
@@ -31,54 +30,42 @@ def messages():
     return data
 
 
-@message_bp.route("/api/messages/<string:user>")
+@message_bp.get("/api/messages/<string:user>")
 @login_required
 def messages_user(user):
 
-    if request.method == "GET":
+    current_user.last_message_read_time = datetime.utcnow()
+    current_user.add_notification("unread_message_count", 0)
+    db.session.commit()
 
-        current_user.last_message_read_time = datetime.utcnow()
-        current_user.add_notification("unread_message_count", 0)
-        db.session.commit()
+    data = {}
 
-        data = {}
+    friend = User.query.filter_by(username=user).first()
 
-        friend = User.query.filter_by(username=user).first()
+    if friend is None:
+        return WebHelpers.EasyResponse("Specified user does not exist.", 404)
 
-        if friend is None:
-            return WebHelpers.EasyResponse("Specified user does not exist.", 404)
+    # messages = current_user.messages_received.order_by(Message.timestamp.desc()).paginate(page, app.config['MESSAGES_PER_PAGE'], False )
+    messages = current_user.messages_received.where(
+        Message.sender_id == friend.id
+    ).all()
 
-        # messages = current_user.messages_received.order_by(Message.timestamp.desc()).paginate(page, app.config['MESSAGES_PER_PAGE'], False )
-        messages = current_user.messages_received.where(
-            Message.sender_id == friend.id
-        ).all()
+    if messages is None:
+        return WebHelpers.EasyResponse("You have no messages with this user.", 400)
 
-        if messages is None:
-            return WebHelpers.EasyResponse("You have no messages with this user.", 400)
+    data = [x.serialize() for x in messages]
 
-        data = [x.serialize() for x in messages]
+    resp = jsonify(data)
+    resp.status_code = 200
 
-        resp = jsonify(data)
-        resp.status_code = 200
-
-        return resp
-    else:
-        return WebHelpers.EasyResponse(
-            "GET method should be used for retrieving messages.", 405
-        )
+    return resp
 
 
-@message_bp.route("/api/send-message/<recipient>", methods=["GET", "POST"])
+@message_bp.post("/api/send-message/<recipient>")
 @login_required
 def send_message(recipient):
     """
     Allows user to send a private message to another user.
-
-    GET:
-    POST: Takes recipient name and message.
-
-    Message Form
-    message = message to be sent
     """
 
     # find recipient and user and get message to be sent
