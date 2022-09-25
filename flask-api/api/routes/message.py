@@ -1,24 +1,12 @@
 from flask import (
     Blueprint,
-    redirect,
-    render_template,
-    flash,
     request,
-    session,
-    url_for,
-    send_from_directory,
     jsonify,
-    Response,
 )
 from flask_login import login_required, logout_user, current_user, login_user
 from ..models.Users import db, User, pending_friend, Message
-from .. import login_manager
 from flask_login import logout_user
 from datetime import datetime
-from werkzeug.utils import secure_filename
-import os
-from flask import current_app as app
-from sqlalchemy import engine, create_engine
 from ..services.WebHelpers import WebHelpers
 import logging
 from ..models.Notifications import Notification
@@ -27,21 +15,20 @@ from .message import Message
 message_bp = Blueprint("message_bp", __name__)
 
 
-@message_bp.route("/api/messages", methods=["GET"])
+@message_bp.get("/api/messages")
 @login_required
 def messages():
 
-    if request.method == "GET":
-        messages = Message.query.filter(
-            (Message.sender_id == current_user.id)
-            | (Message.recipient_id == current_user.id)
-        ).all()
+    messages = Message.query.filter(
+        (Message.sender_id == current_user.id)
+        | (Message.recipient_id == current_user.id)
+    ).all()
 
-        data = jsonify([x.serialize() for x in messages])
+    data = jsonify([x.serialize() for x in messages])
 
-        resp = data
-        resp.status_code
-        return data
+    resp = data
+    resp.status_code
+    return data
 
 
 @message_bp.route("/api/messages/<string:user>")
