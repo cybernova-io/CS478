@@ -8,6 +8,4 @@ feed_bp = Blueprint("feed_bp", __name__)
 @feed_bp.get('/api/feed')
 @login_required
 def get_feed():
-
-    
-
+    pass
