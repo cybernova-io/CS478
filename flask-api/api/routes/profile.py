@@ -1,31 +1,20 @@
 from flask import (
     Blueprint,
-    redirect,
-    render_template,
-    flash,
     request,
-    session,
-    url_for,
     send_from_directory,
     jsonify,
-    Response,
 )
 from flask_login import login_required, logout_user, current_user, login_user
 from ..models.Users import db, User, pending_friend
-from .. import login_manager
 from flask_login import logout_user
-from datetime import datetime
-from werkzeug.utils import secure_filename
-import os
 from flask import current_app as app
-from sqlalchemy import engine, create_engine
 from ..services.WebHelpers import WebHelpers
 import logging
 
 profile_bp = Blueprint("profile", __name__)
 
 
-@profile_bp.route("/api/profile", methods=["GET"])
+@profile_bp.get("/api/profile")
 @login_required
 def profile():
     """
@@ -48,20 +37,16 @@ def profile():
     return data
 
 
-@profile_bp.route("/api/profile/<string:username>", methods=["GET"])
+@profile_bp.get("/api/profile/<string:username>")
 def lookup_profile(username):
     """
     GET: Allows user to search other profiles
-
     """
-
     user = User.query.filter_by(username=username).first()
 
     if user is None:
         return WebHelpers.EasyResponse("Specified user does not exist.", 404)
-
     else:
-
         data = {
             "user_username": user.username,
             "user_name": user.name,
@@ -74,7 +59,7 @@ def lookup_profile(username):
         return data
 
 
-@profile_bp.route("/api/profile", methods=["PUT"])
+@profile_bp.put("/api/profile")
 @login_required
 def edit_profile():
     """
@@ -132,5 +117,4 @@ def profile_picture():
             return WebHelpers.EasyResponse("User has no profile picture.", 400)
 
     if request.method == "POST":
-
         return WebHelpers.HandleUserPictureUpload("PROFILE_PICS")

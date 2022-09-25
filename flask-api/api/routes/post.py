@@ -151,6 +151,7 @@ def user_likes_post(post_id):
         db.session.commit()
         return WebHelpers.EasyResponse("success", 200)
 
+
 @post_bp.route("/api/post/unlike/<int:post_id>/", methods=["PUT"])
 @login_required
 def user_unlike_post(post_id):
