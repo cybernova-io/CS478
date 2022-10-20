@@ -11,7 +11,7 @@ from .Notifications import Notification
 import json
 from .Posts import PostLike
 
-engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
+#engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
 
 friend = db.Table(
     "friends",
@@ -46,7 +46,7 @@ class User(UserMixin, db.Model):
     last_login = db.Column(db.DateTime, index=False, unique=False, nullable=True)
     profile_pic = db.Column(db.String(), index=False, unique=False, nullable=True)
     friend_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
-    feed = db.Column(db.Integer, db.ForeignKey('Feed.id'))
+    #feed = db.Column(db.Integer, db.ForeignKey('Feed.id'))
 
     pending_friends = db.relationship(
         "User",
@@ -101,6 +101,7 @@ class User(UserMixin, db.Model):
 
     def add_friend(self, user):
         if not self.is_friend(user):
+            engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
             self.pending_friends.append(user)
             db.session.commit()
             engine.execute(
@@ -135,6 +136,7 @@ class User(UserMixin, db.Model):
 
     def is_requestor(self, friend):
         # Retrieves the value from db to see if current user is requestor, looking for 1 in requestor column
+        engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
         user_who_sent_request = engine.execute(
             pending_friend.select(pending_friend.c.requestor).where(
                 pending_friend.c.pending_friend0_id == self.id,

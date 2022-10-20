@@ -12,19 +12,25 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 
 
-def create_app():
+def create_app(config):
     """Construct the core app object."""
-    app = Flask(__name__, instance_relative_config=False)
+    app = Flask(__name__)
 
-    # Application Configuration
-    app.config.from_object("config.Config")
-    app.config["PROFILE_PICS"] = PROFILE_PICS
-    app.config["UPLOADS"] = UPLOADS
-    app.config["MESSAGES_PER_PAGE"] = 10
+    if config == "dev":
+        # Application Configuration
+        app.config.from_object("config.DevConfig")
+        app.config["PROFILE_PICS"] = PROFILE_PICS
+        app.config["UPLOADS"] = UPLOADS
+        app.config["MESSAGES_PER_PAGE"] = 10
+    if config == "test":
+        app.config.from_object("config.TestConfig")
+    else:
+        # change to prod for deployment
+        app.config.from_object("config.DevConfig")
 
     # authentication
     app.config["LOGIN_DISABLED"] = True
-
+    
     # Initialize Plugins
     db.init_app(app)
     login_manager.init_app(app)
@@ -64,7 +70,5 @@ def create_app():
         db.create_all()
 
         # Compile static assets
-        if app.config["FLASK_ENV"] == "development":
-            pass
-
+        
         return app

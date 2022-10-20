@@ -41,8 +41,6 @@ class Post(db.Model):
     content = db.Column(db.String(), unique=False, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
-   
-
 
 class PostLike(db.Model):
     __tablename__ = "post_like"
