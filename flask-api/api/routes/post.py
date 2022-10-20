@@ -1,3 +1,4 @@
+from cgitb import text
 from datetime import datetime
 from os import abort
 from flask import (
@@ -12,7 +13,7 @@ from flask import (
     Response,
 )
 from flask_login import login_required, logout_user, current_user, login_user
-from ..models.Posts import Post, PostLike, db
+from ..models.Posts import Post, PostLike,PostComment, db
 from .. import login_manager
 from flask_login import logout_user
 import werkzeug
@@ -134,7 +135,7 @@ def update_post():
     return data
 
 
-@post_bp.route("/api/post/like/<int:post_id>/", methods=["PUT"])
+@post_bp.route("/api/post/like/<int:post_id>/", methods=["POST"])
 @login_required
 def user_likes_post(post_id):
     """
@@ -152,7 +153,7 @@ def user_likes_post(post_id):
         return WebHelpers.EasyResponse("success", 200)
 
 
-@post_bp.route("/api/post/unlike/<int:post_id>/", methods=["PUT"])
+@post_bp.route("/api/post/unlike/<int:post_id>/", methods=["POST"])
 @login_required
 def user_unlike_post(post_id):
     """
@@ -163,7 +164,26 @@ def user_unlike_post(post_id):
     if post is None:
         return WebHelpers.EasyResponse("Specified post does not exist.", 404)
     else:
-        post_like = PostLike(user_id=current_user.id, post_id=post.id)
-        db.session.delete(post_like)
+        
+        unlike_post = PostLike(user_id=current_user.id, post_id=post.id)
+        db.session.add(unlike_post)
+        db.session.commit()
+        return WebHelpers.EasyResponse("success", 200)
+
+@post_bp.route("/api/post/comment/<int:post_id>/", methods=["POST"])
+@login_required
+def user_comment_post(post_id):
+    """
+    comment on a post
+    """
+    post = Post.query.filter_by(id=post_id).first_or_404()
+    
+    if post is None:
+        return WebHelpers.EasyResponse("Specified post does not exist.", 404)
+    else:
+        post_comment = PostComment(user_id=current_user.id, post_id=post.id)
+        post_comment = request.form["text"]
+        post.text = text
+        db.session.add(post_comment)
         db.session.commit()
         return WebHelpers.EasyResponse("success", 200)
