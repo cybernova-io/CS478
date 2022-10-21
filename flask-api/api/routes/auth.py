@@ -14,6 +14,7 @@ from flask_login import logout_user
 from ..services.WebHelpers import WebHelpers
 import logging
 from api import user_datastore
+from flask_cors import cross_origin
 
 auth_bp = Blueprint("auth_bp", __name__)
 
@@ -54,7 +55,7 @@ def signup():
 
     return WebHelpers.EasyResponse("User with that email already exists. ", 400)
 
-
+@cross_origin()
 @auth_bp.post("/api/login")
 def login():
     """

@@ -40,7 +40,7 @@ def create_app(config):
     # Initialize Plugins
     db.init_app(app)
     security_ctx = security.init_app(app, user_datastore)
-
+    
     @security_ctx.context_processor
     def security_context_processor():
         return abort(404)
