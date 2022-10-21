@@ -16,10 +16,15 @@ from sqlalchemy import create_engine, MetaData
 import json
 from flask import current_app as app
 from ..services import WebUtils
+from api.services.DBStartup import seed_db
 
 
 app_bp = Blueprint("app_bp", __name__)
 
+@app.before_first_request
+def start_up():
+    seed_db()
+    
 
 @app_bp.route("/", methods=["GET"])
 def index():

@@ -35,10 +35,8 @@ def get_post():
     data = {}
 
     posts = Post.query.all()
-    for i in posts:
-        data[i.id] = {"status": 200, "title": i.title, "content": i.content}
 
-    return data
+    return jsonify([x.serialize() for x in posts])
 
 
 # get specific post
@@ -52,19 +50,10 @@ def get_singlePost(id):
     post = Post.query.get(id)
 
     if Post is None:
-
-        data = {"status": 404, "msg": "No post found with that id."}
-        return data
+        return WebHelpers.EasyResponse('No post found with that id.', 404)
 
     else:
-        data = {
-            "status": 200,
-            "title": post.title,
-            "content": post.content,
-            "msg": str(post.title) + " Retrieved.",
-        }
-
-    return data
+        return post.serialize()
 
 
 # create post
@@ -81,9 +70,7 @@ def create_post():
     db.session.add(post)
     db.session.commit()
 
-    data = {"status": 200, "msg": (post.title) + " created."}
-
-    return data
+    return WebHelpers.EasyResponse(f'{post.title} created.', 200)
 
 
 # delete post

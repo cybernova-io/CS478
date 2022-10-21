@@ -29,6 +29,13 @@ class DevConfig:
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    #Flask-Security
+    SECURITY_PASSWORD_SALT = environ.get('SECURITY_PASSWORD_SALT')
+    SECURITY_TRACKABLE = environ.get('SECURITY_TRACKABLE')
+    #SECURITY_LOGIN_URL = '/api/login'	
+    SECURITY_REGISTERABLE = False
+    LOGIN_DISABLED = False
+
 class TestConfig:
 
     TESTING = True

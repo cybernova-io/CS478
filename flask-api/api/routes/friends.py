@@ -1,21 +1,14 @@
 from flask import (
     Blueprint,
-    redirect,
-    render_template,
-    flash,
     request,
-    session,
-    url_for,
-    send_from_directory,
     jsonify,
-    Response,
 )
 from flask_login import login_required, logout_user, current_user, login_user
 from ..models.Users import db, User, pending_friend
 from .. import login_manager
 from flask_login import logout_user
 from datetime import datetime
-from werkzeug.utils import secure_filename
+
 import os
 from flask import current_app as app
 from ..services.WebHelpers import WebHelpers
@@ -71,7 +64,7 @@ def add_friend():
     db.session.commit()
     logging.info(f"{current_user.id} sent friend request to {friend.id}.")
 
-    return WebHelpers.EasyResponse("Friend request sent to " + friend.name, 201)
+    return WebHelpers.EasyResponse("Friend request sent to " + friend.username, 201)
 
 
 @friend_bp.route("/api/remove-friend", methods=["DELETE"])
@@ -114,7 +107,7 @@ def remove_friend():
     db.session.commit()
 
     return WebHelpers.EasyResponse(
-        "You are no longer friends with " + friend.name + ".", 200
+        "You are no longer friends with " + friend.username + ".", 200
     )
 
 
@@ -129,7 +122,7 @@ def get_friends():
 
     if friends.count() == 0:
 
-        return WebHelpers.EasyResponse(current_user.name + "has no friends.", 400)
+        return WebHelpers.EasyResponse(current_user.username + "has no friends.", 400)
 
     data = [x.serialize() for x in friends]
 
@@ -150,7 +143,7 @@ def get_pending_friends():
 
     if pending_friends.count() == 0:
         return WebHelpers.EasyResponse(
-            current_user.name + "has no pending friends.", 400
+            current_user.userusername + "has no pending friends.", 400
         )
 
     data = [x.serialize() for x in pending_friends]
@@ -183,7 +176,7 @@ def accept_pending_friend(id):
             )
         if pending_friends.count() == 0:
             return WebHelpers.EasyResponse(
-                current_user.name + "has no pending friends.", 400
+                current_user.username + "has no pending friends.", 400
             )
 
         if id in map(lambda pending_friend: pending_friend.id, pending_friends):
@@ -200,7 +193,7 @@ def accept_pending_friend(id):
             db.session.commit()
 
             return WebHelpers.EasyResponse(
-                str(pending_friend.name) + "'s friend request accepted.", 200
+                str(pending_friend.username) + "'s friend request accepted.", 200
             )
         return WebHelpers.EasyResponse("Specified user is not a pending friend. ", 200)
 
@@ -213,7 +206,7 @@ def decline_pending_friend(id):
 
     if pending_friends.count() == 0:
         return WebHelpers.EasyResponse(
-            current_user.name + " has no pending friends.", 400
+            current_user.username + " has no pending friends.", 400
         )
     if pending_friend == None:
         return WebHelpers.EasyResponse("The friend to add does not exist.", 400)
@@ -230,5 +223,5 @@ def decline_pending_friend(id):
             return WebHelpers.EasyResponse("Error in declining friend request.", 400)
 
         return WebHelpers.EasyResponse(
-            pending_friend.name + "'s friend request declined.", 400
+            pending_friend.username + "'s friend request declined.", 400
         )

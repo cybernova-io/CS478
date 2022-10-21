@@ -1,15 +1,20 @@
 """Initialize app."""
-from flask import Flask
+from flask import Flask, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 import logging
+from flask_security import SQLAlchemyUserDatastore, Security
+from api.models.Users import User, Role
+from api.models.db import db
 
 
 PROFILE_PICS = "api/static/profile-pics"
 UPLOADS = "api/uploads"
 
-db = SQLAlchemy()
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 login_manager = LoginManager()
+
+security = Security()
 
 
 def create_app(config):
@@ -22,6 +27,7 @@ def create_app(config):
         app.config["PROFILE_PICS"] = PROFILE_PICS
         app.config["UPLOADS"] = UPLOADS
         app.config["MESSAGES_PER_PAGE"] = 10
+
     if config == "test":
         app.config.from_object("config.TestConfig")
     else:
@@ -33,7 +39,11 @@ def create_app(config):
     
     # Initialize Plugins
     db.init_app(app)
-    login_manager.init_app(app)
+    security_ctx = security.init_app(app, user_datastore)
+
+    @security_ctx.context_processor
+    def security_context_processor():
+        return abort(404)
 
     # Set up logging
     logging.basicConfig(
