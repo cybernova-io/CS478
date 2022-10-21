@@ -2,7 +2,8 @@ import os
 import pytest
 import tempfile
 
-from api import create_app, db as _db
+from api import create_app
+from api.models.db import db as _db
 
 class TestConfig:
 
@@ -19,7 +20,7 @@ class TestConfig:
 @pytest.fixture(scope="session")
 def app(request):
     """Test session-wide test `Flask` application."""
-    app = create_app(TestConfig)
+    app = create_app("test")
     return app
 
 
