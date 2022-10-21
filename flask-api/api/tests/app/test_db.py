@@ -12,6 +12,8 @@ class TestDB:
         last_name="smith",
         major="Basket Weaving",
         grad_year = "2020",
+        username="bob",
+        password="password1",
         email="bob@gmail.com")
 
         assert user

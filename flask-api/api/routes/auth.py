@@ -63,7 +63,7 @@ def login():
 
     # Bypass if user is logged in
     if current_user.is_authenticated:
-        return WebHelpers.EasyResponse(current_user.name + " already logged in.", 400)
+        return WebHelpers.EasyResponse(current_user.username + " already logged in.", 400)
 
     email = request.form["email"]
     password = request.form["password"]
@@ -79,7 +79,9 @@ def login():
         login_user(user)
         user.set_last_login()
 
-        return WebHelpers.EasyResponse(user.first_name + " logged in.", 405)
+
+        return WebHelpers.EasyResponse(user.username + " logged in.", 405)
+
 
     # User exists but password does not match password in db
     return WebHelpers.EasyResponse("Invalid username/password combination.", 405)
