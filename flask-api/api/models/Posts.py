@@ -12,11 +12,8 @@ from flask import (
     Response,
 )
 from flask_login import login_required, logout_user, current_user, login_user
-from .. import db
-from .. import login_manager
+from api.models.db import db
 from flask_login import logout_user
-import werkzeug
-import os
 from flask import current_app as app
 from sqlalchemy import engine, create_engine
 import logging
@@ -41,6 +38,18 @@ class Post(db.Model):
     content = db.Column(db.String(), unique=False, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
+
+    likes = db.relationship("PostLike", backref="Posts", lazy="dynamic")
+    #comments = db.relationship("PostComment", backref="Posts", lazy="dynamic")
+
+    def serialize(self):
+
+        return {
+            'post_id': self.id,
+            'post_title': self.title,
+            'post_content': self.content,
+            'likes': [x.serialize() for x in self.likes]
+        }
 
 class PostLike(db.Model):
     __tablename__ = "post_like"
@@ -67,6 +76,11 @@ class PostLike(db.Model):
             > 0
         )
 
+    def serialize(self):
+        return {
+            'user_id': self.user_id
+        }
+
 class PostComment(db.Model):
     __tablename__="post_comment"
     id = db.Column(db.Integer, primary_key=True)
@@ -88,3 +102,4 @@ class PostComment(db.Model):
             PostComment.query.filter(PostComment.user_id == self.id, PostComment.post_id == post.id
         ).count() > 0
         )
+

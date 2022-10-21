@@ -35,7 +35,7 @@ def messages():
 def messages_user(user):
 
     current_user.last_message_read_time = datetime.utcnow()
-    current_user.add_notification("unread_message_count", 0)
+    #current_user.add_notification("unread_message_count", 0)
     db.session.commit()
 
     data = {}
@@ -44,11 +44,12 @@ def messages_user(user):
 
     if friend is None:
         return WebHelpers.EasyResponse("Specified user does not exist.", 404)
+    messages = Message.query.order_by(Message.timestamp.asc()).filter((Message.recipient_id==friend.id) | (Message.sender_id==current_user.id)).all() 
 
     # messages = current_user.messages_received.order_by(Message.timestamp.desc()).paginate(page, app.config['MESSAGES_PER_PAGE'], False )
-    messages = current_user.messages_received.where(
-        Message.sender_id == friend.id
-    ).all()
+    #messages = current_user.messages_received.where(
+    #    Message.sender_id == friend.id
+    #).all()
 
     if messages is None:
         return WebHelpers.EasyResponse("You have no messages with this user.", 400)
@@ -86,10 +87,10 @@ def send_message(recipient):
 
     db.session.add(msg)
     db.session.commit()
-    user.add_notification("unread_message_count", user.new_messages())
+    #user.add_notification("unread_message_count", user.new_messages())
     db.session.commit()
 
-    logging.debug(f"{current_user.name} sent message to {user.name}")
+    logging.debug(f"{current_user.username} sent message to {user.username}")
 
     return WebHelpers.EasyResponse(f"Message sent to {user.username}.", 201)
 

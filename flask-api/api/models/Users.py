@@ -1,7 +1,6 @@
 from email.policy import default
 from enum import unique
-from .. import db
-from flask_login import UserMixin
+from api.models.db import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from sqlalchemy import create_engine
@@ -10,6 +9,7 @@ from .Messages import Message
 from .Notifications import Notification
 import json
 from .Posts import PostLike
+from flask_security import UserMixin, RoleMixin, Security
 
 #engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
 
@@ -25,6 +25,18 @@ pending_friend = db.Table(
     db.Column("pending_friend1_id", db.Integer, db.ForeignKey("Users.id")),
     db.Column("requestor", db.Integer),
 )
+
+roles_users = db.Table(
+    "roles_users",
+    db.Column("user_id", db.Integer(), db.ForeignKey("Users.id")),
+    db.Column("role_id", db.Integer(), db.ForeignKey("Role.id")),
+)
+
+class Role(db.Model, RoleMixin):
+    __tablename__ = "Role"
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(80), unique=True)
+    description = db.Column(db.String(255))
 
 
 class User(UserMixin, db.Model):
@@ -47,6 +59,17 @@ class User(UserMixin, db.Model):
     profile_pic = db.Column(db.String(), index=False, unique=False, nullable=True)
     friend_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
     #feed = db.Column(db.Integer, db.ForeignKey('Feed.id'))
+    active = db.Column(db.String(255))
+    created_on = db.Column(db.DateTime, index=False, unique=False, nullable=True)
+    last_login_at = db.Column(db.DateTime, index=False, unique=False, nullable=True)
+    current_login_at = db.Column(db.DateTime, index=False, unique=False, nullable=True)
+    last_login_ip = db.Column(db.String())
+    current_login_ip = db.Column(db.String())
+    login_count = db.Column(db.Integer)
+
+    roles = db.relationship(
+        "Role", secondary=roles_users, backref=db.backref("users", lazy="dynamic")
+    )
 
     pending_friends = db.relationship(
         "User",
@@ -168,5 +191,5 @@ class User(UserMixin, db.Model):
     def serialize(self):
         return {
             "user_id": self.id,
-            "user_name": self.name,
+            "user_name": self.username,
         }

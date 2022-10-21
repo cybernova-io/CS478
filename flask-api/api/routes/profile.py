@@ -23,7 +23,10 @@ def profile():
 
     data = {
         "user_username": current_user.username,
-        "user_name": current_user.name,
+        "user_first_name": current_user.first_name,
+        "user_last_name": current_user.last_name,
+        "user_major": current_user.major,
+        "user_grad_year": current_user.grad_year,
         "user_email": current_user.email,
         "user_creation_date": current_user.created_on,
         "user_last_login": current_user.last_login,
