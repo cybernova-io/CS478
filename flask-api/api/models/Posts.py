@@ -40,7 +40,7 @@ class Post(db.Model):
 
 
     likes = db.relationship("PostLike", backref="Posts", lazy="dynamic")
-    #comments = db.relationship("PostComment", backref="Posts", lazy="dynamic")
+    comments = db.relationship("PostComment", backref="Posts", lazy="dynamic")
 
     def serialize(self):
 
@@ -48,7 +48,8 @@ class Post(db.Model):
             'post_id': self.id,
             'post_title': self.title,
             'post_content': self.content,
-            'likes': [x.serialize() for x in self.likes]
+            'likes': [x.serialize() for x in self.likes],
+            'comments' : [x.serialize() for x in self.comments]
         }
 
 class PostLike(db.Model):
@@ -103,3 +104,9 @@ class PostComment(db.Model):
         ).count() > 0
         )
 
+    def serialize(self):
+        return{
+
+            "user_id" : self.user_id,
+            "text" : self.text
+        }
