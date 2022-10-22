@@ -164,12 +164,16 @@ def user_unlike_post(post_id):
 def user_comment_post(post_id):
     """
     comment on a post
+
+    - add feature to comment on another users comment
     """
     post = Post.query.filter_by(id=post_id).first_or_404()
     
     if post is None:
         return WebHelpers.EasyResponse("Specified post does not exist.", 404)  
     #post_comment = PostComment.query.filter(PostComment.user_id==current_user.id).filter(PostComment.post_id==post.id).first()
+
+
     text = request.form["text"]
     post_comment = PostComment(
         user_id=current_user.id,
@@ -180,4 +184,21 @@ def user_comment_post(post_id):
     db.session.commit()
     return WebHelpers.EasyResponse("success", 200)
 
- 
+    # user comments on another users comment
+    """
+    @post_bp.route("/api/post/comment/<int:post_id>/<int:comment_id>")
+@login_required
+def user_comments_on_another_users_comment(comment_id, post_id):
+
+    comment = PostComment.query.filter_by(id=post_comment)
+    post = Post.query.filter_by(id=post_id).first_or_404()
+
+    if comment is None:
+        return WebHelpers.EasyResponse("Specified comment does not exist.", 404) 
+    post_comment = PostComment.query.filter(PostComment.user_id==current_user.id).filter(PostComment.post_id==post.id).first()
+    
+    
+    not completed
+    also add code for liking a comment
+    
+    """
