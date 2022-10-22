@@ -1,21 +1,6 @@
-import os
 import pytest
-import tempfile
-
 from api import create_app
 from api.models.db import db as _db
-
-class TestConfig:
-
-    TESTING = True
-    WTF_CSRF_ENABLED = False
-    SECRET_KEY = os.environ.get('SECRET_KEY', '12345')
-    SQLALCHEMY_DATABASE_URI = 'sqlite://'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_BINDS = False
-    DEBUG = True
-
-
 
 @pytest.fixture(scope="session")
 def app(request):
@@ -45,6 +30,7 @@ def db(app, request):
     """Returns session-wide initialized database"""
     with app.app_context():
         _db.create_all()
+        
         yield _db
         _db.drop_all()
 
