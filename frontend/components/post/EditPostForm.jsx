@@ -114,6 +114,7 @@ export default function EditPost(props) {
       editPhoto !== null && formData.append("photo", editPhoto);
 
       dispatch(updatePost({ postId, formData }));
+      toast.success('Post updated.');
     }
   };
 

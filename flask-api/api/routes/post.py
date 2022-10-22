@@ -1,6 +1,7 @@
 from cgitb import text
 from datetime import datetime
 from os import abort
+from urllib.request import Request
 from flask import (
     Blueprint,
     redirect,
@@ -133,11 +134,13 @@ def user_likes_post(post_id):
 
     if post is None:
         return WebHelpers.EasyResponse("Specified post does not exist.", 404)
-    else:
-        post_like = PostLike(user_id=current_user.id, post_id=post.id)
+    post_like = PostLike.query.filter(PostLike.user_id==current_user.id).filter(PostLike.post_id==post.id).first()
+    if post_like is None:
         db.session.add(post_like)
         db.session.commit()
         return WebHelpers.EasyResponse("success", 200)
+    else:
+        return WebHelpers.EasyResponse("You have already liked this post.", 400)
 
 
 @post_bp.route("/api/post/unlike/<int:post_id>/", methods=["POST"])
@@ -150,13 +153,12 @@ def user_unlike_post(post_id):
 
     if post is None:
         return WebHelpers.EasyResponse("Specified post does not exist.", 404)
-    else:
-        
-        unlike_post = PostLike(user_id=current_user.id, post_id=post.id)
-        db.session.add(unlike_post)
+    else:  
+        post_like = PostLike.query.filter(PostLike.user_id==current_user.id).filter(PostLike.post_id==post.id).first()
+        db.session.delete(post_like)
         db.session.commit()
         return WebHelpers.EasyResponse("success", 200)
-
+   
 @post_bp.route("/api/post/comment/<int:post_id>/", methods=["POST"])
 @login_required
 def user_comment_post(post_id):
@@ -166,11 +168,16 @@ def user_comment_post(post_id):
     post = Post.query.filter_by(id=post_id).first_or_404()
     
     if post is None:
-        return WebHelpers.EasyResponse("Specified post does not exist.", 404)
-    else:
-        post_comment = PostComment(user_id=current_user.id, post_id=post.id)
-        post_comment = request.form["text"]
-        post.text = text
-        db.session.add(post_comment)
-        db.session.commit()
-        return WebHelpers.EasyResponse("success", 200)
+        return WebHelpers.EasyResponse("Specified post does not exist.", 404)  
+    #post_comment = PostComment.query.filter(PostComment.user_id==current_user.id).filter(PostComment.post_id==post.id).first()
+    text = request.form["text"]
+    post_comment = PostComment(
+        user_id=current_user.id,
+        post_id=post.id,
+        text=text
+    )
+    db.session.add(post_comment)
+    db.session.commit()
+    return WebHelpers.EasyResponse("success", 200)
+
+ 
