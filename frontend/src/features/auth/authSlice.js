@@ -1,12 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import authService from "./authService";
 
-var user = {
-  _id: '',
-  settings: { 
-      isDarkMode: false
-  }
-}
+var user;
 
 if (typeof window !== "undefined") {
   // Perform localStorage action
@@ -53,47 +48,41 @@ export const login = createAsyncThunk("auth/login", async (user, thunkAPI) => {
 });
 
 export const logout = createAsyncThunk("auth/logout", async () => {
-  await authService.logout()
-})
+  await authService.logout();
+});
 
 // Get user data
-export const getMe = createAsyncThunk(
-  'users/getMe',
-  async (_, thunkAPI) => {
+export const getMe = createAsyncThunk("users/getMe", async (_, thunkAPI) => {
+  try {
+    const token = thunkAPI.getState().auth.user.token;
+    return await authService.getMe(token);
+  } catch (error) {
+    const message =
+      (error.response && error.response.data && error.response.data.message) ||
+      error.message ||
+      error.toString();
+    return thunkAPI.rejectWithValue(message);
+  }
+});
+
+// Update user settings
+export const updateUserSettings = createAsyncThunk(
+  "users/update",
+  async (userData, thunkAPI) => {
     try {
-      const token = thunkAPI.getState().auth.user.token
-      return await authService.getMe(token)
+      const token = thunkAPI.getState().auth.user.token;
+      return await authService.updateUserSettings(userData, token);
     } catch (error) {
       const message =
         (error.response &&
           error.response.data &&
           error.response.data.message) ||
         error.message ||
-        error.toString()
-      return thunkAPI.rejectWithValue(message)
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
     }
   }
-)
-
-// Update user settings
-export const updateUserSettings = createAsyncThunk(
-  'users/update',
-  async (userData, thunkAPI) => {
-    try {
-      const token = thunkAPI.getState().auth.user.token
-      return await authService.updateUserSettings(userData, token)
-    } catch (error) {       
-        const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString()
-      return thunkAPI.rejectWithValue(message)
-    }
-  }
-)
-
+);
 
 export const authSlice = createSlice({
   name: "auth",
@@ -108,20 +97,20 @@ export const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-    .addCase(getMe.pending, (state) => {
-      state.isLoading = true
-  })
-  .addCase(getMe.fulfilled, (state, action) => {
-      state.isLoading = false
-      state.isSuccess = true
-      state.user.settings.isDarkMode = action.payload.settings.isDarkMode
-  })
-  .addCase(getMe.rejected, (state, action) => {
-      state.isLoading = false
-      state.isError = true
-      state.message = action.payload
-      state.user = null
-  })
+      .addCase(getMe.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getMe.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.user.settings.isDarkMode = action.payload.settings.isDarkMode;
+      })
+      .addCase(getMe.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        state.user = null;
+      })
       .addCase(register.pending, (state) => {
         state.isLoading = true;
       })
@@ -154,18 +143,18 @@ export const authSlice = createSlice({
         state.user = null;
       })
       .addCase(updateUserSettings.pending, (state) => {
-        state.isLoading = true
+        state.isLoading = true;
       })
       .addCase(updateUserSettings.fulfilled, (state, action) => {
-        state.isLoading = false
-        state.isSuccess = true
-        state.user.settings.isDarkMode = action.payload.settings.isDarkMode
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.user.settings.isDarkMode = action.payload.settings.isDarkMode;
       })
       .addCase(updateUserSettings.rejected, (state, action) => {
-        state.isLoading = false
-        state.isError = true
-        state.message = action.payload
-      })
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      });
   },
 });
 
