@@ -3,14 +3,8 @@ from flask import (
     request,
     jsonify,
 )
-from flask_login import login_required, logout_user, current_user, login_user
+from flask_security import login_required, logout_user, current_user, login_user
 from ..models.Users import db, User, pending_friend
-from .. import login_manager
-from flask_login import logout_user
-from datetime import datetime
-
-import os
-from flask import current_app as app
 from ..services.WebHelpers import WebHelpers
 import logging
 
@@ -112,6 +106,7 @@ def remove_friend():
 
 
 @friend_bp.route("/api/friends", methods=["GET"])
+@login_required
 def get_friends():
     """
     GET: Returns all friends of current user.

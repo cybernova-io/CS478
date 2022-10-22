@@ -14,10 +14,11 @@ from flask_login import logout_user
 from ..services.WebHelpers import WebHelpers
 import logging
 from api import user_datastore
+from flask import current_app as app
 from flask_cors import cross_origin
 
 auth_bp = Blueprint("auth_bp", __name__)
-
+login_manager = app.login_manager
 
 @auth_bp.post("/api/signup")
 def signup():
@@ -74,14 +75,12 @@ def login():
     user = user_datastore.find_user(email=email)
     password_matches = verify_password(password, user.password)
 
-    if user and password_matches:
-        # User exists and password matches password in db
-
-        login_user(user)
-        user.set_last_login()
-
-
-        return WebHelpers.EasyResponse(user.username + " logged in.", 405)
+    if user:
+        if user and password_matches:
+            # User exists and password matches password in db
+            login_user(user)
+            user.set_last_login()
+            return WebHelpers.EasyResponse(user.username + " logged in.", 200)
 
 
     # User exists but password does not match password in db
@@ -99,8 +98,7 @@ def load_user(user_id):
 @login_manager.unauthorized_handler
 def unauthorized():
     """Redirect unauthorized users to Login page."""
-    flash("You must be logged in to view that page.")
-    return redirect(url_for("auth_bp.login"))
+    return WebHelpers.EasyResponse("You must login to view this page", 401)
 
 
 @auth_bp.route("/api/logout", methods=["GET"])
@@ -108,7 +106,6 @@ def unauthorized():
 def logout():
     """User log-out logic."""
 
-    name = current_user.name
+    username = current_user.username
     logout_user()
-
-    return WebHelpers.EasyResponse(name + " logged out.", 200)
+    return WebHelpers.EasyResponse(username + " logged out.", 200)

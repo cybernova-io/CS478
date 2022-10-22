@@ -33,15 +33,16 @@ export default function Home() {
       console.log(message);
     }
 
-    if (!user) {
-      router.push("/");
-    }
+    if (user) {
+			dispatch(getPosts());
 
-    dispatch(getPosts());
+			return () => {
+				dispatch(reset());
+			};
+		} else {
+			router.push('/');
+		}
 
-    return () => {
-      dispatch(reset());
-    };
   }, [user, router, isError, message, dispatch]);
 
   // if (isLoading) {
