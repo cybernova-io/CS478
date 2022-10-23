@@ -2,10 +2,27 @@ from flask import Blueprint
 from flask_login import current_user, login_required
 from ..models.Feed import Feed
 from ..models.Users import User
+from ..models.Posts import Post
+from ..models.Posts import PostComment
+from ..models.Posts import PostLike
 
 feed_bp = Blueprint("feed_bp", __name__)
 
 @feed_bp.get('/api/feed')
 @login_required
 def get_feed():
-    pass
+    posts = Post.query.all().order_by('-date_created')
+
+    """
+       user_feed = Feed(
+        user_id = current_user.id,
+        post_id = posts.id,
+        
+
+    )
+    return user_feed
+    
+    
+    """
+ 
+    return posts
