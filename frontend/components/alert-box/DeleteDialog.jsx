@@ -7,12 +7,22 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { useDispatch } from "react-redux";
 import { deletePost } from "../../src/features/posts/postSlice";
+import { deleteComment } from "../../src/features/comments/commentSlice";
 
 export default function DeleteDialog(props) {
   const dispatch = useDispatch();
 
-  var postId = props.postData._id;
-  var postPhoto = props.postData.photo;
+  const handleDeleteButton = () => {
+    if (props.componentType === "post") {
+      var postId = props.componentData._id;
+      var postPhoto = props.componentData.photo;
+      dispatch(deletePost({ postId, postPhoto }));
+    } else if (props.componentType === "comment") {
+      var commentId = props.componentData._id;
+      dispatch(deleteComment(commentId));
+    }
+  };
+
   return (
     <Dialog
       open={props.deleteDialog}
@@ -32,11 +42,7 @@ export default function DeleteDialog(props) {
         }}
       >
         <Button onClick={props.handleDeleteDialog}>Cancel</Button>
-        <Button
-          onClick={() => dispatch(deletePost({ postId, postPhoto }))}
-          variant="contained"
-          autoFocus
-        >
+        <Button onClick={handleDeleteButton} variant="contained" autoFocus>
           Proceed
         </Button>
       </DialogActions>

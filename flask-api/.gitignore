@@ -5,3 +5,7 @@ development.db
 __pycache__
 record.log
 flask-api/record*
+/*.pytest_cache
+../.coverage
+memory.db
+/htmlcov

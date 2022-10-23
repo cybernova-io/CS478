@@ -13,35 +13,36 @@ export default function Home() {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const { user } = useSelector((state) => state.auth);
+  var user = useSelector((state) => state.auth);
   const { posts, isLoading, isError, message } = useSelector(
     (state) => state.posts
   );
 
-  if (process.browser) {
-    const cookieChecked = getCookie("token");
-    if (cookieChecked) {
-      if (localStorage.getItem("user")) {
-        user = JSON.parse(localStorage.getItem("user"));
-        return user;
-      }
-    }
-  }
+  //if (process.browser) {
+   // const cookieChecked = getCookie("token");
+    //if (cookieChecked) {
+     // if (localStorage.getItem("user")) {
+      //  user = JSON.parse(localStorage.getItem("user"));
+       // return user;
+      //}
+    //}
+  //}
 
   useEffect(() => {
     if (isError) {
       console.log(message);
     }
 
-    if (!user) {
-      router.push("/");
-    }
+    if (user) {
+			dispatch(getPosts());
 
-    dispatch(getPosts());
+			return () => {
+				dispatch(reset());
+			};
+		} else {
+			router.push('/');
+		}
 
-    return () => {
-      dispatch(reset());
-    };
   }, [user, router, isError, message, dispatch]);
 
   // if (isLoading) {

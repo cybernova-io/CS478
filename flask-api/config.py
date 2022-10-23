@@ -41,7 +41,8 @@ class TestConfig:
     TESTING = True
     WTF_CSRF_ENABLED = False
     SECRET_KEY = os.environ.get('SECRET_KEY', '12345')
-    SQLALCHEMY_DATABASE_URI = 'sqlite://'
+    SECURITY_PASSWORD_SALT = '1234566'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///memory.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_BINDS = False
     DEBUG = True

@@ -8,10 +8,9 @@ from flask import (
     url_for,
     send_from_directory,
 )
-from flask_login import login_required, logout_user, current_user, login_user
 from ..models.Users import db, User
 from .. import login_manager
-from flask_login import logout_user
+from flask_security import login_required
 from sqlalchemy import create_engine, MetaData
 import json
 from flask import current_app as app
@@ -30,7 +29,7 @@ def start_up():
 def index():
     return "Index"
 
-
+@login_required
 @app_bp.route("/download_db", methods=["GET"])
 def dump_sqlalchemy():
     """Returns the entire content of the database."""
@@ -79,3 +78,10 @@ def load_sqlalchemy():
             engine.execute(User.__table__.insert(), row)
 
         return "Database loaded."
+
+
+@login_required
+@app.get('/troubleshoot')
+def troubleshoot():
+
+    return {'test':'test'}
