@@ -11,18 +11,6 @@ feed_bp = Blueprint("feed_bp", __name__)
 @feed_bp.get('/api/feed')
 @login_required
 def get_feed():
-    posts = Post.query.all().order_by('-date_created')
-
-    """
-       user_feed = Feed(
-        user_id = current_user.id,
-        post_id = posts.id,
-        
-
-    )
-    return user_feed
-    
-    
-    """
+    pass
  
-    return posts
+    
