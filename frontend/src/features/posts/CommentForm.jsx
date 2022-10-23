@@ -13,7 +13,7 @@ import ImageListItem from "@mui/material/ImageListItem";
 import ImageListItemBar from "@mui/material/ImageListItemBar";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { useState, useEffect } from "react";
-import { createComment } from "../../src/features/comments/commentSlice";
+import { createComment } from "../comments/commentSlice";
 import { styled } from "@mui/material/styles";
 import IconButton from "@mui/material/IconButton";
 import { useDispatch } from "react-redux";

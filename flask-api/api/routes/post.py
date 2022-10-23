@@ -27,7 +27,7 @@ from ..services.WebHelpers import WebHelpers
 post_bp = Blueprint("post_bp", __name__)
 
 
-@post_bp.route("/api/post/", methods=["GET"])
+@post_bp.route("/api/post", methods=["GET"])
 @login_required
 def get_post():
     """
@@ -142,9 +142,6 @@ def user_likes_post(post_id):
     else:
         return WebHelpers.EasyResponse("You have already liked this post.", 400)
 
-    else:
-        return WebHelpers.EasyResponse('You have already liked this post!', 400)
-
 
 @post_bp.route("/api/post/unlike/<int:post_id>/", methods=["POST"])
 @login_required
@@ -162,8 +159,7 @@ def user_unlike_post(post_id):
         db.session.commit()
         return WebHelpers.EasyResponse("success", 200)
    
-    else:
-        return WebHelpers.EasyResponse('Error', 400)
+
 
 @post_bp.route("/api/post/comment/<int:post_id>/", methods=["POST"])
 @login_required

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/posts/";
+const API_URL = "";
 
 // Create new post
 const createPost = async (postData, token) => {
@@ -16,16 +16,11 @@ const createPost = async (postData, token) => {
 };
 
 // Get user posts
-const getPosts = async (token) => {
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-
-  const response = await axios.get(API_URL, config);
-
+const getPosts = async () => {
+  
+  const response = await axios.get('/post');
   return response.data;
+  
 };
 
 // Delete user post
