@@ -8,6 +8,7 @@ import { getPosts, reset } from "../src/features/posts/postSlice";
 import Spinner from "../components/Spinner";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+//import PostDataService from "../src/features/posts/postService";
 
 export default function Home() {
   const router = useRouter();
@@ -34,7 +35,7 @@ export default function Home() {
     }
 
     if (user) {
-			dispatch(getPosts());
+			dispatch(PostDataService.getPosts());
 
 			return () => {
 				dispatch(reset());

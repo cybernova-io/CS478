@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_URL = "";
 
+ 
 // Create new post
 const createPost = async (postData, token) => {
   const config = {
@@ -18,9 +18,10 @@ const createPost = async (postData, token) => {
 // Get user posts
 const getPosts = async () => {
   
-  const response = await axios.get('/post');
+  const response = await axios.get("/post");
+  console.log(reponse.data);
   return response.data;
-  
+
 };
 
 // Delete user post
@@ -43,3 +44,4 @@ const postService = {
 };
 
 export default postService;
+
