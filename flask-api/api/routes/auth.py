@@ -15,6 +15,7 @@ from ..services.WebHelpers import WebHelpers
 import logging
 from api import user_datastore
 from flask import current_app as app
+from flask_cors import cross_origin
 
 auth_bp = Blueprint("auth_bp", __name__)
 login_manager = app.login_manager
@@ -55,7 +56,7 @@ def signup():
 
     return WebHelpers.EasyResponse("User with that email already exists. ", 400)
 
-
+@cross_origin()
 @auth_bp.post("/api/login")
 def login():
     """
@@ -104,6 +105,53 @@ def unauthorized():
 @login_required
 def logout():
     """User log-out logic."""
+
+@auth_bp.post("/api/grant_role")
+def grant_role():
+    """Add a role to a users account."""
+
+    user_id = request.form["user_id"]
+    role_name = request.form["role_name"]
+    user = User.query.get(user_id)
+    if user:
+        user_datastore.add_role_to_user(user, role_name)
+        db.session.commit()
+        logging.warning(
+            f"User id - {current_user.id} - granted {role_name} role to User id - {user_id} - "
+        )
+        return WebHelpers.EasyResponse("Role granted to user.", 200)
+    return WebHelpers.EasyResponse("User with that id does not exist.", 404)
+
+
+@auth_bp.post("/api/revoke_role")
+def revoke_rule():
+    """Remove a role from a users account."""
+
+    user_id = request.form["user_id"]
+    role_name = request.form["role_name"]
+
+    user = User.query.get(user_id)
+    if user:
+        user_datastore.remove_role_from_user(user, role_name)
+        db.session.commit()
+        logging.warning(
+            f"User id - {current_user.id} - revoked {role_name} role from User id - {user_id} -"
+        )
+        return WebHelpers.EasyResponse("Role revoked from user.", 200)
+    return WebHelpers.EasyResponse("User with that id does not exist.", 404)
+
+
+@auth_bp.get("/api/check_roles")
+def check_roles():
+    """Check a users roles."""
+
+    user_id = request.form["user_id"]
+    user = User.query.get(user_id)
+
+    if user:
+        roles = [x.serialize() for x in user.roles]
+        logging.info(f"User id {current_user.id} accessed User id - {user_id} - roles")
+        return roles
 
     username = current_user.username
     logout_user()

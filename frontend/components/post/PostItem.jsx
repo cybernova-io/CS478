@@ -25,9 +25,9 @@ import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en.json";
-import CommentForm from "./CommentForm";
-import CommentItem from "./CommentItem";
-import ReadMore from "../../src/features/Readmore";
+import CommentForm from "../../src/features/posts/CommentForm";
+import CommentItem from "../../src/features/posts/CommentItem";
+import ReadMore from "../../src/features/ReadMore";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import { getComments, reset } from "../../src/features/comments/commentSlice";
 
