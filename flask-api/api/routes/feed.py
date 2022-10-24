@@ -8,9 +8,8 @@ from ..models.Posts import PostLike
 
 feed_bp = Blueprint("feed_bp", __name__)
 
-@feed_bp.get('/api/feed')
+@feed_bp.get('/api/feed', methods='GET')
 @login_required
-def get_feed():
-    pass
- 
-    
+def display_user_feed():
+    friends = current_user.friends
+    return friends

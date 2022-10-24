@@ -41,6 +41,7 @@ class Post(db.Model):
 
     likes = db.relationship("PostLike", backref="Posts", lazy="dynamic")
     comments = db.relationship("PostComment", backref="Posts", lazy="dynamic")
+    #feed = db.relationship("Users", backref="Posts", lazy="dynamic")
 
     def serialize(self):
 
