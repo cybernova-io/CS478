@@ -8,25 +8,26 @@ import { getPosts, reset } from "../src/features/posts/postSlice";
 import Spinner from "../components/Spinner";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+//import PostDataService from "../src/features/posts/postService";
 
 export default function Home() {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const { user } = useSelector((state) => state.auth);
+  var user = useSelector((state) => state.auth);
   const { posts, isLoading, isError, message } = useSelector(
     (state) => state.posts
   );
 
-  if (process.browser) {
-    const cookieChecked = getCookie("token");
-    if (cookieChecked) {
-      if (localStorage.getItem("user")) {
-        user = JSON.parse(localStorage.getItem("user"));
-        return user;
-      }
-    }
-  }
+  //if (process.browser) {
+   // const cookieChecked = getCookie("token");
+    //if (cookieChecked) {
+     // if (localStorage.getItem("user")) {
+      //  user = JSON.parse(localStorage.getItem("user"));
+       // return user;
+      //}
+    //}
+  //}
 
   useEffect(() => {
     if (isError) {
@@ -34,7 +35,7 @@ export default function Home() {
     }
 
     if (user) {
-			dispatch(getPosts());
+			dispatch(PostDataService.getPosts());
 
 			return () => {
 				dispatch(reset());

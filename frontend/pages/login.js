@@ -92,12 +92,7 @@ export default function SignInSide() {
       password: data.get("password"),
     });
 
-    const userData = {
-      email,
-      password,
-    };
-
-    dispatch(login(userData));
+    dispatch(login(data));
   };
 
   if (isLoading) {
