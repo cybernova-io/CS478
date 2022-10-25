@@ -27,7 +27,7 @@ from ..services.WebHelpers import WebHelpers
 post_bp = Blueprint("post_bp", __name__)
 
 
-@post_bp.route("/api/post/", methods=["GET"])
+@post_bp.route("/api/post", methods=["GET"])
 @login_required
 def get_post():
     """
@@ -159,6 +159,8 @@ def user_unlike_post(post_id):
         db.session.commit()
         return WebHelpers.EasyResponse("success", 200)
    
+
+
 @post_bp.route("/api/post/comment/<int:post_id>/", methods=["POST"])
 @login_required
 def user_comment_post(post_id):

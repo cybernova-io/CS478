@@ -40,7 +40,7 @@ def create_app(config):
     # Initialize Plugins
     db.init_app(app)
     security_ctx = security.init_app(app, user_datastore)
-
+    
     @security_ctx.context_processor
     def security_context_processor():
         return abort(404)
@@ -67,6 +67,7 @@ def create_app(config):
         from .routes.friends import friend_bp
         from .routes.message import message_bp
         from .routes.profile import profile_bp
+        from .routes.role import role_bp
 
         # Register Blueprints
 
@@ -76,6 +77,7 @@ def create_app(config):
         app.register_blueprint(friend_bp)
         app.register_blueprint(message_bp)
         app.register_blueprint(profile_bp)
+        app.register_blueprint(role_bp)
         # Create Database Models
         db.create_all()
 
