@@ -39,6 +39,7 @@ class Post(db.Model):
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.now())
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
 
+    posts = db.relationship("Users", backref="Posts", lazy='dynamic')
     likes = db.relationship("PostLike", backref="Posts", lazy="dynamic")
     comments = db.relationship("PostComment", backref="Posts", lazy="dynamic")
     #feed = db.relationship("Users", backref="Posts", lazy="dynamic")

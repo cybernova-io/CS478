@@ -6,12 +6,11 @@ Create a python virtual environment
 python -m venv venv
 ```
 
-
 Activate the venv
+
 ```
 ./venv/Scripts/Activate.ps1
 ```
-
 
 Make sure your IDE interpreter is configured to use the virtual environment python interpreter.
 
@@ -30,4 +29,3 @@ $env:FLASK_DEBUG = "1"
 $env:FLASK_ENV = "development"
 flask run
 ```
-

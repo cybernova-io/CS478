@@ -69,7 +69,7 @@ class User(UserMixin, db.Model):
     current_login_ip = db.Column(db.String())
     login_count = db.Column(db.Integer)
 
-    posts = db.relationship('Posts', backref='users')
+    
 
    
     roles = db.relationship(
@@ -96,6 +96,10 @@ class User(UserMixin, db.Model):
 
     messages_sent = db.relationship(
         "Message", foreign_keys="Message.sender_id", backref="author", lazy="dynamic"
+    )
+
+    posts = db.relationship(
+        "Post", foreign_keys="Post.user_id",backref="owner",lazy="dynamic"
     )
 
     messages_received = db.relationship(

@@ -1,19 +1,23 @@
 from flask import Blueprint
 from flask_login import current_user, login_required
+import os
+from api.models.db import db
 from ..models.Feed import Feed
 from ..models.Users import User
-from ..models.Posts import Post
-from ..models.Posts import PostComment
-from ..models.Posts import PostLike
+from ..models.Posts import Post,PostComment,PostLike
+
 
 feed_bp = Blueprint("feed_bp", __name__)
 
-@feed_bp.get('/api/feed/')
+@feed_bp.get("/api/feed")
 @login_required
 def display_user_feed():
-    friends = current_user.friends
-    user_feed.append([x.serialize() for x in i.posts])
+    #data = {}
+    friend = current_user.friend
+    if current_user.is_friend:
+        user_feed = Post.query.all()
+        user_feed.append([x.serialize() for x in i.posts])
+    return user_feed
 
-
-
-    # User model will need relationship to post on the user id as FK
+    
+    
