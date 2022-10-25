@@ -8,21 +8,12 @@ from ..models.Posts import PostLike
 
 feed_bp = Blueprint("feed_bp", __name__)
 
-@feed_bp.get('/api/feed')
+@feed_bp.get('/api/feed/')
 @login_required
-def get_feed():
-    posts = Post.query.all().order_by('-date_created')
+def display_user_feed():
+    friends = current_user.friends
+    user_feed.append([x.serialize() for x in i.posts])
 
-    """
-       user_feed = Feed(
-        user_id = current_user.id,
-        post_id = posts.id,
-        
 
-    )
-    return user_feed
-    
-    
-    """
- 
-    return posts
+
+    # User model will need relationship to post on the user id as FK

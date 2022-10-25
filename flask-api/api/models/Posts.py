@@ -37,10 +37,11 @@ class Post(db.Model):
     title = db.Column(db.String(100), unique=False, nullable=False)
     content = db.Column(db.String(), unique=False, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.now())
-
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
 
     likes = db.relationship("PostLike", backref="Posts", lazy="dynamic")
     comments = db.relationship("PostComment", backref="Posts", lazy="dynamic")
+    #feed = db.relationship("Users", backref="Posts", lazy="dynamic")
 
     def serialize(self):
 

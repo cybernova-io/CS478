@@ -13,6 +13,8 @@ from flask_security import UserMixin, RoleMixin, Security
 
 #engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
 
+
+
 friend = db.Table(
     "friends",
     db.Column("friend0_id", db.Integer, db.ForeignKey("Users.id")),
@@ -67,6 +69,9 @@ class User(UserMixin, db.Model):
     current_login_ip = db.Column(db.String())
     login_count = db.Column(db.Integer)
 
+    posts = db.relationship('Posts', backref='users')
+
+   
     roles = db.relationship(
         "Role", secondary=roles_users, backref=db.backref("users", lazy="dynamic")
     )
