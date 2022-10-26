@@ -99,7 +99,7 @@ class User(UserMixin, db.Model):
     )
 
     posts = db.relationship(
-        "Post", foreign_keys="Post.user_id",backref="owner",lazy="dynamic"
+        "Post", backref="user",lazy="dynamic"
     )
 
     messages_received = db.relationship(

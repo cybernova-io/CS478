@@ -14,7 +14,7 @@ feed_bp = Blueprint("feed_bp", __name__)
 def display_user_feed():
     #data = {}
     friend = current_user.friend
-    if current_user.is_friend:
+    if current_user.is_friend():
         user_feed = Post.query.all()
         user_feed.append([x.serialize() for x in i.posts])
     return user_feed
