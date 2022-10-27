@@ -38,7 +38,7 @@ class Post(db.Model):
     content = db.Column(db.String(), unique=False, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.now())
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
-
+    #timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     
     likes = db.relationship("PostLike", backref="Posts", lazy="dynamic")
     comments = db.relationship("PostComment", backref="Posts", lazy="dynamic")
