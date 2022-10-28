@@ -69,6 +69,7 @@ def create_app(config):
         from .routes.profile import profile_bp
         from .routes.role import role_bp
         from .routes.feed import feed_bp
+        from .routes.event import event_bp
 
         # Register Blueprints
 
@@ -80,6 +81,7 @@ def create_app(config):
         app.register_blueprint(profile_bp)
         app.register_blueprint(role_bp)
         app.register_blueprint(feed_bp)
+        app.register_blueprint(event_bp)
         # Create Database Models
         db.create_all()
 
