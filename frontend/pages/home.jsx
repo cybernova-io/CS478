@@ -20,14 +20,14 @@ export default function Home() {
   );
 
   //if (process.browser) {
-   // const cookieChecked = getCookie("token");
-    //if (cookieChecked) {
-     // if (localStorage.getItem("user")) {
-      //  user = JSON.parse(localStorage.getItem("user"));
-       // return user;
-      //}
-    //}
-  //}
+  //  const cookieChecked = true;
+  //  if (cookieChecked) {
+  //    if (localStorage.getItem("user")) {
+  //      user = JSON.parse(localStorage.getItem("user"));
+  //      return user;
+  //    }
+  //  }
+ // }
 
   useEffect(() => {
     if (isError) {
@@ -35,7 +35,7 @@ export default function Home() {
     }
 
     if (user) {
-			dispatch(PostDataService.getPosts());
+			//dispatch(getPosts());
 
 			return () => {
 				dispatch(reset());
@@ -46,9 +46,9 @@ export default function Home() {
 
   }, [user, router, isError, message, dispatch]);
 
-  // if (isLoading) {
-  // 	return <Spinner />;
-  // }
+   if (isLoading) {
+   	return <Spinner />;
+   }
 
   return (
     <Layout>

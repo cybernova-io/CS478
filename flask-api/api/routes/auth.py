@@ -20,6 +20,7 @@ from flask_cors import cross_origin
 auth_bp = Blueprint("auth_bp", __name__)
 login_manager = app.login_manager
 
+@cross_origin()
 @auth_bp.post("/api/signup")
 def signup():
     """

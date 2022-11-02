@@ -86,6 +86,7 @@ export default function SignInSide() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("WHATS GOING ON LOGIN")
     const data = new FormData(e.currentTarget);
     console.log({
       email: data.get("email"),

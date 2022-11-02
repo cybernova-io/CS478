@@ -76,6 +76,7 @@ export default function SignInSide() {
   };
 
   const handleSubmit = async (e) => {
+    console.log("WHATS GOING ON INDEX")
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     console.log({
@@ -83,11 +84,8 @@ export default function SignInSide() {
       password: data.get("password"),
     });
 
-    const userData = {
-      email,
-      password,
-    };
-    dispatch(login(userData));
+  
+    dispatch(login(data));
   };
   if (isLoading) {
     return <Spinner />;
