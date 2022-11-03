@@ -54,11 +54,26 @@ const deleteComment = async (commentId, token) => {
   return response.data;
 };
 
+// Like comment
+const likeComment = async (commentId, commentData, token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+
+  const response = await axios.put(API_URL + commentId + '/likes', commentData, config)
+
+  return response.data
+}
+
+
 const commentService = {
   createComment,
   getComments,
   updateComment,
   deleteComment,
+  likeComment,
 };
 
 export default commentService;

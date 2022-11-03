@@ -65,6 +65,25 @@ export const deletePost = createAsyncThunk(
   }
 );
 
+// Like post
+export const likePost = createAsyncThunk(
+  'posts/like',
+  async (postData, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.token
+      return await postService.likePost(postData.postId, postData, token)
+    } catch (error) {
+        const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
 export const postSlice = createSlice({
   name: "post",
   initialState,

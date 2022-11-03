@@ -77,7 +77,8 @@ export default function Register() {
       toast.error("Passwords do not match!");
     } else {
       const userData = {
-        name: `${firstName} ${lastName}`,
+        lastName,
+        firstName,
         email,
         password,
       };

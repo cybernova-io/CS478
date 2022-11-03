@@ -5,7 +5,7 @@ import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from 'react-redux';
 import { updatePost } from "../../src/features/posts/postSlice";
 import DialogTitle from "@mui/material/DialogTitle";
 import { styled } from "@mui/material/styles";
@@ -19,6 +19,15 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import PropTypes from "prop-types";
 import CloseIcon from "@mui/icons-material/Close";
 import { toast } from "react-toastify";
+import Grid from '@mui/material/Grid';
+import Avatar from '@mui/material/Avatar';
+import { red } from '@mui/material/colors';
+import Typography from '@mui/material/Typography';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import CardHeader from '@mui/material/CardHeader';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -61,6 +70,8 @@ BootstrapDialogTitle.propTypes = {
 
 export default function EditPost(props) {
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+
 
   const Input = styled("input")({
     display: "none",
@@ -69,10 +80,12 @@ export default function EditPost(props) {
   const [editPostData, setEditPostData] = useState({
     postId: props.postData._id,
     editText: props.postData.text,
+    editAudience: props.postData.audience,
     editPhoto: props.postData.photo,
   });
 
-  const { postId, editText, editPhoto } = editPostData;
+  const { postId, editText, editAudience, editPhoto } = editPostData;
+
 
   const [editPhotoPreview, setEditPhotoPreview] = useState(editPhoto);
 
@@ -98,6 +111,14 @@ export default function EditPost(props) {
     setEditPostData({ ...editPostData, editPhoto: e.target.files[0] });
   };
 
+  const handleAudienceChange = (event) => {
+		setEditPostData((prevData) => ({
+			...prevData,
+			editAudience: event.target.value,
+		}));
+	};
+
+
   const handleEditChangePreview = () => {
     setEditPostData({ ...editPostData, editPhoto: "" });
     setEditPhotoPreview(null);
@@ -111,9 +132,12 @@ export default function EditPost(props) {
     } else {
       const formData = new FormData();
       formData.append("text", editText);
+      formData.append('audience', editAudience);
       editPhoto !== null && formData.append("photo", editPhoto);
 
       dispatch(updatePost({ postId, formData }));
+      props.toggleEditPostModal();
+			props.handleCloseOptions();
       toast.success('Post updated.');
     }
   };
@@ -135,6 +159,33 @@ export default function EditPost(props) {
         Edit Post
       </BootstrapDialogTitle>
       <DialogContent dividers>
+      <CardHeader
+					avatar={<Avatar sx={{ bgcolor: red[500] }}>R</Avatar>}
+					title={`${user.firstName} ${user.lastName}`}
+					action={
+						<FormControl
+							variant='standard'
+							sx={{ minWidth: 90, mr: 1 }}
+							size='small'
+						>
+							<InputLabel id='demo-select-small'>Audience</InputLabel>
+							<Select
+								labelId='demo-select-small'
+								id='demo-select-small'
+								value={editAudience}
+								label='Audience'
+								onChange={handleAudienceChange}
+							>
+								<MenuItem value='Friends' select='true'>
+									Friends
+								</MenuItem>
+								<MenuItem value='Public'>Public</MenuItem>
+							</Select>
+						</FormControl>
+					}
+					sx={{ p: 0, mb: 1.5 }}
+				/>
+
         <TextField
           autoFocus
           name="editText"

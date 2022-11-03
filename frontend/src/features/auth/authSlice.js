@@ -1,7 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import authService from "./authService";
 
-var user;
+var user = {
+  firstName:'',
+  lastName:'',
+}
 
 if (typeof window !== "undefined") {
   // Perform localStorage action
