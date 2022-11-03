@@ -8,8 +8,8 @@ import IconButton from '@mui/material/IconButton';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import EditPostForm from '../post/EditPostForm';
-import DeleteDialog from '../alert-box/DeleteDialog';
+import EditPostForm from '../../components/post/EditPostForm';
+import DeleteDialog from '../../components/alert-box/DeleteDialog';
 
 export default function MenuItems(props) {
 	const [editPostForm, setEditPostForm] = useState(false);

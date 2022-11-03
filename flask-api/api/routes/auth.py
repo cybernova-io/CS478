@@ -14,8 +14,9 @@ from flask_login import logout_user
 from ..services.WebHelpers import WebHelpers
 import logging
 from api import user_datastore
-from flask import current_app as app
+from flask import current_app as app, jsonify
 from flask_cors import cross_origin
+
 
 auth_bp = Blueprint("auth_bp", __name__)
 login_manager = app.login_manager
@@ -85,7 +86,14 @@ def login():
             # User exists and password matches password in db
             login_user(user)
             user.set_last_login()
-            return WebHelpers.EasyResponse(user.username + " logged in.", 200)
+            #return WebHelpers.EasyResponse(user.username + " logged in.", 200)
+            respList = []
+            resp = {
+                'firstName': user.first_name,
+                'lastName': user.last_name
+            }
+            respList.append(resp)
+            return jsonify(resp)
 
 
     # User exists but password does not match password in db

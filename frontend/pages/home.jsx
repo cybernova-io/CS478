@@ -15,6 +15,7 @@ export default function Home() {
 	const { posts, isLoading, isError, message } = useSelector(
 		(state) => state.posts
 	);
+
 	useEffect(() => {
 		if (isError) {
 			console.log(message);
@@ -31,9 +32,9 @@ export default function Home() {
 // if (isLoading) {
 	// 	return <Spinner />;
 	// }
+	/*
 
-	return (
-		<Layout>
+	<Layout>
 			<PostForm />
 			{posts.length !== 0 ? (
 				posts
@@ -48,5 +49,27 @@ export default function Home() {
 				</Box>
 			)}
 		</Layout>
-	);
+		*/
+
+	if (!posts) return <p>Loading...</p>
+
+	return (
+		<Layout>
+		<PostForm />
+		{posts.length !== 0 ? (
+			posts
+				.slice(0)
+				.reverse()
+	  .map((post) => <PostList key={post._id} post={post} />)
+		) : (
+			<Box sx={{ width: '100%', margin: 'auto', mt: 3 }}>
+				<Typography variant='subtitle1' component='div' textAlign='center'>
+					No posts yet.
+				</Typography>
+			</Box>
+		)}
+	</Layout>
+		
+
+		);
 }

@@ -16,8 +16,8 @@ import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en.json';
 import CommentForm from '../comment/CommentForm';
 import CommentList from '../comment/CommentList';
-import MenuItems from '../features/MenuItems';
-import ReadMore from '../features/Readmore';
+import MenuItems from '../../src/features/MenuItems';
+import ReadMore from '../../src/features/ReadMore';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import RecommendIcon from '@mui/icons-material/Recommend';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
@@ -106,7 +106,7 @@ export default function PostList({ post }) {
 	var likeButton;
 
 	if (post.likes) {
-		postLikes = post.likes.userId.length;
+		//postLikes = post.likes.userId.length;
 
 		if (post.likes.userId.some((id) => id === user._id)) {
 			likeButton = (

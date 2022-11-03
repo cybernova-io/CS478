@@ -29,9 +29,10 @@ const register = async (userData) => {
 // Login User
 const login = async (userData) => {
   console.log('trying to log in');
-  axios.post('/api/login', userData)
+  const response = await axios.post('/api/login', userData)
   .then(function (response) {
-    console.log(response.data);
+    //console.log(response.data);
+    return response
   })
   .catch(function (error) {
     console.log(error);
@@ -41,7 +42,7 @@ const login = async (userData) => {
     localStorage.setItem("user", JSON.stringify(response));
   }
 
-  return response.data;
+  return response
 };
 
 // Logout User

@@ -16,16 +16,17 @@ const createPost = async (postData, token) => {
 // Get user posts
 const getPosts = async () => {
   
-  axios.get('http://localhost:5000/api/feed')
+  const response = await axios.get('/api/feed')
         .then((response) => {
           console.log(response.data);
           console.log(response.status);
           console.log(response.statusText);
           console.log(response.headers);
           console.log(response.config);
+          return response;
         });
         
-  return response.data;
+  return response;
 
 };
 
