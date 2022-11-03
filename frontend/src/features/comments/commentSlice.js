@@ -89,6 +89,27 @@ export const deleteComment = createAsyncThunk(
   }
 );
 
+
+// Like comment
+export const likeComment = createAsyncThunk(
+  'comments/like',
+  async (commentData, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.token
+      return await commentService.likeComment(commentData.commentId, commentData, token)
+    } catch (error) {
+        const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
+
 export const commentSlice = createSlice({
   name: "comment",
   initialState,
@@ -155,7 +176,25 @@ export const commentSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
-      });
+      })
+      .addCase(likeComment.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(likeComment.fulfilled, (state, action) => {
+        state.isLoading = false
+        state.isSuccess = true
+        state.comments = state.comments.map((comment) => {
+            if (comment._id === action.payload._id) {
+              comment.likes = action.payload.likes;
+            }
+            return comment;
+        })
+      })
+      .addCase(likeComment.rejected, (state, action) => {
+        state.isLoading = false
+        state.isError = true
+        state.message = action.payload
+      })
   },
 });
 
