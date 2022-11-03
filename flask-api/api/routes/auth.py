@@ -65,6 +65,10 @@ def login():
     """
 
     # Bypass if user is logged in
+
+    ### TEMPORARY
+    logout_user()
+    ###
     if current_user.is_authenticated:
         return WebHelpers.EasyResponse(current_user.username + " already logged in.", 400)
 
