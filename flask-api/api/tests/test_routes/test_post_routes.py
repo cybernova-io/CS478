@@ -27,3 +27,21 @@ class TestDB:
             'id' : 1
         })
         assert response.status_code == 404
+
+    # check to make sure user can delete a post
+    def test_delete_post(self, client, db):
+        response = client.delete('/api/post/delete/', 
+        data = {
+            'id' : 1,
+        })
+        assert response.status_code == 200
+    
+    # check to make sure user can update post
+    def test_update_post(self, client, db):
+        response = client.put('/api/post/update/', 
+        data = {
+            'id' : 1,
+            'title' : 'New Title',
+            'content' : 'This is the new content.'
+        })
+        assert response.status_code == 200
