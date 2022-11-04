@@ -21,4 +21,9 @@ class TestDB:
         
     # check to make sure user can get a specific post
     def test_get_single_post(self, client, db):
-        pass
+        response = client.get('/api/post/<int:id>', 
+
+        data = {
+            'id' : 1
+        })
+        assert response.status_code == 200
