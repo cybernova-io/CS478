@@ -13,4 +13,12 @@ class TestDB:
 
         assert response.status_code == 200
 
+    # check to make sure a user can get a post
+    def test_get_post(self, client, db):
+        response = client.get('/api/post')
 
+        assert response.status_code == 200
+        
+    # check to make sure user can get a specific post
+    def test_get_single_post(self, client, db):
+        pass
