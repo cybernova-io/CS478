@@ -26,4 +26,4 @@ class TestDB:
         data = {
             'id' : 1
         })
-        assert response.status_code == 200
+        assert response.status_code == 404
