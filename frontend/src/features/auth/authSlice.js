@@ -21,11 +21,12 @@ const initialState = {
 };
 
 //Register user
-export const register = createAsyncThunk(
-  "auth/register",
-  async (user, thunkAPI) => {
+export const register = createAsyncThunk("auth/register",async (user, thunkAPI) => {
     try {
-      return await authService.register(user);
+
+      const response = await authService.register(user);
+      return response.data;
+
     } catch (error) {
       const message =
         (error.response &&

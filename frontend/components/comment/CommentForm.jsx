@@ -6,7 +6,6 @@ import TextField from "@mui/material/TextField";
 import CardHeader from "@mui/material/CardHeader";
 import { useState } from "react";
 import { createComment } from "../../src/features/comments/commentSlice";
-import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 
 import Box from "@mui/material/Box";
