@@ -47,8 +47,9 @@ export default function CommentList(props) {
 			props.commentData.user,
 			user.token
 		);
+		
 		setCommentUserData({
-			userId: userData._id,
+			userId: userData.id,
 			lastName: userData.lastName,
 			firstName: userData.firstName,
 		});
@@ -228,6 +229,7 @@ export default function CommentList(props) {
 								<Typography variant='body2' sx={{ fontWeight: 'bold' }}>
 									{`${commentUserData.firstName} ${commentUserData.lastName}`}
 								</Typography>
+								
 								<ReadMore>{props.commentData.comment}</ReadMore>
 							</Box>
 						</CustomizedBadge>
