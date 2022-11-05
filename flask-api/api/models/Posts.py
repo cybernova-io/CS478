@@ -40,11 +40,11 @@ class Post(db.Model):
 
         return {
             'id': self.id,
-            'post_title': self.title,
-            'post_content': self.content,
+            'title': self.title,
+            'text': self.content,
             'likes': [x.serialize() for x in self.likes],
             'comments' : [x.serialize() for x in self.comments],
-            'createdAt': self.timestamp
+            'createdAt': self.date_created
         }
 
 class PostLike(db.Model):

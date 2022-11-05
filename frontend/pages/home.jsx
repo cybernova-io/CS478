@@ -29,29 +29,12 @@ export default function Home() {
 			router.push('/');
 		}
 	}, [user, router, isError, message, dispatch]);
-// if (isLoading) {
-	// 	return <Spinner />;
-	// }
-	/*
 
-	<Layout>
-			<PostForm />
-			{posts.length !== 0 ? (
-				posts
-					.slice(0)
-					.reverse()
-          .map((post) => <PostList key={post._id} post={post} />)
-			) : (
-				<Box sx={{ width: '100%', margin: 'auto', mt: 3 }}>
-					<Typography variant='subtitle1' component='div' textAlign='center'>
-						No posts yet.
-					</Typography>
-				</Box>
-			)}
-		</Layout>
-		*/
-
-	if (!posts) return <p>Loading...</p>
+ if (isLoading) {
+	 	return <Spinner />;
+	 }
+	
+	if (!posts) return <p>You have no posts on your feed!</p>
 
 	return (
 		<Layout>
@@ -59,7 +42,6 @@ export default function Home() {
 		{posts.length !== 0 ? (
 			posts
 				.slice(0)
-				.reverse()
 	  .map((post) => <PostList key={post.id} post={post} />)
 		) : (
 			<Box sx={{ width: '100%', margin: 'auto', mt: 3 }}>
@@ -70,6 +52,5 @@ export default function Home() {
 		)}
 	</Layout>
 		
-
 		);
 }

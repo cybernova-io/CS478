@@ -18,13 +18,11 @@ const getPosts = async () => {
   
   const response = await axios.get('/api/feed')
         .then((response) => {
-          console.log(response.data);
-          console.log(response.status);
-          console.log(response.statusText);
-          console.log(response.headers);
-          console.log(response.config);
           return response;
-        });
+        })
+        .catch(function (error) {
+          console.log(error);
+        });;
         
   return response;
 

@@ -55,9 +55,9 @@ export default function PostList({ post }) {
 	comments.map((comment) => post._id === comment.postId && commentNum++);
 
 	useEffect(() => {
-		dispatch(getComments());
+		//dispatch(getComments());
 
-		setCommentsItem(commentsInitialState);
+		setCommentsItem(post.comments);
 
 		// return () => {
 		// 	dispatch(reset());
@@ -86,7 +86,7 @@ export default function PostList({ post }) {
 	const [likesModal, setLikesModal] = React.useState(false);
 
 	const openLikesModal = () => {
-		setLikesModal(true);
+		//setLikesModal(true);
 	};
 
 	const closeLikesModal = () => {
@@ -108,7 +108,7 @@ export default function PostList({ post }) {
 	if (post.likes) {
 		postLikes = post.likes.length;
 
-		if (post.likes.some((id) => id === user._id)) {
+		if (post.likes.some((id) => id === user.id)) {
 			likeButton = (
 				<Button
 					variant='text'
@@ -169,10 +169,10 @@ export default function PostList({ post }) {
 						</Avatar>
 					}
 					action={<MenuItems componentType='post' componentData={post} />}
-					title={`${user.firstName} ${user.lastName}`}
+					title={`${post.title}`}
 					subheader={
 						<Stack direction='row' spacing={1} sx={{ mt: 0.4 }}>
-							<span>{timeAgo.format(new Date(post.createdAt))}</span>
+							<span>{post.createdAt}</span>
 							{audienceIcon}
 						</Stack>
 					}
@@ -215,11 +215,13 @@ export default function PostList({ post }) {
 									{commentNum} Comments
 								</Typography>
 							)}
+							{/*}
 							<LikesModal
 								likesModal={likesModal}
 								closeLikesModal={closeLikesModal}
 								likesUserId={post.likes.userId}
 							/>
+							{*/}
 						</CardActions>
 					</>
 				)}
