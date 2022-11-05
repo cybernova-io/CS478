@@ -19,6 +19,9 @@ import Spinner from "../components/Spinner";
 import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
+
+
+
 function Copyright(props) {
   return (
     <Typography
@@ -76,6 +79,7 @@ export default function SignInSide() {
   };
 
   const handleSubmit = async (e) => {
+    console.log("WHATS GOING ON INDEX")
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     console.log({
@@ -83,11 +87,10 @@ export default function SignInSide() {
       password: data.get("password"),
     });
 
-    const userData = {
-      email,
-      password,
-    };
-    dispatch(login(userData));
+    var idk = dispatch(login(data));
+    console.log(idk);
+
+
   };
   if (isLoading) {
     return <Spinner />;

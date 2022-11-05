@@ -1,7 +1,5 @@
 import axios from "axios";
 
-
- 
 // Create new post
 const createPost = async (postData, token) => {
   const config = {
@@ -18,9 +16,15 @@ const createPost = async (postData, token) => {
 // Get user posts
 const getPosts = async () => {
   
-  const response = await axios.get("/post");
-  console.log(reponse.data);
-  return response.data;
+  const response = await axios.get('/api/feed')
+        .then((response) => {
+          return response;
+        })
+        .catch(function (error) {
+          console.log(error);
+        });;
+        
+  return response;
 
 };
 

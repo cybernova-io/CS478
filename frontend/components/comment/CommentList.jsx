@@ -17,6 +17,29 @@ import { styled } from "@mui/material/styles";
 import LikesModal from "../like/LikesModal";
 import TimeDateAgo from "../features/TimeDateAgo";
 import UserNameLink from "../../components/features/UserNameLink";
+import * as React from "react";
+import { useState, useEffect } from "react";
+import Avatar from "@mui/material/Avatar";
+import Typography from "@mui/material/Typography";
+import { red } from "@mui/material/colors";
+import Grid from "@mui/material/Grid";
+import { useDispatch, useSelector } from "react-redux";
+import TextField from "@mui/material/TextField";
+import { updateComment } from "../../src/features/comments/commentSlice";
+import ReadMore from "../../src/features/ReadMore";
+import Box from "@mui/material/Box";
+import TimeAgo from "javascript-time-ago";
+import en from "javascript-time-ago/locale/en.json";
+import { toast } from "react-toastify";
+import MenuItems from "../../src/features/MenuItems";
+import { likeComment } from "../../src/features/comments/commentSlice";
+import userService from "../../src/features/users/userService";
+import Badge from "@mui/material/Badge";
+import RecommendIcon from "@mui/icons-material/Recommend";
+import { styled } from "@mui/material/styles";
+import LikesModal from "../like/LikesModal";
+
+TimeAgo.addDefaultLocale(en);
 
 const CustomizedBadge = styled(Badge)`
   .MuiBadge-badge {
@@ -29,6 +52,30 @@ export default function CommentList(props) {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   let commentLikes = 0;
+
+  // Comment user data
+  const [commentUserData, setCommentUserData] = useState({
+    userId: "",
+    lastName: "",
+    firstName: "",
+  });
+
+  const getUserDetails = async () => {
+    const userData = await userService.getUserDataById(
+      props.commentData.user,
+      user.token
+    );
+
+    setCommentUserData({
+      userId: userData.id,
+      lastName: userData.lastName,
+      firstName: userData.firstName,
+    });
+  };
+
+  useEffect(() => {
+    getUserDetails();
+  }, [commentLikes]);
 
   // Comment form
   const [commentFormData, setCommentFormData] = useState({
@@ -120,12 +167,11 @@ export default function CommentList(props) {
     <Grid container wrap="nowrap" spacing={2} sx={{ p: 2 }}>
       <Grid item>
         <Avatar
-          src={
-            props.commentData.userData.photo &&
-            `/uploads/${props.commentData.userData.photo}`
-          }
+          sx={{ bgcolor: red[500], width: 30, height: 30 }}
           aria-label="avatar"
-        />
+        >
+          R
+        </Avatar>
       </Grid>
       {props.commentData.isEditing ? (
         <Grid item xs zeroMinWidth>
@@ -190,7 +236,7 @@ export default function CommentList(props) {
                     theme.palette.mode === "light"
                       ? theme.palette.grey[200]
                       : theme.palette.grey[800],
-                  p: 1,
+                  p: 1.3,
                   borderRadius: 5,
                   width: "max-content",
                   maxWidth: 575,
@@ -198,14 +244,17 @@ export default function CommentList(props) {
                   wordWrap: "break-word",
                 }}
               >
-                <UserNameLink data={props.commentData.userData} />
+                <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                  {`${commentUserData.firstName} ${commentUserData.lastName}`}
+                </Typography>
+
                 <ReadMore>{props.commentData.comment}</ReadMore>
               </Box>
             </CustomizedBadge>
             <br />
             {likeButton}
             <Typography variant="caption" color="text.secondary">
-              <TimeDateAgo timeDate={props.commentData.createdAt} />
+              {timeAgo.format(new Date(props.commentData.createdAt))}
             </Typography>
             <LikesModal
               likesModal={likesModal}
@@ -215,15 +264,61 @@ export default function CommentList(props) {
           </Grid>
           <Grid item>
             <Box sx={{ float: "left" }}>
-              {props.commentData.user === user._id && (
-                <MenuItems
-                  componentType="comment"
-                  componentData={props.commentData}
-                  componentFunc={handleEditMenu}
-                />
-              )}
+              <MenuItems
+                componentType="comment"
+                componentData={props.commentData}
+                componentFunc={handleEditMenu}
+              />
             </Box>
           </Grid>
+          {/* <Grid justifyContent='left' item>
+						<List
+							sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
+						>
+							<Badge
+								badgeContent={4}
+								anchorOrigin={{
+									vertical: 'bottom',
+									horizontal: 'right',
+								}}
+								color='primary'
+							>
+								<ListItem
+									alignItems='flex-start'
+									sx={{
+										backgroundColor: (theme) =>
+											theme.palette.mode === 'light'
+												? theme.palette.grey[200]
+												: theme.palette.grey[800],
+										p: 1.3,
+										borderRadius: 5,
+										width: 'max-content',
+										maxWidth: 575,
+										whiteSpace: 'pre-wrap',
+										wordWrap: 'break-word',
+									}}
+								>
+									<ListItemText
+										primary={
+											<Typography variant='body2' sx={{ fontWeight: 'bold' }}>
+												{`${commentUserData.firstName} ${commentUserData.lastName}`}
+											</Typography>
+										}
+										secondary={<ReadMore>{props.commentData.comment}</ReadMore>}
+									/>
+								</ListItem>
+							</Badge>
+							{likeButton}
+							<Typography
+								variant='caption'
+								sx={{ p: 1.3 }}
+								color='text.secondary'
+							>
+								{timeAgo.format(new Date(props.commentData.createdAt))}
+							</Typography>
+							<Divider variant='inset' component='li' />
+						</List>
+					</Grid> */}
         </>
       )}
     </Grid>

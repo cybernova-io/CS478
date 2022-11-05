@@ -28,13 +28,21 @@ const register = async (userData) => {
 
 // Login User
 const login = async (userData) => {
-  const response = await axios.post("/login", userData);
+  console.log('trying to log in');
+  const response = await axios.post('/api/login', userData)
+  .then(function (response) {
+    //console.log(response.data);
+    return response
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
 
   if (response.data) {
     localStorage.setItem("user", JSON.stringify(response));
   }
 
-  return response.data;
+  return response
 };
 
 // Logout User

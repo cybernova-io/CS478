@@ -16,8 +16,8 @@ import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en.json';
 import CommentForm from '../comment/CommentForm';
 import CommentList from '../comment/CommentList';
-import MenuItems from '../features/MenuItems';
-import ReadMore from '../features/Readmore';
+import MenuItems from '../../src/features/MenuItems';
+import ReadMore from '../../src/features/ReadMore';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import RecommendIcon from '@mui/icons-material/Recommend';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
@@ -41,7 +41,8 @@ export default function PostList({ post }) {
 
 	const timeAgo = new TimeAgo('en-US');
 
-	const { comments } = useSelector((state) => state.comments);
+	//const { comments } = useSelector((state) => state.comments);
+	const comments = post.comments;
 
 	const commentsInitialState = comments.map((obj) => ({
 		...obj,
@@ -55,9 +56,9 @@ export default function PostList({ post }) {
 	comments.map((comment) => post._id === comment.postId && commentNum++);
 
 	useEffect(() => {
-		dispatch(getComments());
+		//dispatch(getComments());
 
-		setCommentsItem(commentsInitialState);
+		setCommentsItem(post.comments);
 
 		// return () => {
 		// 	dispatch(reset());
@@ -86,7 +87,7 @@ export default function PostList({ post }) {
 	const [likesModal, setLikesModal] = React.useState(false);
 
 	const openLikesModal = () => {
-		setLikesModal(true);
+		//setLikesModal(true);
 	};
 
 	const closeLikesModal = () => {
@@ -95,7 +96,7 @@ export default function PostList({ post }) {
 
 	const handleLikeClick = (postId) => {
 		var likeData = {
-			userId: user._id,
+			userId: user.id,
 			postId: postId,
 		};
 
@@ -106,15 +107,15 @@ export default function PostList({ post }) {
 	var likeButton;
 
 	if (post.likes) {
-		postLikes = post.likes.userId.length;
+		postLikes = post.likes.length;
 
-		if (post.likes.userId.some((id) => id === user._id)) {
+		if (post.likes.some((id) => id === user.id)) {
 			likeButton = (
 				<Button
 					variant='text'
 					sx={{ textTransform: 'capitalize' }}
 					startIcon={<ThumbUpIcon />}
-					onClick={() => handleLikeClick(post._id)}
+					onClick={() => handleLikeClick(post.id)}
 					fullWidth
 				>
 					Liked
@@ -126,7 +127,7 @@ export default function PostList({ post }) {
 					variant='text'
 					sx={{ textTransform: 'capitalize' }}
 					startIcon={<ThumbUpOutlinedIcon />}
-					onClick={() => handleLikeClick(post._id)}
+					onClick={() => handleLikeClick(post.id)}
 					color='inherit'
 					fullWidth
 				>
@@ -169,10 +170,10 @@ export default function PostList({ post }) {
 						</Avatar>
 					}
 					action={<MenuItems componentType='post' componentData={post} />}
-					title={`${user.firstName} ${user.lastName}`}
+					title={`${post.title}`}
 					subheader={
 						<Stack direction='row' spacing={1} sx={{ mt: 0.4 }}>
-							<span>{timeAgo.format(new Date(post.createdAt))}</span>
+							<span>{post.createdAt}</span>
 							{audienceIcon}
 						</Stack>
 					}
@@ -215,11 +216,13 @@ export default function PostList({ post }) {
 									{commentNum} Comments
 								</Typography>
 							)}
+							{/*}
 							<LikesModal
 								likesModal={likesModal}
 								closeLikesModal={closeLikesModal}
 								likesUserId={post.likes.userId}
 							/>
+							{*/}
 						</CardActions>
 					</>
 				)}
@@ -252,9 +255,9 @@ export default function PostList({ post }) {
 					<Divider variant='middle' />
 					{commentsItem.map(
 						(commentItem) =>
-							post._id === commentItem.postId && (
+							post.id === commentItem.postId && (
 								<CommentList
-									key={commentItem._id}
+									key={commentItem.id}
 									commentData={commentItem}
 									postData={post}
 									handleEditComment={handleEditComment}

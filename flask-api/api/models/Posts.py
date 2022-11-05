@@ -1,15 +1,7 @@
 from datetime import datetime
 from os import abort
 from flask import (
-    Blueprint,
-    redirect,
-    render_template,
-    flash,
-    request,
-    session,
-    url_for,
-    jsonify,
-    Response,
+    Blueprint
 )
 from flask_login import login_required, logout_user, current_user, login_user
 from api.models.db import db
@@ -38,7 +30,7 @@ class Post(db.Model):
     content = db.Column(db.String(), unique=False, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.now())
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
-    #timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     
     likes = db.relationship("PostLike", backref="Posts", lazy="dynamic")
     comments = db.relationship("PostComment", backref="Posts", lazy="dynamic")
@@ -47,11 +39,12 @@ class Post(db.Model):
     def serialize(self):
 
         return {
-            'post_id': self.id,
-            'post_title': self.title,
-            'post_content': self.content,
+            'id': self.id,
+            'title': self.title,
+            'text': self.content,
             'likes': [x.serialize() for x in self.likes],
-            'comments' : [x.serialize() for x in self.comments]
+            'comments' : [x.serialize() for x in self.comments],
+            'createdAt': self.date_created
         }
 
 class PostLike(db.Model):
@@ -59,7 +52,6 @@ class PostLike(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
     post_id = db.Column(db.Integer, db.ForeignKey("Posts.id"))
-    
     
 
     def like_post(self, post, user):
@@ -81,7 +73,7 @@ class PostLike(db.Model):
 
     def serialize(self):
         return {
-            'user_id': self.user_id
+            'userId': self.user_id
         }
 
 class PostComment(db.Model):
@@ -109,6 +101,6 @@ class PostComment(db.Model):
     def serialize(self):
         return{
 
-            "user_id" : self.user_id,
+            "userId" : self.user_id,
             "text" : self.text
         }
