@@ -95,7 +95,7 @@ export default function PostList({ post }) {
 
 	const handleLikeClick = (postId) => {
 		var likeData = {
-			userId: user._id,
+			userId: user.id,
 			postId: postId,
 		};
 
@@ -252,9 +252,9 @@ export default function PostList({ post }) {
 					<Divider variant='middle' />
 					{commentsItem.map(
 						(commentItem) =>
-							post._id === commentItem.postId && (
+							post.id === commentItem.postId && (
 								<CommentList
-									key={commentItem._id}
+									key={commentItem.id}
 									commentData={commentItem}
 									postData={post}
 									handleEditComment={handleEditComment}

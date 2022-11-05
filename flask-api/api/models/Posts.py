@@ -30,7 +30,7 @@ class Post(db.Model):
     content = db.Column(db.String(), unique=False, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.now())
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
-    #timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     
     likes = db.relationship("PostLike", backref="Posts", lazy="dynamic")
     comments = db.relationship("PostComment", backref="Posts", lazy="dynamic")
@@ -43,7 +43,8 @@ class Post(db.Model):
             'post_title': self.title,
             'post_content': self.content,
             'likes': [x.serialize() for x in self.likes],
-            'comments' : [x.serialize() for x in self.comments]
+            'comments' : [x.serialize() for x in self.comments],
+            'createdAt': self.timestamp
         }
 
 class PostLike(db.Model):
@@ -72,7 +73,7 @@ class PostLike(db.Model):
 
     def serialize(self):
         return {
-            'user_id': self.user_id
+            'userId': self.user_id
         }
 
 class PostComment(db.Model):
@@ -100,6 +101,6 @@ class PostComment(db.Model):
     def serialize(self):
         return{
 
-            "user_id" : self.user_id,
+            "userId" : self.user_id,
             "text" : self.text
         }

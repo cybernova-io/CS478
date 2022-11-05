@@ -57,7 +57,9 @@ def create_post():
     post = Post(
         title=title,
         content=content,
+        
     )
+
     db.session.add(post)
     db.session.commit()
 
@@ -125,7 +127,7 @@ def user_likes_post(post_id):
         return WebHelpers.EasyResponse("Specified post does not exist.", 404)
     post_like = PostLike.query.filter(PostLike.user_id==current_user.id).filter(PostLike.post_id==post.id).first()
     if post_like is None:
-        
+
         post_like = PostLike(
             user_id=current_user.id,
             post_id=post_id
