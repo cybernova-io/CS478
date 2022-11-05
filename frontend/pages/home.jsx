@@ -15,6 +15,7 @@ export default function Home() {
 	const { posts, isLoading, isError, message } = useSelector(
 		(state) => state.posts
 	);
+
 	useEffect(() => {
 		if (isError) {
 			console.log(message);
@@ -28,25 +29,28 @@ export default function Home() {
 			router.push('/');
 		}
 	}, [user, router, isError, message, dispatch]);
-// if (isLoading) {
-	// 	return <Spinner />;
-	// }
+
+ if (isLoading) {
+	 	return <Spinner />;
+	 }
+	
+	if (!posts) return <p>You have no posts on your feed!</p>
 
 	return (
 		<Layout>
-			<PostForm />
-			{posts.length !== 0 ? (
-				posts
-					.slice(0)
-					.reverse()
-          .map((post) => <PostList key={post._id} post={post} />)
-			) : (
-				<Box sx={{ width: '100%', margin: 'auto', mt: 3 }}>
-					<Typography variant='subtitle1' component='div' textAlign='center'>
-						No posts yet.
-					</Typography>
-				</Box>
-			)}
-		</Layout>
-	);
+		<PostForm />
+		{posts.length !== 0 ? (
+			posts
+				.slice(0)
+	  .map((post) => <PostList key={post.id} post={post} />)
+		) : (
+			<Box sx={{ width: '100%', margin: 'auto', mt: 3 }}>
+				<Typography variant='subtitle1' component='div' textAlign='center'>
+					No posts yet.
+				</Typography>
+			</Box>
+		)}
+	</Layout>
+		
+		);
 }

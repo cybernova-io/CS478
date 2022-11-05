@@ -29,9 +29,11 @@ import { toast } from 'react-toastify';
 
 export default function PostForm() {
 	const dispatch = useDispatch();
+
 	const { user } = useSelector((state) => state.auth);
 
-	const { firstName, lastName } = user;
+	const { firstName } = "bob";
+	const { lastName } = "smith";
 
 	const Input = styled('input')({
 		display: 'none',

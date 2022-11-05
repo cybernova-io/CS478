@@ -14,14 +14,18 @@ export default function ReadMore({ children }) {
       color="text.secondary"
       sx={{ whiteSpace: "pre-line" }}
     >
+      
       {isReadMore ? text.slice(0, 40) : text}
+      
       <br />
       <span
         onClick={toggleReadMore}
         className="read-or-hide"
         style={{ color: "#062343", cursor: "pointer" }}
       >
+        
         {isReadMore && text.length > 40 ? "...read more" : ""}
+        
       </span>
     </Typography>
   );

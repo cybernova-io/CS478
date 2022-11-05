@@ -7,14 +7,14 @@ import Grid from '@mui/material/Grid';
 import { useDispatch, useSelector } from 'react-redux';
 import TextField from '@mui/material/TextField';
 import { updateComment } from '../../src/features/comments/commentSlice';
-import ReadMore from '../features/Readmore';
+import ReadMore from '../../src/features/ReadMore';
 import Box from '@mui/material/Box';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en.json';
 import { toast } from 'react-toastify';
-import MenuItems from '../features/MenuItems';
+import MenuItems from '../../src/features/MenuItems';
 import { likeComment } from '../../src/features/comments/commentSlice';
-import userService from '../../src/features/users/usersService';
+import userService from '../../src/features/users/userService';
 import Badge from '@mui/material/Badge';
 import RecommendIcon from '@mui/icons-material/Recommend';
 import { styled } from '@mui/material/styles';
@@ -47,8 +47,9 @@ export default function CommentList(props) {
 			props.commentData.user,
 			user.token
 		);
+		
 		setCommentUserData({
-			userId: userData._id,
+			userId: userData.id,
 			lastName: userData.lastName,
 			firstName: userData.firstName,
 		});
@@ -228,6 +229,7 @@ export default function CommentList(props) {
 								<Typography variant='body2' sx={{ fontWeight: 'bold' }}>
 									{`${commentUserData.firstName} ${commentUserData.lastName}`}
 								</Typography>
+								
 								<ReadMore>{props.commentData.comment}</ReadMore>
 							</Box>
 						</CustomizedBadge>
