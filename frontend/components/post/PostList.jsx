@@ -106,15 +106,15 @@ export default function PostList({ post }) {
 	var likeButton;
 
 	if (post.likes) {
-		//postLikes = post.likes.userId.length;
+		postLikes = post.likes.length;
 
-		if (post.likes.userId.some((id) => id === user._id)) {
+		if (post.likes.some((id) => id === user._id)) {
 			likeButton = (
 				<Button
 					variant='text'
 					sx={{ textTransform: 'capitalize' }}
 					startIcon={<ThumbUpIcon />}
-					onClick={() => handleLikeClick(post._id)}
+					onClick={() => handleLikeClick(post.id)}
 					fullWidth
 				>
 					Liked
@@ -126,7 +126,7 @@ export default function PostList({ post }) {
 					variant='text'
 					sx={{ textTransform: 'capitalize' }}
 					startIcon={<ThumbUpOutlinedIcon />}
-					onClick={() => handleLikeClick(post._id)}
+					onClick={() => handleLikeClick(post.id)}
 					color='inherit'
 					fullWidth
 				>
