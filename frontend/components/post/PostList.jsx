@@ -41,7 +41,8 @@ export default function PostList({ post }) {
 
 	const timeAgo = new TimeAgo('en-US');
 
-	const { comments } = useSelector((state) => state.comments);
+	//const { comments } = useSelector((state) => state.comments);
+	const comments = post.comments;
 
 	const commentsInitialState = comments.map((obj) => ({
 		...obj,
