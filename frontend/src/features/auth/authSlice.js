@@ -4,6 +4,7 @@ import authService from "./authService";
 var user = {
   firstName:'',
   lastName:'',
+  userId: null
 }
 
 if (typeof window !== "undefined") {

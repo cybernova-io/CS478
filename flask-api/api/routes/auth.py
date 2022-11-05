@@ -90,8 +90,10 @@ def login():
             respList = []
             resp = {
                 'firstName': user.first_name,
-                'lastName': user.last_name
+                'lastName': user.last_name,
+                'userId': user.id
             }
+            
             respList.append(resp)
             return jsonify(resp)
 

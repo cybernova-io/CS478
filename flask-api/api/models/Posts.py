@@ -1,15 +1,7 @@
 from datetime import datetime
 from os import abort
 from flask import (
-    Blueprint,
-    redirect,
-    render_template,
-    flash,
-    request,
-    session,
-    url_for,
-    jsonify,
-    Response,
+    Blueprint
 )
 from flask_login import login_required, logout_user, current_user, login_user
 from api.models.db import db
@@ -47,7 +39,7 @@ class Post(db.Model):
     def serialize(self):
 
         return {
-            'post_id': self.id,
+            'id': self.id,
             'post_title': self.title,
             'post_content': self.content,
             'likes': [x.serialize() for x in self.likes],
@@ -59,7 +51,6 @@ class PostLike(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
     post_id = db.Column(db.Integer, db.ForeignKey("Posts.id"))
-    
     
 
     def like_post(self, post, user):

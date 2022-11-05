@@ -1,28 +1,17 @@
-from cgitb import text
-from datetime import datetime
 from os import abort
-from urllib.request import Request
 from flask import (
     Blueprint,
-    redirect,
-    render_template,
-    flash,
     request,
-    session,
-    url_for,
     jsonify,
-    Response,
 )
 from flask_login import login_required, logout_user, current_user, login_user
 from ..models.Posts import Post, PostLike,PostComment, db
 from .. import login_manager
 from flask_login import logout_user
-import werkzeug
-import os
 from flask import current_app as app
 from sqlalchemy import engine, create_engine
-import logging
 from ..services.WebHelpers import WebHelpers
+
 
 post_bp = Blueprint("post_bp", __name__)
 
@@ -136,6 +125,12 @@ def user_likes_post(post_id):
         return WebHelpers.EasyResponse("Specified post does not exist.", 404)
     post_like = PostLike.query.filter(PostLike.user_id==current_user.id).filter(PostLike.post_id==post.id).first()
     if post_like is None:
+        
+        post_like = PostLike(
+            user_id=current_user.id,
+            post_id=post_id
+        )
+
         db.session.add(post_like)
         db.session.commit()
         return WebHelpers.EasyResponse("success", 200)

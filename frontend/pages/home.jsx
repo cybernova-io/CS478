@@ -60,7 +60,7 @@ export default function Home() {
 			posts
 				.slice(0)
 				.reverse()
-	  .map((post) => <PostList key={post._id} post={post} />)
+	  .map((post) => <PostList key={post.id} post={post} />)
 		) : (
 			<Box sx={{ width: '100%', margin: 'auto', mt: 3 }}>
 				<Typography variant='subtitle1' component='div' textAlign='center'>
