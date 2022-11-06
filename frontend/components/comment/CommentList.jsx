@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { useState, useEffect } from "react";
 import Avatar from "@mui/material/Avatar";
@@ -43,16 +42,19 @@ export default function CommentList(props) {
   });
 
   const getUserDetails = async () => {
-    const userData = await userService.getUserDataById(
-      props.commentData.user,
-      user.token
-    );
+    const userData = await userService.getUserDataById(props.userId)
 
-    setCommentUserData({
-      userId: userData.id,
-      lastName: userData.lastName,
-      firstName: userData.firstName,
-    });
+	.then(function (response) {
+		setCommentUserData({
+		  userId: response.data['userId'],
+		  lastName: response.data['lastName'],
+		  firstName: response.data['firstName'],
+		});
+	  })
+	  .catch(function (error) {
+		console.log(error);
+	  });
+
   };
 
   useEffect(() => {
