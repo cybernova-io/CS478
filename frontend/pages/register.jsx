@@ -42,11 +42,14 @@ export default function Register() {
   const [userFormData, setUserFormData] = useState({
     firstName: "",
     lastName: "",
+    major: "",
+    gradYear: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
-  const { firstName, lastName, email, password, confirmPassword } =
+  const { firstName, lastName, major, gradYear, email, username, password, confirmPassword, } =
     userFormData;
   const router = useRouter();
   const dispatch = useDispatch();
@@ -76,13 +79,11 @@ export default function Register() {
     if (password !== confirmPassword) {
       toast.error("Passwords do not match!");
     } else {
-      const userData = {
-        lastName,
-        firstName,
-        email,
-        password,
-      };
-      dispatch(register(userData));
+
+      const data = new FormData(e.currentTarget);
+      var idk = dispatch(register(data));
+      console.log(idk);
+
     }
   };
   if (isLoading) {
@@ -136,6 +137,42 @@ export default function Register() {
                   autoComplete="family-name"
                   onChange={handleInputChange}
                   value={lastName}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  required
+                  fullWidth
+                  id="major"
+                  label="Major"
+                  name="major"
+                  autoComplete="family-name"
+                  onChange={handleInputChange}
+                  value={major}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  required
+                  fullWidth
+                  id="gradYear"
+                  label="Graduation Year"
+                  name="gradYear"
+                  autoComplete="family-name"
+                  onChange={handleInputChange}
+                  value={gradYear}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="username"
+                  label="Username"
+                  name="username"
+                  autoComplete="family-name"
+                  onChange={handleInputChange}
+                  value={username}
                 />
               </Grid>
               <Grid item xs={12}>

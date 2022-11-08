@@ -16,20 +16,29 @@ const getMe = async (token) => {
 }
 // Register User
 const register = async (userData) => {
-  const response = await axios.post(API_URL, userData);
+  
+  const response = await axios.post('/api/signup', userData)
+  .then(function (response) {
+    //console.log(response.data);
+    if (response.data) {
+      localStorage.setItem("user", JSON.stringify(response));
+      //localStorage.setItem('isDarkMode', JSON.stringify(response.data.settings.isDarkMode))          
+    }
 
-  if (response.data) {
-    localStorage.setItem("user", JSON.stringify(response));
-    localStorage.setItem('isDarkMode', JSON.stringify(response.data.settings.isDarkMode))          
-  }
+    return response
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
 
-  return response.data;
+  return response;
 };
 
 // Login User
 const login = async (userData) => {
-  console.log('trying to log in');
+  
   const response = await axios.post('/api/login', userData)
+  
   .then(function (response) {
     //console.log(response.data);
     return response

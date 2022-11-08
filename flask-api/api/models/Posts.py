@@ -100,7 +100,7 @@ class PostComment(db.Model):
 
     def serialize(self):
         return{
-
+            "id": self.id,
             "userId" : self.user_id,
             "text" : self.text
         }

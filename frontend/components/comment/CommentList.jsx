@@ -2,25 +2,6 @@ import * as React from "react";
 import { useState, useEffect } from "react";
 import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
-import Grid from "@mui/material/Grid";
-import { useDispatch, useSelector } from "react-redux";
-import TextField from "@mui/material/TextField";
-import { updateComment } from "../../src/features/comments/commentSlice";
-import ReadMore from "../features/Readmore";
-import Box from "@mui/material/Box";
-import { toast } from "react-toastify";
-import MenuItems from "../features/MenuItems";
-import { likeComment } from "../../src/features/comments/commentSlice";
-import Badge from "@mui/material/Badge";
-import RecommendIcon from "@mui/icons-material/Recommend";
-import { styled } from "@mui/material/styles";
-import LikesModal from "../like/LikesModal";
-import TimeDateAgo from "../features/TimeDateAgo";
-import UserNameLink from "../../components/features/UserNameLink";
-import * as React from "react";
-import { useState, useEffect } from "react";
-import Avatar from "@mui/material/Avatar";
-import Typography from "@mui/material/Typography";
 import { red } from "@mui/material/colors";
 import Grid from "@mui/material/Grid";
 import { useDispatch, useSelector } from "react-redux";
@@ -61,16 +42,19 @@ export default function CommentList(props) {
   });
 
   const getUserDetails = async () => {
-    const userData = await userService.getUserDataById(
-      props.commentData.user,
-      user.token
-    );
+    const userData = await userService.getUserDataById(props.userId)
 
-    setCommentUserData({
-      userId: userData.id,
-      lastName: userData.lastName,
-      firstName: userData.firstName,
-    });
+	.then(function (response) {
+		setCommentUserData({
+		  userId: response.data['userId'],
+		  lastName: response.data['lastName'],
+		  firstName: response.data['firstName'],
+		});
+	  })
+	  .catch(function (error) {
+		console.log(error);
+	  });
+
   };
 
   useEffect(() => {

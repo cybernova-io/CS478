@@ -53,6 +53,7 @@ export default function SignInSide() {
     email: "",
     password: "",
   });
+
   const { email, password } = userFormData;
   const router = useRouter();
   const dispatch = useDispatch();
@@ -79,14 +80,11 @@ export default function SignInSide() {
   };
 
   const handleSubmit = async (e) => {
-    console.log("WHATS GOING ON INDEX")
+    console.log("Attempting login...")
+    
     e.preventDefault();
     const data = new FormData(e.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
-
+    
     var idk = dispatch(login(data));
     console.log(idk);
 

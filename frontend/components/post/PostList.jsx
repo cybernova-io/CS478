@@ -255,7 +255,7 @@ export default function PostList({ post }) {
 					<Divider variant='middle' />
 					{commentsItem.map(
 						(commentItem) =>
-							post.id === commentItem.postId && (
+							(
 								<CommentList
 									key={commentItem.id}
 									commentData={commentItem}
