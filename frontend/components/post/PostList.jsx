@@ -44,21 +44,21 @@ export default function PostList({ post }) {
 	//const { comments } = useSelector((state) => state.comments);
 	const comments = post.comments;
 
-	const commentsInitialState = comments.map((obj) => ({
-		...obj,
-		isEditing: false,
-	}));
+	//const commentsInitialState = comments.map((obj) => ({
+//		...obj,
+//		isEditing: false,
+//	}));
 
-	const [commentsItem, setCommentsItem] = useState(commentsInitialState);
+	const [commentsItem, setCommentsItem] = useState();
 
 	let commentNum = 0;
 
-	comments.map((comment) => post._id === comment.postId && commentNum++);
+	//comments.map((comment) => post.id === comment.postId && commentNum++);
 
 	useEffect(() => {
 		//dispatch(getComments());
 
-		setCommentsItem(post.comments);
+		setCommentsItem(comments);
 
 		// return () => {
 		// 	dispatch(reset());
@@ -179,7 +179,7 @@ export default function PostList({ post }) {
 					}
 				/>
 				<CardContent>
-					<ReadMore>{post.text}</ReadMore>
+					{post.text}
 				</CardContent>
 				{post.photo && (
 					<CardMedia
@@ -253,7 +253,7 @@ export default function PostList({ post }) {
 				</CardActions>
 				<Collapse in={expanded} timeout='auto' unmountOnExit>
 					<Divider variant='middle' />
-					{commentsItem.map(
+					{/*{commentsItem.map(
 						(commentItem) =>
 							(
 								<CommentList
@@ -263,7 +263,7 @@ export default function PostList({ post }) {
 									handleEditComment={handleEditComment}
 								/>
 							)
-					)}
+							)}{*/}
 					<Divider variant='middle' />
 					<CommentForm postData={post} />
 				</Collapse>
