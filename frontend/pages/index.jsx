@@ -122,7 +122,7 @@ export default function SignIn() {
               }}
             >
               <ImageListItem cols={12}>
-                <img src={`/logos/eagle3.png`} loading="lazy" />
+                <img src={`/logos/eagle5.png`} loading="lazy" />
               </ImageListItem>
             </ImageList>
             <Typography component="h1" variant="h5">

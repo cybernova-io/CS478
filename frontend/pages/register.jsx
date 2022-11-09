@@ -101,7 +101,7 @@ export default function Register() {
             }}
           >
             <ImageListItem cols={12}>
-              <img src={`/logo/eagle5.png`} loading="lazy" />
+              <img src={`/logo/eagle3.png`} loading="lazy" />
             </ImageListItem>
           </ImageList>
           <Typography component="h1" variant="h5">
