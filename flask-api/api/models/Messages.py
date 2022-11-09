@@ -4,14 +4,16 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from sqlalchemy import create_engine
 from flask import current_app as app
+from sqlalchemy_utils import EncryptedType
 
 
 class Message(db.Model):
     __tablename__ = "Messages"
+    __key = "123456"
     id = db.Column(db.Integer, primary_key=True)
     sender_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
     recipient_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
-    body = db.Column(db.String())
+    body = db.Column(EncryptedType(db.String, __key))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     def __repr__(self):

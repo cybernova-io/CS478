@@ -23,10 +23,7 @@ def messages():
         | (Message.recipient_id == current_user.id)
     ).all()
 
-    data = jsonify([x.serialize() for x in messages])
-
-    resp = data
-    resp.status_code
+    data = jsonify([x.serialize() for x in messages]) 
     return data
 
 
@@ -44,7 +41,7 @@ def messages_user(user):
 
     if friend is None:
         return WebHelpers.EasyResponse("Specified user does not exist.", 404)
-    messages = Message.query.order_by(Message.timestamp.asc()).filter((Message.recipient_id==friend.id) | (Message.sender_id==current_user.id)).all() 
+    messages = Message.query.order_by(Message.timestamp.asc()).filter((Message.recipient_id==friend.id) | (Message.sender_id==current_user.id) | (Message.sender_id==friend.id) | (Message.recipient_id==current_user.id)).all() 
 
     # messages = current_user.messages_received.order_by(Message.timestamp.desc()).paginate(page, app.config['MESSAGES_PER_PAGE'], False )
     #messages = current_user.messages_received.where(
