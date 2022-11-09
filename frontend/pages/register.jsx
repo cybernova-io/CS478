@@ -16,7 +16,7 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import ImageList from "@mui/material/ImageList";
 import ImageListItem from "@mui/material/ImageListItem";
-import Copyright from "../components/Copyright";
+//import Copyright from "../components/";
 
 const theme = createTheme();
 
@@ -194,7 +194,7 @@ export default function Register() {
             </Grid>
           </Box>
         </Box>
-        <Copyright sx={{ mt: 5 }} />
+        {/*}<Copyright sx={{ mt: 5 }} />{*/}
       </Container>
     </ThemeProvider>
   );

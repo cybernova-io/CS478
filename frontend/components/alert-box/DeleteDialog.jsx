@@ -6,8 +6,8 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { useDispatch } from "react-redux";
-import { deletePost } from "../features/posts/postSlice";
-import { deleteComment } from "../features/comments/commentSlice";
+import { deletePost } from "../../src/features/posts/postSlice";
+import { deleteComment } from "../../src/features/comments/commentSlice";
 
 export default function DeleteDialog(props) {
   const dispatch = useDispatch();

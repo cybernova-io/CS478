@@ -12,7 +12,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditPostForm from "../post/EditPostForm";
 import DeleteDialog from "../alert-box/DeleteDialog";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
-import { savePost } from "./posts/postSlice";
+import { savePost } from "../../src/features/posts/postSlice";
 import { toast } from "react-toastify";
 
 export default function MenuItems(props) {

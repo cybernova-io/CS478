@@ -14,8 +14,8 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemSecondaryAction from "@mui/material/ListItemSecondaryAction";
-import userService from "../../src/features/users/usersService";
-import FriendOptions from "../friends/FriendOptions";
+import userService from "../../src/features/users/userService";
+import FriendOptions from "../features/friends/FriendOptions";
 import UserNameLink from "../../components/features/UserNameLink";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({

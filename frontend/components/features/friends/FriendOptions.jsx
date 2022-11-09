@@ -7,10 +7,10 @@ import Stack from "@mui/material/Stack";
 import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
-import friendService from "../../src/features/friends/friendService";
+import friendService from "../../../src/features/friends/friendService";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import { Typography } from "@mui/material";
-import AlertDialog from "../alert-box/AlertDialog";
+import AlertDialog from "../../alert-box/AlertDialog";
 import Skeleton from "@mui/material/Skeleton";
 
 const BootstrapDialogTitle = (props) => {
