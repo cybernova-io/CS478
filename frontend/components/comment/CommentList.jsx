@@ -42,19 +42,19 @@ export default function CommentList(props) {
   });
 
   const getUserDetails = async () => {
-    const userData = await userService.getUserDataById(props.userId)
+    const userData = await userService
+      .getUserDataById(props.userId)
 
-	.then(function (response) {
-		setCommentUserData({
-		  userId: response.data['userId'],
-		  lastName: response.data['lastName'],
-		  firstName: response.data['firstName'],
-		});
-	  })
-	  .catch(function (error) {
-		console.log(error);
-	  });
-
+      .then(function (response) {
+        setCommentUserData({
+          userId: response.data["userId"],
+          lastName: response.data["lastName"],
+          firstName: response.data["firstName"],
+        });
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   };
 
   useEffect(() => {
@@ -255,54 +255,6 @@ export default function CommentList(props) {
               />
             </Box>
           </Grid>
-          {/* <Grid justifyContent='left' item>
-						<List
-							sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
-						>
-							<Badge
-								badgeContent={4}
-								anchorOrigin={{
-									vertical: 'bottom',
-									horizontal: 'right',
-								}}
-								color='primary'
-							>
-								<ListItem
-									alignItems='flex-start'
-									sx={{
-										backgroundColor: (theme) =>
-											theme.palette.mode === 'light'
-												? theme.palette.grey[200]
-												: theme.palette.grey[800],
-										p: 1.3,
-										borderRadius: 5,
-										width: 'max-content',
-										maxWidth: 575,
-										whiteSpace: 'pre-wrap',
-										wordWrap: 'break-word',
-									}}
-								>
-									<ListItemText
-										primary={
-											<Typography variant='body2' sx={{ fontWeight: 'bold' }}>
-												{`${commentUserData.firstName} ${commentUserData.lastName}`}
-											</Typography>
-										}
-										secondary={<ReadMore>{props.commentData.comment}</ReadMore>}
-									/>
-								</ListItem>
-							</Badge>
-							{likeButton}
-							<Typography
-								variant='caption'
-								sx={{ p: 1.3 }}
-								color='text.secondary'
-							>
-								{timeAgo.format(new Date(props.commentData.createdAt))}
-							</Typography>
-							<Divider variant='inset' component='li' />
-						</List>
-					</Grid> */}
         </>
       )}
     </Grid>
