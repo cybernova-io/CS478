@@ -209,10 +209,20 @@ class User(UserMixin, db.Model):
         if not self.is_blocked(user):
             stmt = (
                 insert(blocked_user).
-                values(self.id, user.id)
+                values(user_id=self.id, blocked_user_id=user.id)
             )
             db.session.execute(stmt)
             db.session.commit()
+
+            if self.is_friend(user):
+                remove = self.remove_friend(user)
+                db.session.add(remove)
+                db.session.commit()
+
+            if user.id in self.pending_friends:
+                removed = self.remove_pending_friend
+                db.session.add(removed)
+                db.session.commit()
     
     def remove_blocked_user(self, user):
         if self.is_blocked(user):
@@ -236,4 +246,9 @@ class User(UserMixin, db.Model):
         return {
             "user_id": self.id,
             "user_name": self.username,
+        }
+
+    def serialize_id(self):
+        return {
+            'id': self.id
         }
