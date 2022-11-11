@@ -24,5 +24,10 @@ def display_user_feed():
         user_feed = Post.query.order_by(Post.date_created.desc())
     return jsonify([x.serialize() for x in user_feed])
 
+
+@feed_bp.get("/api/search")
+@login_required
+def search_users():
+    pass
     
     
