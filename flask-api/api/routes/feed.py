@@ -22,7 +22,7 @@ def display_user_feed():
     return jsonify([x.serialize() for x in user_feed])
 
 
-@feed_bp.get("/api/search/username/")
+@feed_bp.get("/api/search/user/username")
 @login_required
 def search_username():
     query = request.args.get("query")
@@ -30,7 +30,7 @@ def search_username():
     resp = jsonify([x.serialize_search() for x in users])
     return resp
 
-@feed_bp.get("/api/search/major/")
+@feed_bp.get("/api/search/user/major")
 @login_required
 def search_major():
     query = request.args.get("query")
@@ -38,12 +38,26 @@ def search_major():
     resp = jsonify([x.serialize_search() for x in users])
     return resp
 
-@feed_bp.get("/api/search/gradYear/")
+@feed_bp.get("/api/search/user/gradYear")
 @login_required
 def search_grad_year():
     query = request.args.get("query")
     users = User.query.filter(User.grad_year.like("%"+query+"%")).all()
     resp = jsonify([x.serialize_search() for x in users])
     return resp
+
+@feed_bp.get("/api/search/post/title")
+@login_required
+def search_post_title():
+    query = request.args.get("query")
+    posts = Post.query.filter(Post.title.like("%"+query+"%")).all()
+    resp = jsonify([x.serialize_search() for x in posts])
+    return resp
     
-    
+@feed_bp.get("/api/search/post/text")
+@login_required
+def search_post_text():
+    query = request.args.get("query")
+    posts = Post.query.filter(Post.content.like("%"+query+"%")).all()
+    resp = jsonify([x.serialize_search() for x in posts])
+    return resp

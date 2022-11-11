@@ -253,7 +253,7 @@ class User(UserMixin, db.Model):
             "id": self.id,
             "username": self.username,
             "major": self.major,
-            "gradYear": self.grad_year,
+            "gradYear": self.grad_year
         }
 
     def serialize_id(self):

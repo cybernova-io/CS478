@@ -47,6 +47,13 @@ class Post(db.Model):
             'createdAt': self.date_created
         }
 
+    def serialize_search(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'text': self.content
+        }
+
 class PostLike(db.Model):
     __tablename__ = "post_like"
     id = db.Column(db.Integer, primary_key=True)
