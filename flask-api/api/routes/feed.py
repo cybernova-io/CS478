@@ -28,6 +28,6 @@ def display_user_feed():
 @feed_bp.get("/api/search")
 @login_required
 def search_users():
-    
+    pass
     
     
