@@ -18,6 +18,7 @@ from flask_cors import cross_origin
 auth_bp = Blueprint("auth_bp", __name__)
 login_manager = app.login_manager
 
+
 @cross_origin()
 @auth_bp.post("/api/signup")
 def signup():
@@ -55,6 +56,7 @@ def signup():
 
     return WebHelpers.EasyResponse("User with that email already exists. ", 400)
 
+
 @cross_origin()
 @auth_bp.post("/api/login")
 def login():
@@ -68,7 +70,9 @@ def login():
     logout_user()
     ###
     if current_user.is_authenticated:
-        return WebHelpers.EasyResponse(current_user.username + " already logged in.", 400)
+        return WebHelpers.EasyResponse(
+            current_user.username + " already logged in.", 400
+        )
 
     email = request.form["email"]
     password = request.form["password"]
@@ -83,17 +87,16 @@ def login():
             # User exists and password matches password in db
             login_user(user)
             user.set_last_login()
-            #return WebHelpers.EasyResponse(user.username + " logged in.", 200)
+            # return WebHelpers.EasyResponse(user.username + " logged in.", 200)
             respList = []
             resp = {
-                'firstName': user.first_name,
-                'lastName': user.last_name,
-                'userId': user.id
+                "firstName": user.first_name,
+                "lastName": user.last_name,
+                "userId": user.id,
             }
-            
+
             respList.append(resp)
             return jsonify(resp)
-
 
     # User exists but password does not match password in db
     return WebHelpers.EasyResponse("Invalid username/password combination.", 405)
@@ -117,6 +120,7 @@ def unauthorized():
 @login_required
 def logout():
     """User log-out logic."""
+
 
 @auth_bp.post("/api/grant_role")
 def grant_role():

@@ -122,7 +122,8 @@ def profile_picture():
     if request.method == "POST":
         return WebHelpers.HandleUserPictureUpload("PROFILE_PICS")
 
-@profile_bp.get('/api/user/<int:id>')
+
+@profile_bp.get("/api/user/<int:id>")
 @login_required
 def user_details(id):
 
@@ -131,10 +132,9 @@ def user_details(id):
     if user is not None:
 
         return {
-            'firstName': user.first_name,
-            'lastName': user.last_name,
-            'userId': user.id
+            "firstName": user.first_name,
+            "lastName": user.last_name,
+            "userId": user.id,
         }
     else:
-        return WebHelpers.EasyResponse(f'User not found with id {id}.', 404)
-
+        return WebHelpers.EasyResponse(f"User not found with id {id}.", 404)

@@ -12,12 +12,12 @@ from .Posts import PostLike
 from flask_security import UserMixin, RoleMixin, Security
 from sqlalchemy import insert, values
 
-#engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
+# engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
 
 blocked_user = db.Table(
     "blocked_users",
     db.Column("user_id", db.Integer, db.ForeignKey("Users.id")),
-    db.Column("blocked_user_id", db.Integer, db.ForeignKey("Users.id"))
+    db.Column("blocked_user_id", db.Integer, db.ForeignKey("Users.id")),
 )
 
 friend = db.Table(
@@ -38,6 +38,7 @@ roles_users = db.Table(
     db.Column("user_id", db.Integer(), db.ForeignKey("Users.id")),
     db.Column("role_id", db.Integer(), db.ForeignKey("Role.id")),
 )
+
 
 class Role(db.Model, RoleMixin):
     __tablename__ = "Role"
@@ -65,7 +66,7 @@ class User(UserMixin, db.Model):
     last_login = db.Column(db.DateTime, index=False, unique=False, nullable=True)
     profile_pic = db.Column(db.String(), index=False, unique=False, nullable=True)
     friend_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
-    #feed = db.Column(db.Integer, db.ForeignKey('Feed.id'))
+    # feed = db.Column(db.Integer, db.ForeignKey('Feed.id'))
     active = db.Column(db.String(255))
     created_on = db.Column(db.DateTime, index=False, unique=False, nullable=True)
     last_login_at = db.Column(db.DateTime, index=False, unique=False, nullable=True)
@@ -109,9 +110,7 @@ class User(UserMixin, db.Model):
         "Message", foreign_keys="Message.sender_id", backref="author", lazy="dynamic"
     )
 
-    posts = db.relationship(
-        "Post", backref="user",lazy="dynamic"
-    )
+    posts = db.relationship("Post", backref="user", lazy="dynamic")
 
     messages_received = db.relationship(
         "Message",
@@ -203,14 +202,14 @@ class User(UserMixin, db.Model):
         )
 
     def is_blocked(self, user):
-        return self.blocked_users.filter(blocked_user.c.blocked_user_id == user.id).count() > 0
+        return (
+            self.blocked_users.filter(blocked_user.c.blocked_user_id == user.id).count()
+            > 0
+        )
 
     def add_blocked_user(self, user):
         if not self.is_blocked(user):
-            stmt = (
-                insert(blocked_user).
-                values(user_id=self.id, blocked_user_id=user.id)
-            )
+            stmt = insert(blocked_user).values(user_id=self.id, blocked_user_id=user.id)
             db.session.execute(stmt)
             db.session.commit()
 
@@ -223,18 +222,17 @@ class User(UserMixin, db.Model):
                 removed = self.remove_pending_friend
                 db.session.add(removed)
                 db.session.commit()
-    
+
     def remove_blocked_user(self, user):
         if self.is_blocked(user):
             stmt = (
-            blocked_user.delete()
-            .where(blocked_user.c.user_id == self.id)
-            .where(blocked_user.c.blocked_user_id == user.id)
+                blocked_user.delete()
+                .where(blocked_user.c.user_id == self.id)
+                .where(blocked_user.c.blocked_user_id == user.id)
             )
 
             db.session.execute(stmt)
             db.session.commit()
-
 
     def add_notification(self, name, data):
         self.notifications.filter_by(name=name).delete()
@@ -244,11 +242,17 @@ class User(UserMixin, db.Model):
 
     def serialize(self):
         return {
-            "user_id": self.id,
-            "user_name": self.username,
+            "id": self.id,
+            "username": self.username,
+        }
+
+    def serialize_search(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "major": self.major,
+            "gradYear": self.grad_year,
         }
 
     def serialize_id(self):
-        return {
-            'id': self.id
-        }
+        return {"id": self.id}

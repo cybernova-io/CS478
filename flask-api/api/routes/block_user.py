@@ -9,6 +9,7 @@ from datetime import datetime
 
 blocked_bp = Blueprint("blocked_bp", __name__)
 
+
 @login_required
 @blocked_bp.get("/api/user/blocked")
 def blocked_users():
@@ -21,6 +22,7 @@ def blocked_users():
 
     return resp
 
+
 @login_required
 @blocked_bp.post("/api/user/blocked/<int:id>")
 def block_user(id):
@@ -29,9 +31,12 @@ def block_user(id):
 
     if user:
         current_user.add_blocked_user(user)
-        
-        return WebHelpers.EasyResponse(f'{user.first_name} has been added to your blocked user list.', 200)
-    return WebHelpers.EasyResponse(f'User with that id does not exist.')
+
+        return WebHelpers.EasyResponse(
+            f"{user.first_name} has been added to your blocked user list.", 200
+        )
+    return WebHelpers.EasyResponse(f"User with that id does not exist.")
+
 
 @login_required
 @blocked_bp.delete("/api/user/blocked/<int:id>")
@@ -42,6 +47,7 @@ def unblock_user(id):
     if user:
         current_user.remove_blocked_user(user)
 
-        return WebHelpers.EasyResponse(f'{user.first_name} has been removed from your block list', 200)
-    return WebHelpers.EasyResponse(f'User with that id does not exist.')
-    
+        return WebHelpers.EasyResponse(
+            f"{user.first_name} has been removed from your block list", 200
+        )
+    return WebHelpers.EasyResponse(f"User with that id does not exist.")

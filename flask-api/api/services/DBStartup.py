@@ -5,6 +5,7 @@ from api.models.db import db
 import logging
 from flask_security.utils import hash_password
 
+
 def seed_db():
     """Initial seeding of database on application start up."""
 
@@ -15,7 +16,7 @@ def seed_db():
             name="Admin",
             description="Role for users that manage an organizations instance of the platform.",
         )
-        
+
         db.session.add(admin_role)
         db.session.commit()
         logging.warning(f"No roles found, default roles created.")
@@ -29,7 +30,8 @@ def seed_db():
             major="ADMINISTRATION",
             username="ADMIN",
             email="ADMIN@EMAIL.COM",
-            password=password)
+            password=password,
+        )
 
         user_datastore.add_role_to_user(admin, "Admin")
         db.session.add(admin)
@@ -48,7 +50,6 @@ def seed_db():
             username="TheBob",
             email="bob@gmail.com",
             password=password,
-
         )
         db.session.add(user1)
         db.session.commit()
@@ -63,7 +64,6 @@ def seed_db():
             username="Coolguyjohn",
             email="john@email.com",
             password=password,
-
         )
         db.session.add(user2)
         db.session.commit()
@@ -86,17 +86,14 @@ def seed_db():
         post = Post(
             title="Just signed up",
             content="Just signed up this app is so cool",
-            user_id=user2.id
+            user_id=user2.id,
         )
 
         db.session.add(post)
         db.session.commit()
 
     if PostLike.query.count() == 0:
-        post_like = PostLike(
-            post_id=post.id,
-            user_id=user1.id
-        )
+        post_like = PostLike(post_id=post.id, user_id=user1.id)
         db.session.add(post_like)
         db.session.commit()
 
@@ -104,11 +101,7 @@ def seed_db():
         post_comment = PostComment(
             post_id=post.id,
             user_id=user1.id,
-            text="Yeah its really cool, i wish i could donate them money"
+            text="Yeah its really cool, i wish i could donate them money",
         )
         db.session.add(post_comment)
         db.session.commit()
-
-    
-    
-
