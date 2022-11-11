@@ -11,6 +11,7 @@ from ..services.WebHelpers import WebHelpers
 
 feed_bp = Blueprint("feed_bp", __name__)
 
+
 @feed_bp.get("/api/feed")
 @login_required
 def display_user_feed():
@@ -26,38 +27,42 @@ def display_user_feed():
 @login_required
 def search_username():
     query = request.args.get("query")
-    users = User.query.filter(User.username.like("%"+query+"%")).all()
+    users = User.query.filter(User.username.like("%" + query + "%")).all()
     resp = jsonify([x.serialize_search() for x in users])
     return resp
+
 
 @feed_bp.get("/api/search/user/major")
 @login_required
 def search_major():
     query = request.args.get("query")
-    users = User.query.filter(User.major.like("%"+query+"%")).all()
+    users = User.query.filter(User.major.like("%" + query + "%")).all()
     resp = jsonify([x.serialize_search() for x in users])
     return resp
+
 
 @feed_bp.get("/api/search/user/gradYear")
 @login_required
 def search_grad_year():
     query = request.args.get("query")
-    users = User.query.filter(User.grad_year.like("%"+query+"%")).all()
+    users = User.query.filter(User.grad_year.like("%" + query + "%")).all()
     resp = jsonify([x.serialize_search() for x in users])
     return resp
+
 
 @feed_bp.get("/api/search/post/title")
 @login_required
 def search_post_title():
     query = request.args.get("query")
-    posts = Post.query.filter(Post.title.like("%"+query+"%")).all()
+    posts = Post.query.filter(Post.title.like("%" + query + "%")).all()
     resp = jsonify([x.serialize_search() for x in posts])
     return resp
-    
+
+
 @feed_bp.get("/api/search/post/text")
 @login_required
 def search_post_text():
     query = request.args.get("query")
-    posts = Post.query.filter(Post.content.like("%"+query+"%")).all()
+    posts = Post.query.filter(Post.content.like("%" + query + "%")).all()
     resp = jsonify([x.serialize_search() for x in posts])
     return resp

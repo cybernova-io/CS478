@@ -2,6 +2,7 @@ import pytest
 from api import create_app
 from api.models.db import db as _db
 
+
 @pytest.fixture(scope="session")
 def app(request):
     """Test session-wide test `Flask` application."""
@@ -20,6 +21,7 @@ def _setup_app_context_for_test(request, app):
     yield  # tests will run here
     ctx.pop()
 
+
 @pytest.fixture
 def client(app):
     return app.test_client()
@@ -30,7 +32,7 @@ def db(app, request):
     """Returns session-wide initialized database"""
     with app.app_context():
         _db.create_all()
-        
+
         yield _db
         _db.drop_all()
 

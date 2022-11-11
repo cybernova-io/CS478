@@ -1,8 +1,6 @@
 from datetime import datetime
 from os import abort
-from flask import (
-    Blueprint
-)
+from flask import Blueprint
 from flask_login import login_required, logout_user, current_user, login_user
 from api.models.db import db
 from flask_login import logout_user
@@ -20,6 +18,7 @@ commented = db.relationship(
     "PostComment", db.ForeignKey("PostComment.user_id"), backref="user", lazy="dynamic"
 )
 
+
 class Post(db.Model):
     """Posts model."""
 
@@ -29,37 +28,33 @@ class Post(db.Model):
     title = db.Column(db.String(100), unique=False, nullable=False)
     content = db.Column(db.String(), unique=False, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.now())
-    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    
+
     likes = db.relationship("PostLike", backref="Posts", lazy="dynamic")
     comments = db.relationship("PostComment", backref="Posts", lazy="dynamic")
-    #feed = db.relationship("Users", backref="Posts", lazy="dynamic")
+    # feed = db.relationship("Users", backref="Posts", lazy="dynamic")
 
     def serialize(self):
 
         return {
-            'id': self.id,
-            'title': self.title,
-            'text': self.content,
-            'likes': [x.serialize() for x in self.likes],
-            'comments' : [x.serialize() for x in self.comments],
-            'createdAt': self.date_created
+            "id": self.id,
+            "title": self.title,
+            "text": self.content,
+            "likes": [x.serialize() for x in self.likes],
+            "comments": [x.serialize() for x in self.comments],
+            "createdAt": self.date_created,
         }
 
     def serialize_search(self):
-        return {
-            'id': self.id,
-            'title': self.title,
-            'text': self.content
-        }
+        return {"id": self.id, "title": self.title, "text": self.content}
+
 
 class PostLike(db.Model):
     __tablename__ = "post_like"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
     post_id = db.Column(db.Integer, db.ForeignKey("Posts.id"))
-    
 
     def like_post(self, post, user):
         if not self.has_liked_post(post):
@@ -79,12 +74,11 @@ class PostLike(db.Model):
         )
 
     def serialize(self):
-        return {
-            'userId': self.user_id
-        }
+        return {"userId": self.user_id}
+
 
 class PostComment(db.Model):
-    __tablename__="post_comment"
+    __tablename__ = "post_comment"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
     post_id = db.Column(db.Integer, db.ForeignKey("Posts.id"))
@@ -100,14 +94,12 @@ class PostComment(db.Model):
             PostComment.query.filter_by(user_id=self.id, post_id=post.id).delete()
 
     def has_commented_post(self, post):
-        return(
-            PostComment.query.filter(PostComment.user_id == self.id, PostComment.post_id == post.id
-        ).count() > 0
+        return (
+            PostComment.query.filter(
+                PostComment.user_id == self.id, PostComment.post_id == post.id
+            ).count()
+            > 0
         )
 
     def serialize(self):
-        return{
-            "id": self.id,
-            "userId" : self.user_id,
-            "text" : self.text
-        }
+        return {"id": self.id, "userId": self.user_id, "text": self.text}

@@ -20,14 +20,16 @@ from api.services.DBStartup import seed_db
 
 app_bp = Blueprint("app_bp", __name__)
 
+
 @app.before_first_request
 def start_up():
     seed_db()
-    
+
 
 @app_bp.route("/", methods=["GET"])
 def index():
     return "Index"
+
 
 @login_required
 @app_bp.route("/download_db", methods=["GET"])
@@ -81,7 +83,7 @@ def load_sqlalchemy():
 
 
 @login_required
-@app.get('/troubleshoot')
+@app.get("/troubleshoot")
 def troubleshoot():
 
-    return {'test':'test'}
+    return {"test": "test"}

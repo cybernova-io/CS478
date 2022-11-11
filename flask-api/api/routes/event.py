@@ -9,6 +9,7 @@ from datetime import datetime
 
 event_bp = Blueprint("event_bp", __name__)
 
+
 @login_required
 @event_bp.get("/api/event/<int:id>")
 def get_event(id):
@@ -17,10 +18,11 @@ def get_event(id):
 
     if event:
         logging.info(f"User id - {current_user.id} - accessed event id - {event.id} -")
-        
+
         return event.serialize()
 
     return WebHelpers.EasyResponse(f"Event with id {id} doesnt exist.", 404)
+
 
 @login_required
 @event_bp.get("/api/event")
@@ -34,6 +36,7 @@ def get_events():
     resp.status_code = 200
     return resp
 
+
 @login_required
 @event_bp.post("/api/event")
 def create_event():
@@ -42,7 +45,7 @@ def create_event():
     event_description = request.form["description"]
     event_time = request.form["time"]
 
-    #ts = ciso8601.parse_datetime(t)
+    # ts = ciso8601.parse_datetime(t)
 
     timestamp = datetime.strptime(event_time, "%m/%d/%Y %H:%M")
 
@@ -50,13 +53,16 @@ def create_event():
         name=event_name,
         description=event_description,
         time=timestamp,
-        owner_id=current_user.id
-     )
+        owner_id=current_user.id,
+    )
 
     db.session.add(event)
     db.session.commit()
-    logging.warning(f"User id - {current_user.id} - created new event id - {event.id} -")
+    logging.warning(
+        f"User id - {current_user.id} - created new event id - {event.id} -"
+    )
     return event.serialize()
+
 
 @login_required
 @event_bp.put("/api/event/<int:id>")
@@ -81,6 +87,7 @@ def update_event(id):
         return WebHelpers.EasyResponse(f"Event id {event.id} updated.", 200)
     return WebHelpers.EasyResponse(f"Event with id {id} does not exist.", 404)
 
+
 @login_required
 @event_bp.delete("/api/event/<int:id>")
 def delete_event(id):
@@ -94,6 +101,7 @@ def delete_event(id):
         return WebHelpers.EasyResponse(f"Event deleted.", 200)
     return WebHelpers.EasyResponse(f"Event with id {id} does not exist.", 404)
 
+
 @login_required
 @event_bp.put("/api/event/join/<int:id>")
 def join_event(id):
@@ -105,6 +113,7 @@ def join_event(id):
         return WebHelpers.EasyResponse(f"You are now attending {event.name}!", 200)
     return WebHelpers.EasyResponse(f"Event with {id} not found.", 404)
 
+
 @login_required
 @event_bp.put("/api/event/leave/<int:id>")
 def leave_event(id):
@@ -114,4 +123,3 @@ def leave_event(id):
         event.leave_event(current_user)
         return WebHelpers.EasyResponse(f"You are no longer attending {event.name}", 200)
     return WebHelpers.EasyResponse(f"Event with {id} not found.", 404)
-

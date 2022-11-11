@@ -36,11 +36,11 @@ def create_app(config):
 
     # authentication
     app.config["LOGIN_DISABLED"] = True
-    
+
     # Initialize Plugins
     db.init_app(app)
     security_ctx = security.init_app(app, user_datastore)
-    
+
     @security_ctx.context_processor
     def security_context_processor():
         return abort(404)
@@ -88,5 +88,5 @@ def create_app(config):
         db.create_all()
 
         # Compile static assets
-        
+
         return app
