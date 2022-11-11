@@ -244,8 +244,16 @@ class User(UserMixin, db.Model):
 
     def serialize(self):
         return {
-            "user_id": self.id,
-            "user_name": self.username,
+            "id": self.id,
+            "username": self.username,
+        }
+
+    def serialize_search(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "major": self.major,
+            "gradYear": self.grad_year,
         }
 
     def serialize_id(self):

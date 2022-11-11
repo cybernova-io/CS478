@@ -1,11 +1,8 @@
-from datetime import datetime
 from flask import Blueprint
 from flask_login import current_user, login_required
-import os
-import json
-from datetime import  datetime
-#from ..models.Feed import Feed
-from ..models.Posts import Post,PostComment,PostLike
+from flask import request
+from ..models.Posts import Post
+from api.models.Users import User
 from flask import (
     Blueprint,
     jsonify,
@@ -25,9 +22,28 @@ def display_user_feed():
     return jsonify([x.serialize() for x in user_feed])
 
 
-@feed_bp.get("/api/search")
+@feed_bp.get("/api/search/username/")
 @login_required
-def search_users():
-    pass
+def search_username():
+    query = request.args.get("query")
+    users = User.query.filter(User.username.like("%"+query+"%")).all()
+    resp = jsonify([x.serialize_search() for x in users])
+    return resp
+
+@feed_bp.get("/api/search/major/")
+@login_required
+def search_major():
+    query = request.args.get("query")
+    users = User.query.filter(User.major.like("%"+query+"%")).all()
+    resp = jsonify([x.serialize_search() for x in users])
+    return resp
+
+@feed_bp.get("/api/search/gradYear/")
+@login_required
+def search_grad_year():
+    query = request.args.get("query")
+    users = User.query.filter(User.grad_year.like("%"+query+"%")).all()
+    resp = jsonify([x.serialize_search() for x in users])
+    return resp
     
     
