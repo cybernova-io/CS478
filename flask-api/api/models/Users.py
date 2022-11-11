@@ -10,10 +10,15 @@ from .Notifications import Notification
 import json
 from .Posts import PostLike
 from flask_security import UserMixin, RoleMixin, Security
+from sqlalchemy import insert, values
 
 #engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
 
-
+blocked_user = db.Table(
+    "blocked_users",
+    db.Column("user_id", db.Integer, db.ForeignKey("Users.id")),
+    db.Column("blocked_user_id", db.Integer, db.ForeignKey("Users.id"))
+)
 
 friend = db.Table(
     "friends",
@@ -69,11 +74,17 @@ class User(UserMixin, db.Model):
     current_login_ip = db.Column(db.String())
     login_count = db.Column(db.Integer)
 
-    
-
-   
     roles = db.relationship(
         "Role", secondary=roles_users, backref=db.backref("users", lazy="dynamic")
+    )
+
+    blocked_users = db.relationship(
+        "User",
+        secondary=blocked_user,
+        primaryjoin=(blocked_user.c.user_id == id),
+        secondaryjoin=(blocked_user.c.blocked_user_id == id),
+        backref=db.backref("blocked_user", lazy="dynamic"),
+        lazy="dynamic",
     )
 
     pending_friends = db.relationship(
@@ -190,6 +201,30 @@ class User(UserMixin, db.Model):
             .filter(Message.timestamp > last_read_time)
             .count()
         )
+
+    def is_blocked(self, user):
+        return self.blocked_users.filter(blocked_user.c.blocked_user_id == user.id).count() > 0
+
+    def add_blocked_user(self, user):
+        if not self.is_blocked(user):
+            stmt = (
+                insert(blocked_user).
+                values(self.id, user.id)
+            )
+            db.session.execute(stmt)
+            db.session.commit()
+    
+    def remove_blocked_user(self, user):
+        if self.is_blocked(user):
+            stmt = (
+            blocked_user.delete()
+            .where(blocked_user.c.user_id == self.id)
+            .where(blocked_user.c.blocked_user_id == user.id)
+            )
+
+            db.session.execute(stmt)
+            db.session.commit()
+
 
     def add_notification(self, name, data):
         self.notifications.filter_by(name=name).delete()
