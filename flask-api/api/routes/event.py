@@ -2,7 +2,7 @@ from api.models.Events import Event
 from api.models.db import db
 from flask import Blueprint, request, jsonify
 import logging
-from flask_security import current_user, login_required
+from flask_jwt_extended import current_user, jwt_required
 from api.services.WebHelpers import WebHelpers
 import time
 from datetime import datetime
@@ -10,8 +10,8 @@ from datetime import datetime
 event_bp = Blueprint("event_bp", __name__)
 
 
-@login_required
 @event_bp.get("/api/event/<int:id>")
+@jwt_required()
 def get_event(id):
 
     event = Event.query.get(id)
@@ -24,8 +24,8 @@ def get_event(id):
     return WebHelpers.EasyResponse(f"Event with id {id} doesnt exist.", 404)
 
 
-@login_required
 @event_bp.get("/api/event")
+@jwt_required()
 def get_events():
 
     event = Event.query.all()
@@ -37,8 +37,8 @@ def get_events():
     return resp
 
 
-@login_required
 @event_bp.post("/api/event")
+@jwt_required()
 def create_event():
 
     event_name = request.form["name"]
@@ -64,8 +64,8 @@ def create_event():
     return event.serialize()
 
 
-@login_required
 @event_bp.put("/api/event/<int:id>")
+@jwt_required()
 def update_event(id):
 
     event = Event.query.get(id)
@@ -88,8 +88,8 @@ def update_event(id):
     return WebHelpers.EasyResponse(f"Event with id {id} does not exist.", 404)
 
 
-@login_required
 @event_bp.delete("/api/event/<int:id>")
+@jwt_required()
 def delete_event(id):
 
     event = Event.query.get(id)
@@ -102,8 +102,8 @@ def delete_event(id):
     return WebHelpers.EasyResponse(f"Event with id {id} does not exist.", 404)
 
 
-@login_required
 @event_bp.put("/api/event/join/<int:id>")
+@jwt_required()
 def join_event(id):
 
     event = Event.query.get(id)
@@ -114,8 +114,8 @@ def join_event(id):
     return WebHelpers.EasyResponse(f"Event with {id} not found.", 404)
 
 
-@login_required
 @event_bp.put("/api/event/leave/<int:id>")
+@jwt_required()
 def leave_event(id):
 
     event = Event.query.get(id)

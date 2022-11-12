@@ -3,7 +3,7 @@ from flask import (
     request,
     jsonify,
 )
-from flask_security import login_required, logout_user, current_user, login_user
+from flask_jwt_extended import current_user, jwt_required
 from ..models.Users import db, User, pending_friend
 from ..services.WebHelpers import WebHelpers
 import logging
@@ -12,7 +12,7 @@ friend_bp = Blueprint("friend_bp", __name__)
 
 
 @friend_bp.route("/api/add-friend", methods=["POST"])
-@login_required
+@jwt_required()
 def add_friend():
     """
     POST: Allows a user to send a friend request to another user. The users then have a relationship in pending_friends.
@@ -62,7 +62,7 @@ def add_friend():
 
 
 @friend_bp.route("/api/remove-friend", methods=["DELETE"])
-@login_required
+@jwt_required()
 def remove_friend():
     """
     DELETE: Allows user to delete a user that is currently their friend.
@@ -106,7 +106,7 @@ def remove_friend():
 
 
 @friend_bp.route("/api/friends", methods=["GET"])
-@login_required
+@jwt_required()
 def get_friends():
     """
     GET: Returns all friends of current user.
@@ -128,6 +128,7 @@ def get_friends():
 
 
 @friend_bp.route("/api/friends/pending-friends", methods=["GET"])
+@jwt_required()
 def get_pending_friends():
     """
     GET: Returns all pending friends of current user.
@@ -150,6 +151,7 @@ def get_pending_friends():
 
 
 @friend_bp.route("/api/friends/pending-friends/<int:id>", methods=["PUT"])
+@jwt_required()
 def accept_pending_friend(id):
     """
     GET: Allows current user to accept or decline a pending friend request.
@@ -194,6 +196,7 @@ def accept_pending_friend(id):
 
 
 @friend_bp.route("/api/friends/pending-friends/<int:id>", methods=["DELETE"])
+@jwt_required()
 def decline_pending_friend(id):
 
     pending_friends = current_user.pending_friends

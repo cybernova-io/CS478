@@ -1,14 +1,22 @@
-import axios from 'axios'
+import axios from "axios";
+
+const API_URL = "http://localhost:5000/api/users/";
+
+const config = (token) => {
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+};
 
 // Get user data
-const getUserDataById = async (userId) => {
-    
-    var response = await axios.get('/api/user/' + userId)
-    return response.data
-  }
+const getUserDataById = async (userId, token) => {
+  var response = await axios.get(API_URL + "user/" + userId, config(token));
 
-const userService = {
-  getUserDataById,
-}
+  return response.data;
+};
 
-export default userService
+const userService = { getUserDataById };
+
+export default userService;

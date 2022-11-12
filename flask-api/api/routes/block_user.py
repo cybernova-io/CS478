@@ -2,7 +2,7 @@ from api.models.db import db
 from flask import Blueprint, request, jsonify
 import logging
 from api.models.Users import User
-from flask_security import current_user, login_required
+from flask_jwt_extended import current_user, jwt_required
 from api.services.WebHelpers import WebHelpers
 import time
 from datetime import datetime
@@ -10,8 +10,8 @@ from datetime import datetime
 blocked_bp = Blueprint("blocked_bp", __name__)
 
 
-@login_required
 @blocked_bp.get("/api/user/blocked")
+@jwt_required()
 def blocked_users():
 
     blocked_users = current_user.blocked_users
@@ -23,8 +23,8 @@ def blocked_users():
     return resp
 
 
-@login_required
 @blocked_bp.post("/api/user/blocked/<int:id>")
+@jwt_required()
 def block_user(id):
 
     user = User.query.get(id)
@@ -38,8 +38,8 @@ def block_user(id):
     return WebHelpers.EasyResponse(f"User with that id does not exist.")
 
 
-@login_required
 @blocked_bp.delete("/api/user/blocked/<int:id>")
+@jwt_required()
 def unblock_user(id):
 
     user = User.query.get(id)

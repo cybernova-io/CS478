@@ -2,10 +2,14 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import authService from "./authService";
 
 var user = {
-  firstName:'',
-  lastName:'',
-  userId: null
-}
+  _id: "",
+  firstName: "",
+  lastName: "",
+  settings: {
+    isDarkMode: true,
+  },
+  token: "",
+};
 
 if (typeof window !== "undefined") {
   // Perform localStorage action
@@ -21,12 +25,30 @@ const initialState = {
 };
 
 //Register user
-export const register = createAsyncThunk("auth/register",async (user, thunkAPI) => {
+export const register = createAsyncThunk(
+  "auth/register",
+  async (user, thunkAPI) => {
     try {
+      return await authService.register(user);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 
-      const response = await authService.register(user);
-      return response.data;
-
+// Update User
+export const updateUser = createAsyncThunk(
+  "auth/account",
+  async (userData, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.token;
+      return await authService.updateUser(userData, token);
     } catch (error) {
       const message =
         (error.response &&
@@ -42,11 +64,7 @@ export const register = createAsyncThunk("auth/register",async (user, thunkAPI) 
 //Login user
 export const login = createAsyncThunk("auth/login", async (user, thunkAPI) => {
   try {
-
-    const response = await authService.login(user);
-    console.log(response.data);
-    return response.data;
-
+    return await authService.login(user);
   } catch (error) {
     const message =
       (error.response && error.response.data && error.response.data.message) ||
@@ -133,6 +151,21 @@ export const authSlice = createSlice({
         state.isError = true;
         state.message = action.payload;
         state.user = null;
+      })
+      .addCase(updateUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.user.firstName = action.payload.firstName;
+        state.user.lastName = action.payload.lastName;
+        state.user.photo = action.payload.photo;
+      })
+      .addCase(updateUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
       })
       .addCase(login.pending, (state) => {
         state.isLoading = true;

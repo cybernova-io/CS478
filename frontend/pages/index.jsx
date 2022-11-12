@@ -1,69 +1,60 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
-import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-
 import { login, reset } from "../src/features/auth/authSlice";
 import Spinner from "../components/Spinner";
 import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
+import ImageList from "@mui/material/ImageList";
+import ImageListItem from "@mui/material/ImageListItem";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
 
-
-
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
 const theme = createTheme();
-export default function SignInSide() {
-  // const handleSubmit = (event) => {
-  //   event.preventDefault();
-  //   const data = new FormData(event.currentTarget);
-  //   console.log({
-  //     email: data.get('email'),
-  //     password: data.get('password'),
-  //   });
-  // };
+
+SignIn.title = "Screagles Connect: Sign in";
+
+export default function SignIn() {
   const [userFormData, setUserFormData] = useState({
     email: "",
     password: "",
   });
 
   const { email, password } = userFormData;
+
+  const [account, setAccount] = useState("");
+
+  const handleSelectChange = (event) => {
+    setUserFormData({
+      email: `${event.target.value}@gmail.com`,
+      password: `${event.target.value}`,
+    });
+    setAccount(event.target.value);
+  };
+
   const router = useRouter();
   const dispatch = useDispatch();
+
   const { user, isLoading, isError, isSuccess, message } = useSelector(
     (state) => state.auth
   );
+
   useEffect(() => {
     if (isError) {
       toast.error(message);
     }
+
     if (isSuccess || user) {
       router.push("/home");
     }
@@ -80,19 +71,16 @@ export default function SignInSide() {
   };
 
   const handleSubmit = async (e) => {
-    console.log("Attempting login...")
-    
     e.preventDefault();
-    const data = new FormData(e.currentTarget);
-    
-    var idk = dispatch(login(data));
-    console.log(idk);
+    const userData = new FormData(e.target);
 
-
+    dispatch(login(userData));
   };
+
   if (isLoading) {
     return <Spinner />;
   }
+
   return (
     <ThemeProvider theme={theme}>
       <Grid container component="main" sx={{ height: "100vh" }}>
@@ -101,19 +89,19 @@ export default function SignInSide() {
           item
           xs={false}
           sm={4}
-          md={7}
+          md={6}
           sx={{
-            backgroundImage: "url(https://source.unsplash.com/random)",
+            backgroundImage: "url(/images/bckgr1.png)",
             backgroundRepeat: "no-repeat",
             backgroundColor: (t) =>
               t.palette.mode === "light"
                 ? t.palette.grey[50]
                 : t.palette.grey[900],
-            backgroundSize: "cover",
+            backgroundSize: "contain",
             backgroundPosition: "center",
           }}
         />
-        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+        <Grid item xs={12} sm={7} md={4} component={Paper} elevation={6} square>
           <Box
             sx={{
               my: 8,
@@ -123,9 +111,16 @@ export default function SignInSide() {
               alignItems: "center",
             }}
           >
-            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-              <LockOutlinedIcon />
-            </Avatar>
+            <ImageList
+              sx={{
+                width: "70%",
+                height: "70%",
+              }}
+            >
+              <ImageListItem cols={12}>
+                <img src={`/logos/eagle5.png`} loading="lazy" />
+              </ImageListItem>
+            </ImageList>
             <Typography component="h1" variant="h5">
               Sign in
             </Typography>
@@ -159,10 +154,24 @@ export default function SignInSide() {
                 onChange={handleInputChange}
                 value={password}
               />
-              <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Remember me"
-              />
+              <FormControl fullWidth sx={{ mt: 2 }}>
+                <InputLabel id="simple-select-label">Sample Users</InputLabel>
+                <Select
+                  labelId="simple-select-label"
+                  id="simple-select"
+                  value={account}
+                  label="Sample Users"
+                  onChange={handleSelectChange}
+                >
+                  {[1, 2, 3, 4, 5].map((num) => {
+                    return (
+                      <MenuItem key={num} value={num}>
+                        User {`${num}`}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
               <Button
                 type="submit"
                 fullWidth
@@ -172,21 +181,24 @@ export default function SignInSide() {
                 Sign In
               </Button>
               <Grid container>
-                <Grid item xs>
-                  <Link href="#" variant="body2">
-                    Forgot password?
-                  </Link>
-                </Grid>
                 <Grid item>
                   <Link href="/register" variant="body2">
                     {"Don't have an account? Sign Up"}
                   </Link>
                 </Grid>
               </Grid>
-              <Copyright sx={{ mt: 5 }} />
             </Box>
           </Box>
         </Grid>
+        <Grid
+          item
+          xs={false}
+          sm={1}
+          md={2}
+          sx={{
+            backgroundColor: "primary.main",
+          }}
+        />
       </Grid>
     </ThemeProvider>
   );

@@ -9,13 +9,15 @@ import { store } from "../src/app/store";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../pages/css/index.css";
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
+
+// Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 
 const ThemeProviderWithNoSSR = dynamic(
-  () => import('../components/CustomThemeProvider'),
+  () => import("../components/CustomThemeProvider"),
   { ssr: false }
-)
+);
 
 export default function MyApp(props) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
@@ -25,17 +27,19 @@ export default function MyApp(props) {
       <CacheProvider value={emotionCache}>
         <Head>
           <meta name="viewport" content="initial-scale=1, width=device-width" />
+          <title>{Component.title}</title>
         </Head>
         <ThemeProviderWithNoSSR>
           {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
           <CssBaseline />
           <Component {...pageProps} />
-          </ThemeProviderWithNoSSR>
+        </ThemeProviderWithNoSSR>
       </CacheProvider>
       <ToastContainer />
     </Provider>
   );
 }
+
 MyApp.propTypes = {
   Component: PropTypes.elementType.isRequired,
   emotionCache: PropTypes.object,

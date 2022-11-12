@@ -2,13 +2,14 @@ from api.models.Users import Role
 from api.models.db import db
 from flask import Blueprint, request
 import logging
-from flask_security import current_user
+from flask_jwt_extended import jwt_required, current_user
 from api.services.WebHelpers import WebHelpers
 
 role_bp = Blueprint("role_bp", __name__)
 
 
 @role_bp.get("/api/role/<int:id>")
+@jwt_required()
 def get_role(id):
 
     role = Role.query.get(id)
@@ -21,6 +22,7 @@ def get_role(id):
 
 
 @role_bp.get("/api/role")
+@jwt_required()
 def get_roles():
 
     role = Role.query.all()
@@ -32,6 +34,7 @@ def get_roles():
 
 
 @role_bp.post("/api/role")
+@jwt_required()
 def create_role():
 
     role_name = request.form["name"]
@@ -46,6 +49,7 @@ def create_role():
 
 
 @role_bp.put("/api/role/<int:id>")
+@jwt_required()
 def update_role(id):
 
     role = Role.query.get(id)
@@ -64,6 +68,7 @@ def update_role(id):
 
 
 @role_bp.delete("/api/role/<int:id>")
+@jwt_required()
 def delete_role(id):
 
     role = Role.query.get(id)
