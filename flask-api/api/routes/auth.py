@@ -32,7 +32,7 @@ def signup():
     major = request.form["major"]
     grad_year = request.form["gradYear"]
     username = request.form["username"]
-    email = request.form["email"]
+    email = request.form["email"].lower()
     password = request.form["password"]
 
     existing_user = User.query.filter_by(email=email).scalar()

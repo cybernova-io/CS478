@@ -10,9 +10,16 @@ from .Notifications import Notification
 import json
 from .Posts import PostLike
 from flask_security import UserMixin, RoleMixin, Security
-from sqlalchemy import insert, values
+from sqlalchemy import insert, values, select
 
 # engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
+group_user = db.Table(
+    "group_users",
+    db.Column("group_id", db.Integer, db.ForeignKey("Group.id")),
+    db.Column("user_id", db.Integer, db.ForeignKey("Users.id")),
+    db.Column("role", db.Integer)
+)
+
 
 blocked_user = db.Table(
     "blocked_users",
@@ -38,7 +45,54 @@ roles_users = db.Table(
     db.Column("user_id", db.Integer(), db.ForeignKey("Users.id")),
     db.Column("role_id", db.Integer(), db.ForeignKey("Role.id")),
 )
+class Group(db.Model):
+    __tablename__= "Group"
 
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(), unique=True)
+    description = db.Column(db.String())
+    invite_only = db.Column(db.Boolean(), default=False, nullable=False)
+    members = db.relationship("User", secondary=group_user, back_populates="groups", lazy="dynamic")
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name':self.name,
+            'description': self.description,
+            'inviteOnly': self.invite_only 
+        }
+
+    def make_owner(self, user):
+        #engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
+        #engine.execute(
+        #        group_user.insert(values(role=1)).where(
+        #        group_user.c.group_id == self.id,
+        #        group_user.c.user_id == user.id
+        #    )
+        #)
+        stmt = insert(group_user).values(group_id=self.id, user_id=user.id, role=1)
+        db.session.execute(stmt)
+        db.session.commit()
+
+    def make_moderator(self, user):
+        stmt = insert(group_user).values(group_id=self.id, user_id=user.id, role=2)
+        db.session.execute(stmt)
+        db.session.commit()
+
+    def check_role(self, user):
+        result = db.session.execute(group_user.select(group_user.c.role).where(group_user.c.group_id==self.id, group_user.c.user_id==user.id)).first()
+        if result:
+            if result[2] == 1:
+                return "Owner"
+            elif result[2] == 2:
+                return "Moderator"
+            elif result[2] == 3:
+                return "Member"
+            else:
+                return None
+        else:
+            #user is not in the group
+            return None
 
 class Role(db.Model, RoleMixin):
     __tablename__ = "Role"
@@ -74,7 +128,8 @@ class User(UserMixin, db.Model):
     last_login_ip = db.Column(db.String())
     current_login_ip = db.Column(db.String())
     login_count = db.Column(db.Integer)
-
+    groups = db.relationship("Group", secondary=group_user, back_populates="members", lazy="dynamic")
+    
     roles = db.relationship(
         "Role", secondary=roles_users, backref=db.backref("users", lazy="dynamic")
     )
@@ -239,6 +294,29 @@ class User(UserMixin, db.Model):
         n = Notification(name=name, payload_json=json.dumps(data), user=self)
         db.session.add(n)
         return n
+
+    def in_group(self, group):
+        return (
+            self.groups.filter(group_user.c.group_id == group.id).count()
+            > 0
+        )
+
+    def join_group(self, group):
+        if not self.in_group(group):
+            stmt = insert(group_user).values(user_id=self.id, group_id=group.id, role=3)
+            db.session.execute(stmt)
+            db.session.commit()
+
+    def leave_group(self, group):
+        if self.in_group(group):
+            stmt = (
+                    group_user.delete()
+                    .where(group_user.c.user_id == self.id)
+                    .where(group_user.c.group_id == group.id)
+                )
+            db.session.execute(stmt)
+            db.session.commit()
+
 
     def serialize(self):
         return {
