@@ -72,11 +72,7 @@ export default function SignIn() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const userData = {
-      email,
-      password,
-    };
+    const userData = new FormData(e.target);
 
     dispatch(login(userData));
   };
