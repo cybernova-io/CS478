@@ -2,21 +2,22 @@ from flask import (
     Blueprint,
     request,
 )
-from flask_login import login_required
-from flask_security import login_required, current_user, login_user
 from flask_security.utils import verify_password, hash_password
 from ..models.Users import db, User
-from .. import login_manager
 from flask_login import logout_user
 from ..services.WebHelpers import WebHelpers
 import logging
 from api import user_datastore
 from flask import current_app as app, jsonify
 from flask_cors import cross_origin
-
+import bcrypt
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import current_user, set_access_cookies
+from api import jwt
 
 auth_bp = Blueprint("auth_bp", __name__)
-login_manager = app.login_manager
 
 
 @cross_origin()
@@ -34,7 +35,7 @@ def signup():
     email = request.form["email"]
     password = request.form["password"]
 
-    existing_user = user_datastore.find_user(email=email)
+    existing_user = User.query.filter_by(email=email).scalar()
 
     if existing_user is None:
         password = hash_password(password)
@@ -50,9 +51,14 @@ def signup():
 
         db.session.commit()  # Create new user
         logging.info("New user created - " + str(user.id) + " - " + str(user.username))
-        login_user(user)  # Log in as newly created user
+        access_token = create_access_token(identity=email)
 
-        return WebHelpers.EasyResponse("New user " + user.username + " created.", 201)
+        return {
+            "firstName": user.first_name,
+            "lastName": user.last_name,
+            "userId": user.id,
+            "token": access_token,
+        }
 
     return WebHelpers.EasyResponse("User with that email already exists. ", 400)
 
@@ -64,62 +70,77 @@ def login():
     Log-in page for registered users.
     """
 
-    # Bypass if user is logged in
-
-    ### TEMPORARY
-    logout_user()
-    ###
-    if current_user.is_authenticated:
-        return WebHelpers.EasyResponse(
-            current_user.username + " already logged in.", 400
-        )
-
     email = request.form["email"]
     password = request.form["password"]
-    # next_page = request.form['next_page']
 
     # Validate login attempt
-    user = user_datastore.find_user(email=email)
+    user = User.query.filter_by(email=email).one_or_none()
     password_matches = verify_password(password, user.password)
 
     if user:
         if user and password_matches:
             # User exists and password matches password in db
-            login_user(user)
             user.set_last_login()
             # return WebHelpers.EasyResponse(user.username + " logged in.", 200)
-            respList = []
-            resp = {
-                "firstName": user.first_name,
-                "lastName": user.last_name,
-                "userId": user.id,
-            }
 
-            respList.append(resp)
-            return jsonify(resp)
+            access_token = create_access_token(identity=user)
+
+            resp = jsonify(
+                {
+                    "firstName": user.first_name,
+                    "lastName": user.last_name,
+                    "userId": user.id,
+                    "token": access_token,
+                }
+            )
+            set_access_cookies(resp, access_token)
+
+            return resp
 
     # User exists but password does not match password in db
     return WebHelpers.EasyResponse("Invalid username/password combination.", 405)
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    """Check if user is logged-in on every page load."""
-    if user_id is not None:
-        return User.query.get(user_id)
-    return None
+@app.route("/me")
+@jwt_required()
+def protected():
+    return jsonify(
+        id=current_user.id,
+        firstName=current_user.first_name,
+        username=current_user.username,
+    )
 
 
-@login_manager.unauthorized_handler
-def unauthorized():
-    """Redirect unauthorized users to Login page."""
-    return WebHelpers.EasyResponse("You must login to view this page", 401)
+@jwt.user_identity_loader
+def user_identity_lookup(user):
+    return user.id
 
 
-@auth_bp.route("/api/logout", methods=["GET"])
-@login_required
-def logout():
-    """User log-out logic."""
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_data):
+    identity = jwt_data["sub"]
+    return User.query.filter_by(id=identity).one_or_none()
+
+
+#
+# @login_manager.user_loader
+# def load_user(user_id):
+#    """Check if user is logged-in on every page load."""
+#    if user_id is not None:
+#        return User.query.get(user_id)
+#    return None
+
+
+# @login_manager.unauthorized_handler
+# def unauthorized():
+#    """Redirect unauthorized users to Login page."""
+#    return WebHelpers.EasyResponse("You must login to view this page", 401)
+
+
+# @auth_bp.route("/api/logout", methods=["GET"])
+# @login_required
+# def logout():
+#    """User log-out logic."""
 
 
 @auth_bp.post("/api/grant_role")

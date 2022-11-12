@@ -4,9 +4,8 @@ from flask import (
     send_from_directory,
     jsonify,
 )
-from flask_login import login_required, logout_user, current_user, login_user
 from ..models.Users import db, User, pending_friend
-from flask_login import logout_user
+from flask_jwt_extended import jwt_required, current_user
 from flask import current_app as app
 from ..services.WebHelpers import WebHelpers
 import logging
@@ -15,7 +14,7 @@ profile_bp = Blueprint("profile", __name__)
 
 
 @profile_bp.get("/api/profile")
-@login_required
+@jwt_required()
 def profile():
     """
     GET: Returns all user attributes to be displayed in profile. This is how logged in users can view their profile.
@@ -41,6 +40,7 @@ def profile():
 
 
 @profile_bp.get("/api/profile/<string:username>")
+@jwt_required()
 def lookup_profile(username):
     """
     GET: Allows user to search other profiles
@@ -63,7 +63,7 @@ def lookup_profile(username):
 
 
 @profile_bp.put("/api/profile")
-@login_required
+@jwt_required()
 def edit_profile():
     """
     PUT: Allows user to modify their profile attributes.
@@ -98,7 +98,7 @@ def edit_profile():
 
 
 @profile_bp.route("/api/profile-picture", methods=["GET", "POST"])
-@login_required
+@jwt_required()
 def profile_picture():
     """
     GET: Returns the current users profile picture.
@@ -124,7 +124,7 @@ def profile_picture():
 
 
 @profile_bp.get("/api/user/<int:id>")
-@login_required
+@jwt_required()
 def user_details(id):
 
     user = User.query.get(id)

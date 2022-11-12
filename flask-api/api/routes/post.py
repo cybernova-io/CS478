@@ -4,9 +4,8 @@ from flask import (
     request,
     jsonify,
 )
-from flask_login import login_required, logout_user, current_user, login_user
+from flask_jwt_extended import jwt_required, current_user
 from ..models.Posts import Post, PostLike, PostComment, db
-from .. import login_manager
 from flask_login import logout_user
 from flask import current_app as app
 from sqlalchemy import engine, create_engine
@@ -17,7 +16,7 @@ post_bp = Blueprint("post_bp", __name__)
 
 
 @post_bp.route("/api/post", methods=["GET"])
-@login_required
+@jwt_required()
 def get_post():
     """
     GET: Get all posts
@@ -32,6 +31,7 @@ def get_post():
 
 # get specific post
 @post_bp.route("/api/post/<int:id>", methods=["GET"])
+@jwt_required()
 def get_singlePost(id):
     """
     GET: return specific post of individual user
@@ -49,7 +49,7 @@ def get_singlePost(id):
 
 # create post
 @post_bp.route("/api/post/create/", methods=["POST"])
-@login_required
+@jwt_required()
 def create_post():
     title = request.form["title"]
     content = request.form["content"]
@@ -67,7 +67,7 @@ def create_post():
 
 # delete post
 @post_bp.route("/api/post/delete/", methods=["DELETE"])
-@login_required
+@jwt_required()
 def delete_post():
     """
     Deletes Post
@@ -90,7 +90,7 @@ def delete_post():
 
 # update posts
 @post_bp.route("/api/post/update/", methods=["PUT"])
-@login_required
+@jwt_required()
 def update_post():
     """
     Updates Post
@@ -114,7 +114,7 @@ def update_post():
 
 
 @post_bp.route("/api/post/like/<int:post_id>/", methods=["POST"])
-@login_required
+@jwt_required()
 def user_likes_post(post_id):
     """
     Like a post
@@ -141,7 +141,7 @@ def user_likes_post(post_id):
 
 
 @post_bp.route("/api/post/unlike/<int:post_id>/", methods=["POST"])
-@login_required
+@jwt_required()
 def user_unlike_post(post_id):
     """
     unlike a post
@@ -162,7 +162,7 @@ def user_unlike_post(post_id):
 
 
 @post_bp.route("/api/post/comment/<int:post_id>/", methods=["POST"])
-@login_required
+@jwt_required()
 def user_comment_post(post_id):
     """
     comment on a post

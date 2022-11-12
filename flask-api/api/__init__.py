@@ -6,6 +6,8 @@ import logging
 from flask_security import SQLAlchemyUserDatastore, Security
 from api.models.Users import User, Role
 from api.models.db import db
+from flask_jwt_extended import JWTManager
+from datetime import timedelta
 
 
 PROFILE_PICS = "api/static/profile-pics"
@@ -13,7 +15,7 @@ UPLOADS = "api/uploads"
 
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 login_manager = LoginManager()
-
+jwt = JWTManager()
 security = Security()
 
 
@@ -28,6 +30,13 @@ def create_app(config):
         app.config["UPLOADS"] = UPLOADS
         app.config["MESSAGES_PER_PAGE"] = 10
 
+        # JWT Config
+        app.config["JWT_COOKIE_SECURE"] = False
+        app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+        app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this in your code!
+        app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+        app.config["JWT_COOKIE_CSRF_PROTECT"] = False
+
     if config == "test":
         app.config.from_object("config.TestConfig")
     else:
@@ -39,6 +48,7 @@ def create_app(config):
 
     # Initialize Plugins
     db.init_app(app)
+    jwt.init_app(app)
     security_ctx = security.init_app(app, user_datastore)
 
     @security_ctx.context_processor

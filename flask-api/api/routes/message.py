@@ -3,9 +3,8 @@ from flask import (
     request,
     jsonify,
 )
-from flask_login import login_required, logout_user, current_user, login_user
+from flask_jwt_extended import jwt_required, current_user
 from ..models.Users import db, User, pending_friend, Message
-from flask_login import logout_user
 from datetime import datetime
 from ..services.WebHelpers import WebHelpers
 import logging
@@ -16,7 +15,7 @@ message_bp = Blueprint("message_bp", __name__)
 
 
 @message_bp.get("/api/messages")
-@login_required
+@jwt_required()
 def messages():
     messages = Message.query.filter(
         (Message.sender_id == current_user.id)
@@ -31,7 +30,7 @@ def messages():
 
 
 @message_bp.get("/api/messages/<string:user>")
-@login_required
+@jwt_required()
 def messages_user(user):
 
     current_user.last_message_read_time = datetime.utcnow()
@@ -69,7 +68,7 @@ def messages_user(user):
 
 
 @message_bp.post("/api/send-message/<recipient>")
-@login_required
+@jwt_required()
 def send_message(recipient):
     """
     Allows user to send a private message to another user.
@@ -102,7 +101,7 @@ def send_message(recipient):
 
 
 @message_bp.route("/api/notifications")
-@login_required
+@jwt_required()
 def notifications():
 
     since = request.args.get("since", 0.0, type=float)
