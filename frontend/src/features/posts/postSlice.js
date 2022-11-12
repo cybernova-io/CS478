@@ -14,7 +14,7 @@ export const createPost = createAsyncThunk(
   "posts/create",
   async (postData, thunkAPI) => {
     try {
-      //const token = thunkAPI.getState().auth.user.token;
+      const token = thunkAPI.getState().auth.user.token;
       return await postService.createPost(postData, token);
     } catch (error) {
       const message =
@@ -33,11 +33,31 @@ export const getPosts = createAsyncThunk(
   "posts/getAll",
   async (_, thunkAPI) => {
     try {
-      
-      const response = await postService.getPosts();
-      console.log(response.data);
-      return response.data;
+      const token = thunkAPI.getState().auth.user.token;
+      return await postService.getPosts(token);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 
+// Update post
+export const updatePost = createAsyncThunk(
+  "posts/update",
+  async (postData, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.token;
+      return await postService.updatePost(
+        postData.postId,
+        postData.formData,
+        token
+      );
     } catch (error) {
       const message =
         (error.response &&
@@ -53,10 +73,14 @@ export const getPosts = createAsyncThunk(
 // Delete user post
 export const deletePost = createAsyncThunk(
   "posts/delete",
-  async (id, thunkAPI) => {
+  async (postData, thunkAPI) => {
     try {
       const token = thunkAPI.getState().auth.user.token;
-      return await postService.deletePost(id, token);
+      return await postService.deletePost(
+        postData.postId,
+        postData.postPhoto,
+        token
+      );
     } catch (error) {
       const message =
         (error.response &&
@@ -71,22 +95,41 @@ export const deletePost = createAsyncThunk(
 
 // Like post
 export const likePost = createAsyncThunk(
-  'posts/like',
+  "posts/like",
   async (postData, thunkAPI) => {
     try {
-      const token = thunkAPI.getState().auth.user.token
-      return await postService.likePost(postData.postId, postData, token)
+      const token = thunkAPI.getState().auth.user.token;
+      return await postService.likePost(postData.postId, postData, token);
     } catch (error) {
-        const message =
+      const message =
         (error.response &&
           error.response.data &&
           error.response.data.message) ||
         error.message ||
-        error.toString()
-      return thunkAPI.rejectWithValue(message)
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
     }
   }
-)
+);
+
+// Save post
+export const savePost = createAsyncThunk(
+  "posts/save",
+  async (postData, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.token;
+      return await postService.savePost(postData.postId, postData, token);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 
 export const postSlice = createSlice({
   name: "post",
@@ -122,6 +165,27 @@ export const postSlice = createSlice({
         state.isError = true;
         state.message = action.payload;
       })
+      .addCase(updatePost.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updatePost.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.posts = state.posts.map((post) => {
+          if (post._id === action.payload._id) {
+            post.text = action.payload.text;
+            post.photo = action.payload.photo;
+            post.imageUrl = action.payload.imageUrl;
+            post.audience = action.payload.audience;
+          }
+          return post;
+        });
+      })
+      .addCase(updatePost.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
       .addCase(deletePost.pending, (state) => {
         state.isLoading = true;
       })
@@ -133,6 +197,42 @@ export const postSlice = createSlice({
         );
       })
       .addCase(deletePost.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      .addCase(likePost.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(likePost.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.posts = state.posts.map((post) => {
+          if (post._id === action.payload._id) {
+            post.likes = action.payload.likes;
+          }
+          return post;
+        });
+      })
+      .addCase(likePost.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      .addCase(savePost.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(savePost.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.posts = state.posts.map((post) => {
+          if (post._id === action.payload._id) {
+            post.saves = action.payload.saves;
+          }
+          return post;
+        });
+      })
+      .addCase(savePost.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;

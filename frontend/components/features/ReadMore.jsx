@@ -14,21 +14,15 @@ export default function ReadMore({ children }) {
       color="text.secondary"
       sx={{ whiteSpace: "pre-line" }}
     >
-      
-      {isReadMore ? text.slice(0, 40) : text}
-      
+      {isReadMore ? text.slice(0, 100) : text}
       <br />
       <span
         onClick={toggleReadMore}
         className="read-or-hide"
-        style={{ color: "#062343", cursor: "pointer" }}
+        style={{ color: "#1976d2", cursor: "pointer" }}
       >
-        
-        {isReadMore && text.length > 40 ? "...read more" : ""}
-        
+        {isReadMore && text.length > 100 ? "...read more" : ""}
       </span>
     </Typography>
   );
 }
-89;
-//frontend / components / post / CommentForm.jsx;
