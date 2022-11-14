@@ -10,7 +10,7 @@ from .Notifications import Notification
 import json
 from .Posts import PostLike
 from flask_security import UserMixin, RoleMixin, Security
-from sqlalchemy import insert, values, select
+from sqlalchemy import insert, values, select, update
 
 # engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
 group_user = db.Table(
@@ -62,31 +62,66 @@ class Group(db.Model):
             'inviteOnly': self.invite_only 
         }
 
-    def make_owner(self, user):
-        #engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
-        #engine.execute(
-        #        group_user.insert(values(role=1)).where(
-        #        group_user.c.group_id == self.id,
-        #        group_user.c.user_id == user.id
-        #    )
-        #)
-        stmt = insert(group_user).values(group_id=self.id, user_id=user.id, role=1)
-        db.session.execute(stmt)
-        db.session.commit()
+    def make_owner(self, user, current_user):
+        if self.check_role(user):
+            if self.check_role(current_user) == 'Owner':
+                stmt = (
+                update(group_user).
+                where(group_user.c.user_id == user.id).
+                where(group_user.c.group_id == self.id).
+                values(role=1)
+            )
+            db.session.execute(stmt)
+            db.session.commit()
+            stmt = (
+                update(group_user).
+                where(group_user.c.user_id == current_user.id).
+                where(group_user.c.group_id == self.id).
+                values(role=2)
+            )
+            db.session.execute(stmt)
+            db.session.commit()
+
+        else:
+            stmt = insert(group_user).values(group_id=self.id, user_id=user.id, role=1)
+            db.session.execute(stmt)
+            db.session.commit()
+            stmt = (
+                update(group_user).
+                where(group_user.c.user_id == current_user.id).
+                where(group_user.c.group_id == self.id).
+                values(role=2)
+            )
+            db.session.execute(stmt)
+            db.session.commit()
 
     def make_moderator(self, user):
-        stmt = insert(group_user).values(group_id=self.id, user_id=user.id, role=2)
-        db.session.execute(stmt)
-        db.session.commit()
+        if self.check_role(user):
+            stmt = (
+                update(group_user).
+                where(group_user.c.user_id == user.id).
+                where(group_user.c.group_id == self.id).
+                values(role=2)
+            )
+            db.session.execute(stmt)
+            db.session.commit()
+        else:
+            stmt = insert(group_user).values(group_id=self.id, user_id=user.id, role=2)
+            db.session.execute(stmt)
+            db.session.commit()
+        
 
     def check_role(self, user):
         result = db.session.execute(group_user.select(group_user.c.role).where(group_user.c.group_id==self.id, group_user.c.user_id==user.id)).first()
         if result:
             if result[2] == 1:
+                print('Owner')
                 return "Owner"
             elif result[2] == 2:
+                print('Moderator')
                 return "Moderator"
             elif result[2] == 3:
+                print('Member')
                 return "Member"
             else:
                 return None
