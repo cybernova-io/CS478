@@ -1,4 +1,4 @@
-from api.models.Users import User, Role
+from api.models.Users import User, Role, Group
 from api.models.Posts import Post, PostLike, PostComment
 from api import user_datastore
 from api.models.db import db
@@ -30,7 +30,7 @@ def seed_db():
             grad_year="2024",
             major="ADMINISTRATION",
             username="ADMIN",
-            email="ADMIN@EMAIL.COM",
+            email="admin@email.com",
             password=password,
         )
 
@@ -40,6 +40,7 @@ def seed_db():
         logging.warning(
             f"No admin found, default admin account made. Make sure default credentials are changed."
         )
+    #everything past here is extra for testing
 
     if User.query.count() == 1:
         password = hash_password("password")
@@ -49,7 +50,7 @@ def seed_db():
             grad_year="2026",
             major="Basket Weaving",
             username="TheBob",
-            email="bob@gmail.com",
+            email="bob@email.com",
             password=password,
         )
         db.session.add(user1)
@@ -304,3 +305,14 @@ def seed_db():
 
         db.session.add(message1)
         db.session.commit()
+
+    if Group.query.count() == 0:
+        group = Group(
+            name="Computer Club",
+            description="Group for people who like computers.",
+            invite_only=False
+        )
+
+        db.session.add(group)
+        db.session.commit()
+        group.make_owner(user1)

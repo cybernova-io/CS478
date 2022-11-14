@@ -81,6 +81,7 @@ def create_app(config):
         from .routes.feed import feed_bp
         from .routes.event import event_bp
         from .routes.block_user import blocked_bp
+        from .routes.group import group_bp
 
         # Register Blueprints
 
@@ -94,6 +95,7 @@ def create_app(config):
         app.register_blueprint(feed_bp)
         app.register_blueprint(event_bp)
         app.register_blueprint(blocked_bp)
+        app.register_blueprint(group_bp)
         # Create Database Models
         db.create_all()
 
