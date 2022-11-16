@@ -29,6 +29,7 @@ class Post(db.Model):
     content = db.Column(db.String(), unique=False, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.now())
     user_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
+    group_id = db.Column(db.Integer, db.ForeignKey('Group.id'), nullable=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     likes = db.relationship("PostLike", backref="Posts", lazy="dynamic")
@@ -55,6 +56,7 @@ class PostLike(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
     post_id = db.Column(db.Integer, db.ForeignKey("Posts.id"))
+    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"))
 
     def like_post(self, post, user):
         if not self.has_liked_post(post):
@@ -82,6 +84,7 @@ class PostComment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
     post_id = db.Column(db.Integer, db.ForeignKey("Posts.id"))
+    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"))
     text = db.Column(db.String(100))
 
     def comment_post(self, user, post):

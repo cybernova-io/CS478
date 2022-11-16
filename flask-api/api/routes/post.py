@@ -3,6 +3,7 @@ from flask import (
     Blueprint,
     request,
     jsonify,
+    Response
 )
 from flask_jwt_extended import jwt_required, current_user
 from ..models.Posts import Post, PostLike, PostComment, db
@@ -10,7 +11,7 @@ from flask_login import logout_user
 from flask import current_app as app
 from sqlalchemy import engine, create_engine
 from ..services.WebHelpers import WebHelpers
-
+from api.models.Users import Group
 
 post_bp = Blueprint("post_bp", __name__)
 
@@ -46,23 +47,62 @@ def get_singlePost(id):
     else:
         return post.serialize()
 
+#get all posts from a group
+@post_bp.get("/api/group/<int:id>/post")
+@jwt_required()
+def get_group_posts(id : int) -> Response:
+    
+    group = Group.query.get(id)
+    if group:
+        resp = jsonify([x.serialize() for x in group.posts])
+        resp.status_code = 200
+        return resp
+
 
 # create post
-@post_bp.route("/api/post/create/", methods=["POST"])
+@post_bp.post("/api/post/create/")
 @jwt_required()
 def create_post():
+
     title = request.form["title"]
     content = request.form["content"]
 
     post = Post(
         title=title,
         content=content,
+        user_id = current_user.id
     )
 
     db.session.add(post)
     db.session.commit()
 
     return WebHelpers.EasyResponse(f"{post.title} created.", 200)
+
+#create group post
+@post_bp.post("/api/group/<int:id>/post")
+@jwt_required()
+def create_group_post(id : int) -> Response:
+
+    group = Group.query.get(id)
+    if group:
+        if group.check_role(current_user) is not None:
+
+            title = request.form['title']
+            content = request.form['content']
+
+            post = Post(
+                title=title,
+                content=content,
+                user_id=current_user.id,
+                group_id=group.id
+            )
+            db.session.add(post)
+            db.session.commit()
+            return WebHelpers.EasyResponse(f'Post added to group id ({id})', 200)
+        return WebHelpers.EasyResponse(f'You must be in this group to make a post in it!', 400)
+    return WebHelpers.EasyResponse(f'The specified group does not exist.', 400)
+
+    
 
 
 # delete post
@@ -87,6 +127,23 @@ def delete_post():
 
     return data
 
+#delete group post
+@post_bp.delete("/api/group/<int:id>/post/<int:postId>")
+@jwt_required()
+def delete_group_post(id : int, postId : int) -> Response:
+
+    group = Group.query.get(id)
+
+    if group:
+        post = Post.query.get(postId)
+        if post:
+            if group.check_role(current_user) == 'Owner' or group.check_role(current_user) == 'Moderator' or current_user.id == post.user_id:
+                db.session.delete(post)
+                db.session.commit()
+                return WebHelpers.EasyResponse(f'Post id ({postId}) deleted from group id ({id})', 200)
+            return WebHelpers.EasyResponse(f'You must be the post creator or group moderator to delete this post.', 400)
+        return WebHelpers.EasyResponse(f'No post with id {postId} found.', 400)
+    return WebHelpers.EasyResponse(f'No group with id ({id}) found.', 400)
 
 # update posts
 @post_bp.route("/api/post/update/", methods=["PUT"])
@@ -112,6 +169,27 @@ def update_post():
     }
     return data
 
+#update group post
+@post_bp.put("/api/group/<int:id>/post/<int:postId>")
+@jwt_required()
+def update_group_post(id : int, postId : int) -> Response:
+    group = Group.query.get(id)
+
+    if group:
+        post = Post.query.get(postId)
+        if post:
+            if group.check_role(current_user) == 'Owner' or group.check_role(current_user) == 'Moderator' or current_user.id == post.user_id:
+
+                title = request.form["title"]
+                content = request.form["content"]
+                post.title = title
+                post.content = content
+                db.session.commit()
+
+                return WebHelpers.EasyResponse(f'Post id ({postId}) updated in group id ({id})', 200)
+            return WebHelpers.EasyResponse(f'You must be the post creator or a group moderator to update this post.', 400)
+        return WebHelpers.EasyResponse(f'No post with id {postId} found.', 400)
+    return WebHelpers.EasyResponse(f'No group with id ({id}) found.', 400)
 
 @post_bp.route("/api/post/like/<int:post_id>/", methods=["POST"])
 @jwt_required()
@@ -139,6 +217,28 @@ def user_likes_post(post_id):
     else:
         return WebHelpers.EasyResponse("You have already liked this post.", 400)
 
+@post_bp.post("/api/group/<int:id>/post/<int:postId>/like")
+@jwt_required()
+def user_likes_group_post(id : int, postId : int) -> Response:
+    group = Group.query.get(id)
+
+    if group:
+        post = Post.query.get(postId)
+        if post:
+            if group.check_role(current_user) != None:
+                
+                group_post_like = PostLike.query.filter(PostLike.user_id == current_user.id).filter(PostLike.group_id == group.id).filter(PostLike.post_id == post.id).first()
+                if group_post_like is None:
+                    group_post_like = PostLike(user_id=current_user.id, post_id=post.id, group_id=group.id)
+                    db.session.add(group_post_like)
+                    db.session.commit()
+                    return WebHelpers.EasyResponse(f'User id ({current_user.id}) liked post ({postId}) in group id ({id}).', 200)
+                return WebHelpers.EasyResponse(f'You have already liked this post.', 400)
+            return WebHelpers.EasyResponse(f'You must be in this group to like posts.', 400)
+        return WebHelpers.EasyResponse(f'No post with id {postId} found.', 400)
+    return WebHelpers.EasyResponse(f'No group with id ({id}) found.', 400)
+
+
 
 @post_bp.route("/api/post/unlike/<int:post_id>/", methods=["POST"])
 @jwt_required()
@@ -160,6 +260,27 @@ def user_unlike_post(post_id):
         db.session.commit()
         return WebHelpers.EasyResponse("success", 200)
 
+@post_bp.delete("/api/group/<int:id>/post/<int:postId>/unlike")
+@jwt_required()
+def user_unlikes_group_post(id : int, postId : int) -> Response:
+    group = Group.query.get(id)
+
+    if group:
+        post = Post.query.get(postId)
+        if post:
+            if group.check_role(current_user) != None:
+                
+                group_post_like = PostLike.query.filter(PostLike.user_id == current_user.id).filter(PostLike.group_id == group.id).filter(PostLike.post_id == post.id).first()
+                if group_post_like is not None:
+                    db.session.delete(group_post_like)
+                    db.session.commit()
+
+                    return WebHelpers.EasyResponse(f'User id ({current_user.id}) unliked post ({postId}) in group id ({id}).', 200)
+                return WebHelpers.EasyResponse(f'You have not liked this post.', 400)
+            return WebHelpers.EasyResponse(f'You must be in this group to like posts.', 400)
+        return WebHelpers.EasyResponse(f'No post with id {postId} found.', 400)
+    return WebHelpers.EasyResponse(f'No group with id ({id}) found.', 400)
+
 
 @post_bp.route("/api/post/comment/<int:post_id>/", methods=["POST"])
 @jwt_required()
@@ -177,3 +298,51 @@ def user_comment_post(post_id):
     db.session.add(post_comment)
     db.session.commit()
     return WebHelpers.EasyResponse("success", 200)
+
+@post_bp.post("/api/group/<int:id>/post/<int:postId>/comment")
+@jwt_required()
+def user_comments_group_post(id : int, postId : int) -> Response:
+    group = Group.query.get(id)
+
+    if group:
+        post = Post.query.get(postId)
+        if post:
+            if group.check_role(current_user) != None:
+                
+                text = request.form['text']
+                group_post_comment = PostComment(
+                    user_id=current_user.id,
+                    post_id=post.id,
+                    group_id=group.id,
+                    text=text
+                )
+                db.session.add(group_post_comment)
+                db.session.commit()
+    
+                return WebHelpers.EasyResponse(f'User ({current_user.id}) left a comment on post id ({postId}) in group id ({id}).', 200)
+            return WebHelpers.EasyResponse(f'You must be in this group to like posts.', 400)
+        return WebHelpers.EasyResponse(f'No post with id {postId} found.', 400)
+    return WebHelpers.EasyResponse(f'No group with id ({id}) found.', 400)
+
+@post_bp.delete("/api/group/<int:id>/post/<int:postId>/comment/<int:commentId>")
+@jwt_required()
+def user_delete_comment_group_post(id : int, postId : int, commentId : int) -> Response:
+    group = Group.query.get(id)
+
+    if group:
+        post = Post.query.get(postId)
+        if post:
+            if group.check_role(current_user) != None:
+                
+                comment = PostComment.query.filter(PostComment.id == commentId).filter(PostComment.user_id == current_user.id).first()
+                if comment:
+                    if current_user.id == comment.id or group.check_role(current_user) == 'Owner' or group.check_role(current_user) == 'Moderator' \
+                    or 'Admin' in current_user.roles:
+                        db.session.delete(comment)
+                        db.session.commit()
+                        return WebHelpers.EasyResponse(f'Comment deleted.', 200)
+                    return WebHelpers.EasyResponse(f'You must be the comment creater or have elevated privileges to delete this comment.', 400)
+                return WebHelpers.EasyResponse(f'Comment not found.', 400)
+            return WebHelpers.EasyResponse(f'You must be in this group to like posts.', 400)
+        return WebHelpers.EasyResponse(f'No post with id {postId} found.', 400)
+    return WebHelpers.EasyResponse(f'No group with id ({id}) found.', 400)
