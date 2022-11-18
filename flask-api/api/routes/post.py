@@ -299,7 +299,7 @@ def user_comment_post(post_id):
     db.session.commit()
     return WebHelpers.EasyResponse("success", 200)
 
-@post_bp.route("/api/post/comment_response/<int:id>/", methods=["POST"]")
+@post_bp.route("/api/post/comment_response/<int:id>/", methods=["POST"])
 @jwt_required()
 def user_comment_response(post_id):
     comment = PostComment.query.filter_by(id).first_or_404()
@@ -312,6 +312,27 @@ def user_comment_response(post_id):
     db.session.commit()
     return WebHelpers.EasyResponse("success", 200)
 
+@post_bp.route("/api/post/comment_like_response/<int:id>/", methods=["POST"])
+@jwt_required()
+def user_like_comment(post_id):
+    comment = PostComment.query.filter_by(id).first_or_404()
+
+    if comment is None:
+        return WebHelpers.EasyResponse("Specified comment does not exist.", 404)
+    comment_like = (
+        PostComment.query.filter(PostComment.user_id == current_user.id)
+        .filter(PostComment.post_id == post.id)
+        .first()
+    )
+    if comment_like is None:
+
+        comment_like = PostComment(user_id=current_user.id, post_id=post_id)
+
+        db.session.add(comment_like)
+        db.session.commit()
+        return WebHelpers.EasyResponse("success", 200)
+    else:
+        return WebHelpers.EasyResponse("You have already liked this comment.", 400)
 
 @post_bp.post("/api/group/<int:id>/post/<int:postId>/comment")
 @jwt_required()
