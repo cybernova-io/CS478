@@ -299,6 +299,20 @@ def user_comment_post(post_id):
     db.session.commit()
     return WebHelpers.EasyResponse("success", 200)
 
+@post_bp.route("/api/post/comment_response/<int:id>/", methods=["POST"]")
+@jwt_required()
+def user_comment_response(post_id):
+    comment = PostComment.query.filter_by(id).first_or_404()
+
+    if comment is None:
+        return WebHelpers.EasyResponse("Specified comment does not exist.", 404)
+    text = request.form["text"]
+    post_comment = PostComment(user_id=current_user.id, text=text)
+    db.session.add(post_comment)
+    db.session.commit()
+    return WebHelpers.EasyResponse("success", 200)
+
+
 @post_bp.post("/api/group/<int:id>/post/<int:postId>/comment")
 @jwt_required()
 def user_comments_group_post(id : int, postId : int) -> Response:
