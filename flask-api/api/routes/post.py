@@ -301,20 +301,20 @@ def user_comment_post(post_id):
 
 @post_bp.route("/api/post/comment_response/<int:id>/", methods=["POST"])
 @jwt_required()
-def user_comment_response(post_id):
+def user_comment_response(id):
     comment = PostComment.query.filter_by(id).first_or_404()
 
     if comment is None:
         return WebHelpers.EasyResponse("Specified comment does not exist.", 404)
     text = request.form["text"]
-    post_comment = PostComment(user_id=current_user.id, text=text)
+    post_comment = PostComment(user_id=current_user.id, text=text, comment_id=PostComment.id)
     db.session.add(post_comment)
     db.session.commit()
     return WebHelpers.EasyResponse("success", 200)
 
 @post_bp.route("/api/post/comment_like_response/<int:id>/", methods=["POST"])
 @jwt_required()
-def user_like_comment(post_id):
+def user_like_comment_response(id):
     comment = PostComment.query.filter_by(id).first_or_404()
 
     if comment is None:

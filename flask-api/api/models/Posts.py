@@ -18,6 +18,11 @@ commented = db.relationship(
     "PostComment", db.ForeignKey("PostComment.user_id"), backref="user", lazy="dynamic"
 )
 
+user_comment = db.Table(
+    "user_comments",
+    db.Column("user_comment_id", db.Integer, db.ForeignKey("post_comment.id")),
+    db.Column("user_comment_response_id", db.Integer, db.ForeignKey("post_comment.id")),
+)
 
 class Post(db.Model):
     """Posts model."""
@@ -87,6 +92,15 @@ class PostComment(db.Model):
     group_id = db.Column(db.Integer, db.ForeignKey("Group.id"))
     text = db.Column(db.String(100))
 
+    comments = db.relationship(
+        "PostComment",
+        secondary=user_comment,
+        primaryjoin=(user_comment.c.user_comment_id == id),
+        secondaryjoin=(user_comment.c.user_comment_response_id == id),
+        backref=db.backref("user_comment", lazy="dynamic"),
+        lazy="dynamic",
+    )
+
     def comment_post(self, user, post):
         if not self.has_commented_post(post):
             comment = PostComment(user_id=user.id, post_id=post.id)
@@ -106,3 +120,6 @@ class PostComment(db.Model):
 
     def serialize(self):
         return {"id": self.id, "userId": self.user_id, "text": self.text}
+
+
+
