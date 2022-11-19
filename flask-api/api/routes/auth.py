@@ -48,10 +48,10 @@ def signup():
             username=username,
             email=email,
         )
-
+        db.session.add(user)
         db.session.commit()  # Create new user
         logging.info("New user created - " + str(user.id) + " - " + str(user.username))
-        access_token = create_access_token(identity=email)
+        access_token = create_access_token(identity=user)
 
         return {
             "firstName": user.first_name,
