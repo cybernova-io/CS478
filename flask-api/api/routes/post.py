@@ -307,8 +307,8 @@ def user_comment_response(id):
     if comment is None:
         return WebHelpers.EasyResponse("Specified comment does not exist.", 404)
     text = request.form["text"]
-    post_comment = PostComment(user_id=current_user.id, text=text, comment_id=PostComment.id)
-    db.session.add(post_comment)
+    comment_response = PostComment(user_id=current_user.id, text=text, id=PostComment.id)
+    db.session.add(comment_response)
     db.session.commit()
     return WebHelpers.EasyResponse("success", 200)
 
@@ -326,7 +326,7 @@ def user_like_comment_response(id):
     )
     if comment_like is None:
 
-        comment_like = PostComment(user_id=current_user.id, post_id=post_id)
+        comment_like = PostComment(user_id=current_user.id, post_id=post_id, id=PostComment.id)
 
         db.session.add(comment_like)
         db.session.commit()
