@@ -91,8 +91,8 @@ class PostComment(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey("Posts.id"))
     group_id = db.Column(db.Integer, db.ForeignKey("Group.id"))
     text = db.Column(db.String(100))
-
-    comments = db.relationship(
+    #comment_parent_id = db.Column(db.Integer, db.ForeignKey('post_comment.id'))
+    comment_replies = db.relationship(
         "PostComment",
         secondary=user_comment,
         primaryjoin=(user_comment.c.user_comment_id == id),
@@ -118,8 +118,25 @@ class PostComment(db.Model):
             > 0
         )
 
+    def comment_reply(self, user):
+        pass
+
+
+    def delete_comment_reply(self, user):
+        pass
+
+
+    def has_commented_reply(self, user):
+        pass
+
+
     def serialize(self):
-        return {"id": self.id, "userId": self.user_id, "text": self.text}
+        return {"id": self.id, 
+                "userId": self.user_id, 
+                "text": self.text
+            }
 
+   
 
+    
 

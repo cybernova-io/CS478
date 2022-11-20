@@ -299,10 +299,11 @@ def user_comment_post(post_id):
     db.session.commit()
     return WebHelpers.EasyResponse("success", 200)
 
+# when comments are retrieved it grabs any replies that have been made as well
 @post_bp.route("/api/post/comment_response/<int:id>/", methods=["POST"])
 @jwt_required()
 def user_comment_response(id):
-    comment = PostComment.query.filter_by(id).first_or_404()
+    comment = PostComment.query.filter_by(id=id).first_or_404()
 
     if comment is None:
         return WebHelpers.EasyResponse("Specified comment does not exist.", 404)
@@ -314,7 +315,7 @@ def user_comment_response(id):
 
 @post_bp.route("/api/post/comment_like_response/<int:id>/", methods=["POST"])
 @jwt_required()
-def user_like_comment_response(id):
+def user_like_comment_response(id=id):
     comment = PostComment.query.filter_by(id).first_or_404()
 
     if comment is None:
