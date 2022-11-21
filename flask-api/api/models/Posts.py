@@ -85,13 +85,19 @@ class PostLike(db.Model):
 
 
 class PostComment(db.Model):
+    _N = 6
+
     __tablename__ = "post_comment"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
     post_id = db.Column(db.Integer, db.ForeignKey("Posts.id"))
     group_id = db.Column(db.Integer, db.ForeignKey("Group.id"))
     text = db.Column(db.String(100))
-    #comment_parent_id = db.Column(db.Integer, db.ForeignKey('post_comment.id'))
+    timestamp = db.Column(db.DateTime(), default=datetime.utcnow, index=True)
+    # for a reply, path is set to the path of the parent with the counter appended at the end
+    path = db.Column(db.Text, index=True)
+    comment_parent_id = db.Column(db.Integer, db.ForeignKey('PostComment.id'))
+
     comment_replies = db.relationship(
         "PostComment",
         secondary=user_comment,
@@ -118,17 +124,19 @@ class PostComment(db.Model):
             > 0
         )
 
-    def comment_reply(self, user):
-        pass
+    def comment_reply(self, text):
+        return PostComment(text=text, user_comment=self)
 
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+        prefix = self.user_comment.path + '.' if self.user_comment else ''
+        self.path = prefix + '{:0{}d}'.format(self.id, self._N)
+        db.session.commit()
 
-    def delete_comment_reply(self, user):
-        pass
-
-
-    def has_commented_reply(self, user):
-        pass
-
+    # returns the indentation lvl of any given comment
+    def level(self):
+        return len(self.path) // self._N - 1
 
     def serialize(self):
         return {"id": self.id, 
