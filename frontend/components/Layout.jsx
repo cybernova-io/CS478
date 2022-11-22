@@ -3,21 +3,26 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
 import Container from "@mui/material/Container";
 import Header from "./Header";
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from "react-redux";
 
 export default function Layout(props) {
-    const { user } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
+  var isUser = JSON.parse(localStorage.getItem("user"));
 
-    return(
+  if (!isUser) {
+    router.push("/");
+  }
+
+  return (
     <>
-     {user && <Header />}
-			<main>
-				<Container sx={{ py: 5 }} maxWidth='md'>
-					<Grid container spacing={4}>
-						{props.children}
-					</Grid>
-				</Container>
-			</main>
-		</>
-	);
+      {user && <Header />}
+      <main>
+        <Container sx={{ py: 5 }} maxWidth="md">
+          <Grid container spacing={4}>
+            {props.children}
+          </Grid>
+        </Container>
+      </main>
+    </>
+  );
 }
