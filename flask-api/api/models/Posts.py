@@ -50,8 +50,8 @@ class Post(db.Model):
             "text": self.content,
             "likes": [x.serialize() for x in self.likes],
             "comments": [x.serialize() for x in self.comments],
-            "comment_responses": [x.serialize() for x in self.comment_responses],
-            "createdAt": self.date_created,
+            #"comment_responses": [x.serialize() for x in self.comments.replies],
+            "createdAt": self.date_created
         }
 
     def serialize_search(self):
