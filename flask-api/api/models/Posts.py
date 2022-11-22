@@ -96,17 +96,25 @@ class PostComment(db.Model):
     timestamp = db.Column(db.DateTime(), default=datetime.utcnow, index=True)
     # for a reply, path is set to the path of the parent with the counter appended at the end
     path = db.Column(db.Text, index=True)
-    comment_parent_id = db.Column(db.Integer, db.ForeignKey('PostComment.id'))
+    parent_id = db.Column(db.Integer, db.ForeignKey('post_comment.id'))
 
+    replies = db.relationship(
+        'PostComment', backref=db.backref('parent', remote_side=[id]),
+        lazy='dynamic')
+
+
+    """
     comment_replies = db.relationship(
         "PostComment",
         secondary=user_comment,
         primaryjoin=(user_comment.c.user_comment_id == id),
         secondaryjoin=(user_comment.c.user_comment_response_id == id),
         backref=db.backref("user_comment", lazy="dynamic"),
-        lazy="dynamic",
-    )
-
+        remote_side=[id],
+        lazy="dynamic")
+    """
+    
+    
     def comment_post(self, user, post):
         if not self.has_commented_post(post):
             comment = PostComment(user_id=user.id, post_id=post.id)
