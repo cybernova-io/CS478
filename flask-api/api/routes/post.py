@@ -238,8 +238,6 @@ def user_likes_group_post(id : int, postId : int) -> Response:
         return WebHelpers.EasyResponse(f'No post with id {postId} found.', 400)
     return WebHelpers.EasyResponse(f'No group with id ({id}) found.', 400)
 
-
-
 @post_bp.route("/api/post/unlike/<int:post_id>/", methods=["POST"])
 @jwt_required()
 def user_unlike_post(post_id):
@@ -315,19 +313,19 @@ def user_comment_response(id):
 
 @post_bp.route("/api/post/comment_like_response/<int:id>/", methods=["POST"])
 @jwt_required()
-def user_like_comment_response(id=id):
-    comment = PostComment.query.filter_by(id).first_or_404()
+def user_like_comment_response(id):
+    comment = PostComment.query.filter_by(id=id).first_or_404()
 
     if comment is None:
         return WebHelpers.EasyResponse("Specified comment does not exist.", 404)
     comment_like = (
         PostComment.query.filter(PostComment.user_id == current_user.id)
-        .filter(PostComment.post_id == post.id)
+        .filter(PostComment.id == id)
         .first()
     )
     if comment_like is None:
 
-        comment_like = PostComment(user_id=current_user.id, post_id=post_id, id=PostComment.id)
+        comment_like = PostComment(user_id=current_user.id, id=PostComment.id)
 
         db.session.add(comment_like)
         db.session.commit()
