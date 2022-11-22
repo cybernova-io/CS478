@@ -300,13 +300,13 @@ def user_comment_post(post_id):
 # when comments are retrieved it grabs any replies that have been made as well
 @post_bp.route("/api/post/comment_response/<int:id>/", methods=["POST"])
 @jwt_required()
-def user_comment_response(id):
-    comment = PostComment.query.filter_by(id=id).first_or_404()
+def user_comment_response(id, post_id):
+    comment = PostComment.query.filter_by(id=parent_id).first_or_404()
 
     if comment is None:
         return WebHelpers.EasyResponse("Specified comment does not exist.", 404)
     text = request.form["text"]
-    comment_response = PostComment(user_id=current_user.id, text=text, id=PostComment.id)
+    comment_response = PostComment(user_id=current_user.id, text=text, parent_id=comment.id)
     db.session.add(comment_response)
     db.session.commit()
     return WebHelpers.EasyResponse("success", 200)
