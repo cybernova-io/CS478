@@ -298,9 +298,9 @@ def user_comment_post(post_id):
     return WebHelpers.EasyResponse("success", 200)
 
 # when comments are retrieved it grabs any replies that have been made as well
-@post_bp.route("/api/post/comment_response/<int:id>/", methods=["POST"])
+@post_bp.route("/api/post/comment_response/<int:parent_id>/", methods=["POST"])
 @jwt_required()
-def user_comment_response(id, post_id):
+def user_comment_response(parent_id):
     comment = PostComment.query.filter_by(id=parent_id).first_or_404()
 
     if comment is None:
