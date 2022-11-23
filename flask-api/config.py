@@ -36,6 +36,9 @@ class DevConfig:
     SECURITY_REGISTERABLE = False
     LOGIN_DISABLED = False
 
+    #WTForms
+    WTF_CSRF_ENABLED = True
+
 class TestConfig:
 
     TESTING = True
