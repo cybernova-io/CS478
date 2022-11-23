@@ -50,7 +50,7 @@ class Post(db.Model):
             "text": self.content,
             "likes": [x.serialize() for x in self.likes],
             "comments": [x.serialize() for x in self.comments],
-            "replies": [x.serialize() for x in self.replies],
+            "replies": [x.serialize() for x in self.comments.replies],
             "createdAt": self.date_created
         }
 
@@ -120,20 +120,6 @@ class PostComment(db.Model):
             ).count()
             > 0
         )
-
-    def comment_reply(self, text):
-        return PostComment(text=text, user_comment=self)
-
-    def save(self):
-        db.session.add(self)
-        db.session.commit()
-        prefix = self.user_comment.path + '.' if self.user_comment else ''
-        self.path = prefix + '{:0{}d}'.format(self.id, self._N)
-        db.session.commit()
-
-    # returns the indentation lvl of any given comment
-    def level(self):
-        return len(self.path) // self._N - 1
 
     def serialize(self):
         return {"id": self.id, 
