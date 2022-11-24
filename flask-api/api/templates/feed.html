@@ -3,11 +3,17 @@
 {% block title %}Login{% endblock %}
 
 {% block header %}
-<h1>Sign In</h1>
+<h1>Feed</h1>
 {% endblock %}
 
 {% block content %}
-
-    Hello
-
+<div>
+    {% for friend in feed %}
+        {% for post in friend %}
+        <div>
+            <p>{{ post.title }}</p>
+        </div>
+        {% endfor %}
+    {% endfor %}
+</div>
 {% endblock %}

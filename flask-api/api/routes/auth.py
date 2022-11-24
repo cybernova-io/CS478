@@ -21,6 +21,7 @@ from flask_jwt_extended import current_user, set_access_cookies
 from api import jwt
 from api.forms.SigninForm import SigninForm
 from api.forms.SignupForm import SignupForm
+from api.routes.feed import create_feed
 
 
 auth_bp = Blueprint("auth_bp", __name__)
@@ -39,7 +40,7 @@ def signin_page():
                 # User exists and password matches password in db
                 user.set_last_login()
                 access_token = create_access_token(identity=user)
-                resp = make_response(render_template('feed.html'))
+                resp = make_response(redirect("/feed"))
 
                 set_access_cookies(resp, access_token)
                 return resp
@@ -75,7 +76,7 @@ def signup_page():
             db.session.commit()  # Create new user
             logging.info("New user created - " + str(user.id) + " - " + str(user.username))
             access_token = create_access_token(identity=user)
-            resp = make_response(render_template('feed.html'))
+            resp = make_response(redirect("/feed"))
 
             set_access_cookies(resp, access_token)
             return resp

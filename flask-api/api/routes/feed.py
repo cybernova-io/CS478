@@ -6,10 +6,18 @@ from api.models.Users import User
 from flask import (
     Blueprint,
     jsonify,
+    render_template
 )
 
 feed_bp = Blueprint("feed_bp", __name__)
 
+@jwt_required()
+def create_feed():
+    user_feed = []
+    friends = current_user.friends
+    for i in friends:
+        user_feed.append([x.serialize() for x in i.posts])
+    return user_feed
 
 @feed_bp.get("/api/feed")
 @jwt_required()
@@ -20,6 +28,17 @@ def display_user_feed():
         user_feed.append([x.serialize() for x in i.posts])
 
     return jsonify(user_feed)
+
+@feed_bp.get("/feed")
+@jwt_required()
+def feed_page():
+    user_feed = []
+    friends = current_user.friends
+    for i in friends:
+        user_feed.append([x.serialize() for x in i.posts])
+    
+
+    return render_template("feed.html", feed=user_feed)
 
 
 @feed_bp.get("/api/search/user/username")
