@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% from 'bootstrap5/form.html' import render_form %}
 {% block title %}Login{% endblock %}
 
 {% block header %}
@@ -8,37 +8,6 @@
 
 {% block content %}
 
-    <form action="" method="post" novalidate>
-            {{form.hidden_tag()}}
-        <p>
-            {{ form.first_name.label }}<br>
-            {{ form.first_name(size=16) }}
-        </p>
-        <p>
-            {{ form.last_name.label }}<br>
-            {{ form.last_name(size=32) }}
-        </p>
-        <p>
-            {{ form.major.label }}<br>
-            {{ form.major(size=32) }}
-        </p>
-        <p>
-            {{ form.grad_year.label }}<br>
-            {{ form.grad_year }}
-        </p>
-        <p>
-            {{ form.username.label }}<br>
-            {{ form.username(size=32) }}
-        </p>
-        <p>
-            {{ form.email.label }}<br>
-            {{ form.email(size=32) }}
-        </p>
-        <p>
-            {{ form.password.label }}<br>
-            {{ form.password(size=32) }}
-        </p>
-        <p>{{ form.submit() }}</p>
-    </form>
+{{ render_form(form) }}
 
 {% endblock %}

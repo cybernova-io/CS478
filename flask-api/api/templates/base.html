@@ -1,4 +1,5 @@
 <!doctype html>
+{% from 'bootstrap4/nav.html' import render_nav_item %}
 <title>
     {% block title %}
 
@@ -6,20 +7,42 @@
 </title>
 <!--<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">-->
 
-<div>
+<!--
+  <div>
     <a href="/feed">Home</a>
+    <a href="/friends">Friends</a>
+    <a href="/groups">Groups</a>
+    <a href="/events">Events</a>
     <a href="/signin">Sign-In</a>
-</div>
+  </div>
+-->
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="navbar-nav mr-auto">
+      {{ render_nav_item('auth_bp.signin_page', 'Signin') }}
+  </div>
+</nav>
 
 
-<section class="content">
+<head>
+  {{ bootstrap.load_css() }}
+</head>
+
+
+<section>
+
   <header>
     {% block header %}
     
     {% endblock %}
   </header>
 
+  <body>
   {% block content %}
-  
-  {% endblock %}
+
+    {{ bootstrap.load_js() }}
+    
+    {% endblock %}
+  </body>
 </section>
+</html>
