@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block header %}
+<h1>Feed</h1>
+{% endblock %}
+
+{% block content %}
+<div>
+    {% for friend in feed %}
+        {% for post in friend %}
+        <div>
+            <p>{{ post.title }}</p>
+        </div>
+        {% endfor %}
+    {% endfor %}
+</div>
+{% endblock %}
