@@ -123,7 +123,7 @@ def profile_picture():
         return WebHelpers.HandleUserPictureUpload("PROFILE_PICS")
 
 
-@profile_bp.get("/api/user/<int:id>")
+@profile_bp.get("/api/users/<int:id>")
 @jwt_required()
 def user_details(id):
 

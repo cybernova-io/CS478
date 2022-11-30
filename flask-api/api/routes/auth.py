@@ -85,7 +85,7 @@ def signup_page():
 
 
 @cross_origin()
-@auth_bp.post("/api/signup")
+@auth_bp.post("/api/users/register")
 def signup():
     """
     User sign-up page.
@@ -132,13 +132,13 @@ def signup():
 
 
 @cross_origin()
-@auth_bp.post("/api/login")
+@auth_bp.post("/api/users/login")
 def login():
     """
     Log-in page for registered users.
     """
 
-    email = request.form["email"]
+    email = request.form["email"].lower()
     password = request.form["password"]
 
     # Validate login attempt
@@ -169,7 +169,7 @@ def login():
     return WebHelpers.EasyResponse("Invalid username/password combination.", 405)
 
 
-@app.route("/me")
+@app.route("/api/users/me")
 @jwt_required()
 def protected():
     return jsonify(
