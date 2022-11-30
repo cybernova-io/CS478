@@ -39,7 +39,7 @@ class Post(db.Model):
 
     likes = db.relationship("PostLike", backref="Posts", lazy="dynamic")
     comments = db.relationship("PostComment", backref="Posts", lazy="dynamic")
-    replies = db.relationship("PostComment", backref="reply", lazy="dynamic")
+    #replies = db.relationship("PostComment", backref="reply", lazy="dynamic")
     # feed = db.relationship("Users", backref="Posts", lazy="dynamic")
 
     def serialize(self):
@@ -50,7 +50,7 @@ class Post(db.Model):
             "text": self.content,
             "likes": [x.serialize() for x in self.likes],
             "comments": [x.serialize() for x in self.comments],
-            "replies": [x.serialize() for x in self.comments.replies],
+            #"replies": [x.serialize() for x in self.comments.replies],
             "createdAt": self.date_created
         }
 
@@ -121,11 +121,20 @@ class PostComment(db.Model):
             > 0
         )
 
+    def comment_replies(self):
+        return PostComment.objects.filter_by(parent_id=self)
+
+    
+    def is_parent_comment(self):
+        if self.parent_id is not None:
+            return False
+        return True
+
+
     def serialize(self):
         return {"id": self.id, 
                 "userId": self.user_id, 
                 "text": self.text,
-                #"parent_id": self.parent_id
             }
 
    
