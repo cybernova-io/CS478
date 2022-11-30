@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Login{% endblock %}
+{% block title %}Feed{% endblock %}
 
 {% block header %}
 <h1>Feed</h1>
@@ -10,9 +10,24 @@
 <div>
     {% for friend in feed %}
         {% for post in friend %}
-        <div>
-            <p>{{ post.title }}</p>
-        </div>
+        <div class="card" style="width: 18rem;">
+            <!--<img src="..." class="card-img-top" alt="..."> IMAGE CAN GO HERE IF IMPLEMENTED-->
+            <!--Card content-->
+            <div class="card-body">
+              <h5 class="card-title">{{ post.title }}</h5>
+              <p class="card-text">{{ post.text }}</p>
+              <!--Like/unlike and counter {{ render_icon('hand-thumbs-up') }} -->
+              {{post.likes}}
+              <form action="/api/post/like/{{post.id}}" method="post">
+              {% if current_user.id in post.likes %}
+              {{ render_icon('hand-thumbs-up-fill') }} {{post.likes|length}}
+              {% else %}
+              <input type="image" class="bi bi-hand-thumbs-up"/> {{post.likes|length}}
+              {% endif %}
+              </form>
+            </hr>
+            </div>
+          </div>
         {% endfor %}
     {% endfor %}
 </div>
