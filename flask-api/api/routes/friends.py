@@ -105,6 +105,27 @@ def remove_friend():
     )
 
 
+@friend_bp.route("/friends", methods=["GET"])
+@jwt_required()
+def get_friends_page():
+    """
+    GET: Returns all friends of current user.
+    """
+
+    friends = current_user.friends
+    data = {}
+
+    if friends.count() == 0:
+
+        return WebHelpers.EasyResponse(current_user.username + "has no friends.", 400)
+
+    data = [x.serialize() for x in friends]
+
+    resp = jsonify(data)
+    resp.status_code = 200
+
+    return resp
+
 @friend_bp.route("/api/friends", methods=["GET"])
 @jwt_required()
 def get_friends():

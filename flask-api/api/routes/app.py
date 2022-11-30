@@ -2,6 +2,7 @@ from flask import (
     Blueprint,
     request,
     send_from_directory,
+    redirect
 )
 from ..models.Users import db, User
 from .. import login_manager
@@ -48,7 +49,7 @@ def refresh_expiring_jwts(response):
 
 @app_bp.route("/", methods=["GET"])
 def index():
-    return "Index"
+    return redirect('/signin')
 
 
 @app_bp.get("/api/time")

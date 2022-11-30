@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Login{% endblock %}
+{% block title %}Feed{% endblock %}
 
 {% block header %}
 <h1>Feed</h1>
@@ -10,9 +10,14 @@
 <div>
     {% for friend in feed %}
         {% for post in friend %}
-        <div>
-            <p>{{ post.title }}</p>
-        </div>
+        <div class="card" style="width: 18rem;">
+            <!--<img src="..." class="card-img-top" alt="...">-->
+            <div class="card-body">
+              <h5 class="card-title">{{ post.title }}</h5>
+              <p class="card-text">{{ post.text }}</p>
+              {len({{post.likes}})}
+            </div>
+          </div>
         {% endfor %}
     {% endfor %}
 </div>

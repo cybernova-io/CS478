@@ -1,10 +1,10 @@
 <!doctype html>
 {% from 'bootstrap4/nav.html' import render_nav_item %}
-<title>
-    {% block title %}
-
-    {% endblock %}
-</title>
+  <title>
+      {% block title %}
+  
+      {% endblock %}
+  </title>
 <!--<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">-->
 
 <!--
@@ -20,6 +20,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="navbar-nav mr-auto">
       {{ render_nav_item('auth_bp.signin_page', 'Signin') }}
+      {{ render_nav_item('friend_bp.get_friends_page', 'Friends') }}
   </div>
 </nav>
 
@@ -31,18 +32,21 @@
 
 <section>
 
-  <header>
-    {% block header %}
-    
-    {% endblock %}
-  </header>
+  <div>
+    <header class="d-flex justify-content-center">
+      {% block header %}
+      {% endblock %}
+    </header>
+  </div>
 
-  <body>
-  {% block content %}
-
-    {{ bootstrap.load_js() }}
-    
-    {% endblock %}
-  </body>
+  <div class="d-flex justify-content-center">
+    <body>
+    {% block content %}
+  
+      {{ bootstrap.load_js() }}
+      
+      {% endblock %}
+    </body>
+  </div>
 </section>
 </html>
