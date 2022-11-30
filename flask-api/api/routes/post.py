@@ -191,7 +191,7 @@ def update_group_post(id : int, postId : int) -> Response:
         return WebHelpers.EasyResponse(f'No post with id {postId} found.', 400)
     return WebHelpers.EasyResponse(f'No group with id ({id}) found.', 400)
 
-@post_bp.route("/api/post/like/<int:post_id>/", methods=["POST"])
+@post_bp.route("/api/post/like/<int:post_id>", methods=["POST"])
 @jwt_required()
 def user_likes_post(post_id):
     """
