@@ -223,3 +223,23 @@ def decline_pending_friend(id):
         return WebHelpers.EasyResponse(
             pending_friend.username + "'s friend request declined.", 400
         )
+
+
+@friend_bp.route("/api/friends/friend-suggestions", methods=["POST"])
+@jwt_required()
+def get_friend_suggestions(id):
+    """
+        RETURNS A LIST OF SUGGESTED FRIENDS
+    
+    """
+
+    friends = current_user.friends
+    data = {}
+    if friends.count() == 0:
+
+        return WebHelpers.EasyResponse(current_user.username + "has no friends.", 400)
+
+    #data = [x.serialize() for x in friends]
+
+    pass
+
