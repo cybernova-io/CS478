@@ -20,8 +20,21 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="navbar-nav mr-auto">
-      {{ render_nav_item('auth_bp.signin_page', 'Signin') }}
+      {{ render_nav_item('profile.profile_page', 'Profile')  }}
+      {{ render_nav_item('feed_bp.feed_page', 'Feed') }}
       {{ render_nav_item('friend_bp.get_friends_page', 'Friends') }}
+      {{ render_nav_item('auth_bp.signout_page', 'Signout') }}
+    
+      <form class="d-flex justify-content-center" method="POST" action="/search">
+        <input class="form-control me-2" name="search-term" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+        <select class="form-select" name="category" aria-label="Default select example">
+          <option value="Users" selected>Users</option>
+          <option value="Friends">Friends</option>
+          <option value="Posts">Posts</option>
+          <option value="Groups">Groups</option>
+        </select>
+      </form>
   </div>
 </nav>
 

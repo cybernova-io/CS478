@@ -2,6 +2,7 @@ from flask import (
     Blueprint,
     request,
     jsonify,
+    render_template
 )
 from flask_jwt_extended import current_user, jwt_required
 from ..models.Users import db, User, pending_friend
@@ -10,7 +11,26 @@ import logging
 
 friend_bp = Blueprint("friend_bp", __name__)
 
+@friend_bp.route("/friends", methods=["GET"])
+@jwt_required()
+def get_friends_page():
+    """
+    GET: Returns all friends of current user.
+    """
 
+    friends = current_user.friends
+    data = {}
+
+    if friends.count() == 0:
+        return WebHelpers.EasyResponse(current_user.username + "has no friends.", 400)
+
+    data = [x.serialize() for x in friends]
+
+    return render_template('/friends/friends-main.html', friends=data)
+    
+
+
+######################################################### API BELOW, SERVER RENDERING ABOVE
 @friend_bp.route("/api/friends/request/", methods=["POST"])
 @jwt_required()
 def add_friend():
@@ -104,27 +124,6 @@ def remove_friend():
         "You are no longer friends with " + friend.username + ".", 200
     )
 
-
-@friend_bp.route("/friends", methods=["GET"])
-@jwt_required()
-def get_friends_page():
-    """
-    GET: Returns all friends of current user.
-    """
-
-    friends = current_user.friends
-    data = {}
-
-    if friends.count() == 0:
-
-        return WebHelpers.EasyResponse(current_user.username + "has no friends.", 400)
-
-    data = [x.serialize() for x in friends]
-
-    resp = jsonify(data)
-    resp.status_code = 200
-
-    return resp
 
 @friend_bp.route("/api/friends/", methods=["GET"])
 @jwt_required()

@@ -1,0 +1,24 @@
+{% from 'bootstrap5/form.html' import render_form %}
+<title>
+    Signup
+</title>
+
+<head>
+    {{ bootstrap.load_css() }}
+</head>
+
+<header class="d-flex justify-content-center">
+    <h1>Sign In</h1>
+</header>
+
+
+<body>
+    {{ bootstrap.load_js() }}
+    
+    <div class="d-flex justify-content-center">
+        {{ render_form(form) }}
+    </div>
+
+</body>
+
+
