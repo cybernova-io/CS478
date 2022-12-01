@@ -16,16 +16,10 @@
             <div class="card-body">
               <h5 class="card-title">{{ post.title }}</h5>
               <p class="card-text">{{ post.text }}</p>
-              <!--Like/unlike and counter {{ render_icon('hand-thumbs-up') }} -->
-              {{post.likes}}
-              <form action="/api/post/like/{{post.id}}" method="post">
-              {% if current_user.id in post.likes %}
-              {{ render_icon('hand-thumbs-up-fill') }} {{post.likes|length}}
-              {% else %}
-              <input type="image" class="bi bi-hand-thumbs-up"/> {{post.likes|length}}
-              {% endif %}
-              </form>
-            </hr>
+              <!--Like/unlike and counter  <form action="/api/post/like/{{post.id}}" method="post">-->
+              {{ render_icon('hand-thumbs-up') }} {{post.likes|length}} <form method="get" action="/post/{{post.id}}"><input type="submit" value="Expand Post"> </input></form>
+              
+                <hr/>
             </div>
           </div>
         {% endfor %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Post{% endblock %}
+
+{% block header %}
+
+{% endblock %}
+
+{% block content %}
+<div>
+    <div class="card" style="width: 30rem;">
+        <!--<img src="..." class="card-img-top" alt="..."> IMAGE CAN GO HERE IF IMPLEMENTED-->
+        <!--Card content-->
+
+        <div class="card-body">
+        {{render_icon ('person-circle')}} {{post.user.username}}
+          <h5 class="card-title">{{ post.title }}</h5>
+          <p class="card-text">{{ post.text }}</p>
+          <p class="card-text">{{ post.createdAt}}</p>
+          {{ render_icon('hand-thumbs-up') }} {{post.likes|length}}
+        <hr/>
+        <div>
+            <!--Comments-->
+            {% for comment in post.comments %}
+            {{comment.name}} {{comment.createdAt}}
+            <p class="card-text">{{ comment.text }}</p>
+            
+            <hr/>
+            {% endfor %}
+
+
+            <form action="/post/comment/{{post.id}}" method="post">
+                <div class="input-group">
+                   <input type="text" class="form-control rounded-corner" name="text" placeholder="Write a comment...">
+                   <span class="input-group-btn p-l-10">
+                   <button class="btn btn-primary f-s-12 rounded-corner" type="submit">Comment</button>
+                   </span>
+                </div>
+             </form>
+        </div>
+        </div>
+      </div>
+</div>
+{% endblock %}

@@ -13,6 +13,64 @@ import logging
 profile_bp = Blueprint("profile", __name__)
 
 
+@profile_bp.get("/profile")
+@jwt_required()
+def profile_page():
+    """
+    GET: Returns all user attributes to be displayed in profile. This is how logged in users can view their profile.
+    """
+
+    data = {
+        "user_username": current_user.username,
+        "user_first_name": current_user.first_name,
+        "user_last_name": current_user.last_name,
+        "user_major": current_user.major,
+        "user_grad_year": current_user.grad_year,
+        "user_email": current_user.email,
+        "user_creation_date": current_user.created_on,
+        "user_last_login": current_user.last_login,
+        "pending_friends": [x.username for x in current_user.pending_friends],
+        "friends": [x.username for x in current_user.friends],
+    }
+
+    resp = jsonify(data)
+    resp.status_code = 200
+
+    return data
+
+@profile_bp.get("/profile/<int:id>")
+@jwt_required()
+def friend_profile_page(id):
+    """
+    GET: Returns all user attributes to be displayed in profile. This is how logged in users can view their profile.
+    """
+
+    user : User
+
+    user = User.query.get(id)
+
+    data = {
+        "user_username": user.username,
+        "user_first_name": user.first_name,
+        "user_last_name": user.last_name,
+        "user_major": user.major,
+        "user_grad_year": user.grad_year,
+        "user_email": user.email,
+        "user_creation_date": user.created_on,
+        "user_last_login": user.last_login,
+        "pending_friends": [x.username for x in user.pending_friends],
+        "friends": [x.username for x in user.friends],
+    }
+
+    resp = jsonify(data)
+    resp.status_code = 200
+
+    return data
+
+
+######################################################### API BELOW, SERVER RENDERING ABOVE
+
+
 @profile_bp.get("/api/profile")
 @jwt_required()
 def profile():

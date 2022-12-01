@@ -44,7 +44,7 @@ def signin_page():
 
                 set_access_cookies(resp, access_token)
                 return resp
-    return render_template("signin.html", form=form)
+    return render_template("/auth/signin.html", form=form)
 
 @auth_bp.route("/signup", methods = ["GET", "POST"])
 def signup_page():
@@ -81,7 +81,9 @@ def signup_page():
             set_access_cookies(resp, access_token)
             return resp
 
-    return render_template('signup.html', form=form)
+    return render_template('/auth/signup.html', form=form)
+
+########################################################### API BELOW, SERVER RENDERING ABOVE
 
 
 @cross_origin()

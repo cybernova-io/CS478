@@ -363,6 +363,8 @@ class User(UserMixin, db.Model):
         return {
             "id": self.id,
             "username": self.username,
+            "firstName": self.first_name,
+            "lastName": self.last_name
         }
 
     def serialize_search(self):
