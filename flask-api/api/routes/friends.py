@@ -11,7 +11,7 @@ import logging
 friend_bp = Blueprint("friend_bp", __name__)
 
 
-@friend_bp.route("/api/add-friend", methods=["POST"])
+@friend_bp.route("/api/friends/request/", methods=["POST"])
 @jwt_required()
 def add_friend():
     """
@@ -61,7 +61,7 @@ def add_friend():
     return WebHelpers.EasyResponse("Friend request sent to " + friend.username, 201)
 
 
-@friend_bp.route("/api/remove-friend", methods=["DELETE"])
+@friend_bp.route("/api/friends/unfriend/", methods=["DELETE"])
 @jwt_required()
 def remove_friend():
     """
@@ -105,7 +105,28 @@ def remove_friend():
     )
 
 
-@friend_bp.route("/api/friends", methods=["GET"])
+@friend_bp.route("/friends", methods=["GET"])
+@jwt_required()
+def get_friends_page():
+    """
+    GET: Returns all friends of current user.
+    """
+
+    friends = current_user.friends
+    data = {}
+
+    if friends.count() == 0:
+
+        return WebHelpers.EasyResponse(current_user.username + "has no friends.", 400)
+
+    data = [x.serialize() for x in friends]
+
+    resp = jsonify(data)
+    resp.status_code = 200
+
+    return resp
+
+@friend_bp.route("/api/friends/", methods=["GET"])
 @jwt_required()
 def get_friends():
     """
@@ -150,7 +171,7 @@ def get_pending_friends():
     return resp
 
 
-@friend_bp.route("/api/friends/pending-friends/<int:id>", methods=["PUT"])
+@friend_bp.route("/api/friends/accept/", methods=["PUT"])
 @jwt_required()
 def accept_pending_friend(id):
     """
@@ -195,7 +216,7 @@ def accept_pending_friend(id):
         return WebHelpers.EasyResponse("Specified user is not a pending friend. ", 200)
 
 
-@friend_bp.route("/api/friends/pending-friends/<int:id>", methods=["DELETE"])
+@friend_bp.route("/api/friends/reject/", methods=["DELETE"])
 @jwt_required()
 def decline_pending_friend(id):
 

@@ -1,6 +1,9 @@
 from flask import (
     Blueprint,
     request,
+    render_template,
+    redirect,
+    make_response
 )
 from flask_security.utils import verify_password, hash_password
 from ..models.Users import db, User
@@ -16,12 +19,73 @@ from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user, set_access_cookies
 from api import jwt
+from api.forms.SigninForm import SigninForm
+from api.forms.SignupForm import SignupForm
+from api.routes.feed import create_feed
+
 
 auth_bp = Blueprint("auth_bp", __name__)
 
+@auth_bp.route("/signin", methods = ["GET", "POST"])
+def signin_page():
+    form = SigninForm()
+    if form.validate_on_submit():
+
+        # Validate login attempt
+        user = User.query.filter_by(email=form.email.data).one_or_none()
+        password_matches = verify_password(form.password.data, user.password)
+
+        if user:
+            if user and password_matches:
+                # User exists and password matches password in db
+                user.set_last_login()
+                access_token = create_access_token(identity=user)
+                resp = make_response(redirect("/feed"))
+
+                set_access_cookies(resp, access_token)
+                return resp
+    return render_template("signin.html", form=form)
+
+@auth_bp.route("/signup", methods = ["GET", "POST"])
+def signup_page():
+    form = SignupForm()
+
+    if form.validate_on_submit():
+        first_name = form.first_name.data
+        last_name = form.last_name.data
+        major = form.major.data
+        grad_year = form.grad_year.data
+        username = form.username.data
+        email = str(form.email.data).lower()
+        password = form.password.data
+
+        existing_user = User.query.filter_by(email=email).scalar()
+
+        if existing_user is None:
+            password = hash_password(password)
+            user = user_datastore.create_user(
+                first_name=first_name,
+                last_name=last_name,
+                major=major,
+                password=password,
+                grad_year=grad_year,
+                username=username,
+                email=email,
+            )
+            db.session.add(user)
+            db.session.commit()  # Create new user
+            logging.info("New user created - " + str(user.id) + " - " + str(user.username))
+            access_token = create_access_token(identity=user)
+            resp = make_response(redirect("/feed"))
+
+            set_access_cookies(resp, access_token)
+            return resp
+
+    return render_template('signup.html', form=form)
+
 
 @cross_origin()
-@auth_bp.post("/api/signup")
+@auth_bp.post("/api/users/register")
 def signup():
     """
     User sign-up page.
@@ -53,24 +117,28 @@ def signup():
         logging.info("New user created - " + str(user.id) + " - " + str(user.username))
         access_token = create_access_token(identity=user)
 
-        return {
+        resp = {
             "firstName": user.first_name,
             "lastName": user.last_name,
             "userId": user.id,
             "token": access_token,
         }
 
+        set_access_cookies(resp, access_token)
+
+        return resp
+
     return WebHelpers.EasyResponse("User with that email already exists. ", 400)
 
 
 @cross_origin()
-@auth_bp.post("/api/login")
+@auth_bp.post("/api/users/login")
 def login():
     """
     Log-in page for registered users.
     """
 
-    email = request.form["email"]
+    email = request.form["email"].lower()
     password = request.form["password"]
 
     # Validate login attempt
@@ -101,7 +169,7 @@ def login():
     return WebHelpers.EasyResponse("Invalid username/password combination.", 405)
 
 
-@app.route("/me")
+@app.route("/api/users/me")
 @jwt_required()
 def protected():
     return jsonify(

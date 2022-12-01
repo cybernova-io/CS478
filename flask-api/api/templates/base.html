@@ -1,0 +1,53 @@
+<!doctype html>
+{% from 'bootstrap5/nav.html' import render_nav_item %}
+{% from 'bootstrap5/utils.html' import render_icon %}
+  <title>
+      {% block title %}
+  
+      {% endblock %}
+  </title>
+<!--<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">-->
+
+<!--
+  <div>
+    <a href="/feed">Home</a>
+    <a href="/friends">Friends</a>
+    <a href="/groups">Groups</a>
+    <a href="/events">Events</a>
+    <a href="/signin">Sign-In</a>
+  </div>
+-->
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="navbar-nav mr-auto">
+      {{ render_nav_item('auth_bp.signin_page', 'Signin') }}
+      {{ render_nav_item('friend_bp.get_friends_page', 'Friends') }}
+  </div>
+</nav>
+
+
+<head>
+  {{ bootstrap.load_css() }}
+</head>
+
+
+<section>
+
+  <div>
+    <header class="d-flex justify-content-center">
+      {% block header %}
+      {% endblock %}
+    </header>
+  </div>
+
+  <div class="d-flex justify-content-center">
+    <body>
+    {% block content %}
+  
+      {{ bootstrap.load_js() }}
+      
+      {% endblock %}
+    </body>
+  </div>
+</section>
+</html>

@@ -16,7 +16,7 @@ from api.models.Users import Group
 post_bp = Blueprint("post_bp", __name__)
 
 
-@post_bp.route("/api/post", methods=["GET"])
+@post_bp.route("/api/posts/", methods=["GET"])
 @jwt_required()
 def get_post():
     """
@@ -60,7 +60,7 @@ def get_group_posts(id : int) -> Response:
 
 
 # create post
-@post_bp.post("/api/post/create/")
+@post_bp.post("/api/posts/")
 @jwt_required()
 def create_post():
 
@@ -106,13 +106,13 @@ def create_group_post(id : int) -> Response:
 
 
 # delete post
-@post_bp.route("/api/post/delete/", methods=["DELETE"])
+@post_bp.route("/api/posts/<int:id>", methods=["DELETE"])
 @jwt_required()
-def delete_post():
+def delete_post(id):
     """
     Deletes Post
     """
-    id = request.form["id"]
+    
     post = Post.query.get(id)
     if post is None:
         """
@@ -146,13 +146,12 @@ def delete_group_post(id : int, postId : int) -> Response:
     return WebHelpers.EasyResponse(f'No group with id ({id}) found.', 400)
 
 # update posts
-@post_bp.route("/api/post/update/", methods=["PUT"])
+@post_bp.route("/api/posts/<int:id>", methods=["PUT"])
 @jwt_required()
-def update_post():
+def update_post(id):
     """
     Updates Post
     """
-    id = request.form["id"]
     title = request.form["title"]
     content = request.form["content"]
     post = Post.query.get(id)
@@ -191,7 +190,7 @@ def update_group_post(id : int, postId : int) -> Response:
         return WebHelpers.EasyResponse(f'No post with id {postId} found.', 400)
     return WebHelpers.EasyResponse(f'No group with id ({id}) found.', 400)
 
-@post_bp.route("/api/post/like/<int:post_id>/", methods=["POST"])
+@post_bp.route("/api/posts/<int:post_id>/likes", methods=["POST"])
 @jwt_required()
 def user_likes_post(post_id):
     """
