@@ -257,7 +257,7 @@ def get_friend_suggestions():
     friends = current_user.friends
 
     for x in friends: 
-        if x == friends:
+        if x == users.id:
             return WebHelpers.EasyResponse(
             current_user.userusername + "Users are currently friends.", 400
         )
