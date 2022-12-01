@@ -50,7 +50,7 @@ class Post(db.Model):
             "text": self.content,
             "likes": [x.serialize() for x in self.likes],
             "comments": [x.serialize() for x in self.comments],
-            #"replies": [x.serialize() for x in self.comments.replies],
+            "replies": [x.serialize() for x in self.comments.replies],
             "createdAt": self.date_created
         }
 
