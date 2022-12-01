@@ -1,13 +1,24 @@
-{% extends 'base.html' %}
 {% from 'bootstrap5/form.html' import render_form %}
-{% block title %}Login{% endblock %}
+<title>
+    Signup
+</title>
 
-{% block header %}
-<h1>Sign Up</h1>
-{% endblock %}
+<head>
+    {{ bootstrap.load_css() }}
+</head>
 
-{% block content %}
+<header class="d-flex justify-content-center">
+    <h1>Sign In</h1>
+</header>
 
-{{ render_form(form) }}
 
-{% endblock %}
+<body>
+    {{ bootstrap.load_js() }}
+    
+    <div class="d-flex justify-content-center">
+        {{ render_form(form) }}
+    </div>
+
+</body>
+
+

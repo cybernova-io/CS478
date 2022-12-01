@@ -6,7 +6,7 @@ from flask import (
     make_response
 )
 from flask_security.utils import verify_password, hash_password
-from ..models.Users import db, User
+from ..models.Users import db, User, TokenBlocklist
 from flask_login import logout_user
 from ..services.WebHelpers import WebHelpers
 import logging
@@ -16,8 +16,9 @@ from flask_cors import cross_origin
 import bcrypt
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt
 from flask_jwt_extended import current_user, set_access_cookies
+from datetime import datetime, timezone
 from api import jwt
 from api.forms.SigninForm import SigninForm
 from api.forms.SignupForm import SignupForm
@@ -83,6 +84,25 @@ def signup_page():
 
     return render_template('/auth/signup.html', form=form)
 
+# Endpoint for revoking the current users access token. Saved the unique
+# identifier (jti) for the JWT into our database.
+@auth_bp.route("/signout", methods=["GET"])
+@jwt_required()
+def signout_page():
+    jti = get_jwt()["jti"]
+    now = datetime.now(timezone.utc)
+    db.session.add(TokenBlocklist(jti=jti, created_at=now))
+    db.session.commit()
+
+    resp = make_response(redirect('/signout-page'))
+    resp.set_cookie("access_token_cookie", '', expires=0)
+
+    return resp
+
+@auth_bp.route("/signout-page", methods=["GET"])
+def signout():
+   
+    return render_template("/auth/signout.html")
 ########################################################### API BELOW, SERVER RENDERING ABOVE
 
 
@@ -190,6 +210,14 @@ def user_identity_lookup(user):
 def user_lookup_callback(_jwt_header, jwt_data):
     identity = jwt_data["sub"]
     return User.query.filter_by(id=identity).one_or_none()
+
+# Callback function to check if a JWT exists in the database blocklist
+@jwt.token_in_blocklist_loader
+def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
+    jti = jwt_payload["jti"]
+    token = db.session.query(TokenBlocklist.id).filter_by(jti=jti).scalar()
+
+    return token is not None
 
 
 #

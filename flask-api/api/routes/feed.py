@@ -22,6 +22,28 @@ def feed_page():
 
     return render_template("/feed/feed.html", feed=user_feed)
 
+@feed_bp.post("/search")
+@jwt_required()
+def search_page():
+
+    category = request.form.get('category')
+    search_term = request.form.get('search-term')
+
+    if category == 'Users':
+        users = User.query.filter(User.username.like("%" + search_term + "%")).all()
+        data = jsonify([x.serialize_search() for x in users])
+    elif category == 'Friends':
+        pass
+    elif category == 'Posts':
+        pass
+    elif category == 'Groups':
+        pass
+    else:
+        return None
+    
+
+    return render_template("/feed/search.html", data=data)
+
 
 ######################################################### API BELOW, SERVER RENDERING ABOVE
 
