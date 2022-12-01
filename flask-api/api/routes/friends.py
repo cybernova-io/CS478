@@ -246,21 +246,20 @@ def decline_pending_friend(id):
         )
 
 
-@friend_bp.route("/api/friends/friend-suggestions", methods=["GET"])
+@friend_bp.route("/api/friends/suggestions", methods=["GET"])
 @jwt_required()
 def get_friend_suggestions():
     """
         RETURNS A LIST OF SUGGESTED FRIENDS
     """ 
     data = {}
-    users = User.query.all()
+    users = User.query.filter(User.id != 1).all()
     friends = current_user.friends
 
     for x in friends: 
-        if x == friends:
-            return WebHelpers.EasyResponse(
-            current_user.userusername + "Users are currently friends.", 400
-        )
+        users.remove(x)
+            
+
     data = [x.serialize() for x in users]
     resp = jsonify(data)
     resp.status_code = 200
