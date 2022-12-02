@@ -10,6 +10,7 @@ from flask import (
     abort
 )
 from api.services.WebHelpers import WebHelpers
+from api.forms.GroupForm import GroupForm
 
 group_bp = Blueprint("group_bp", __name__)
 
@@ -31,7 +32,95 @@ def get_group_page(id):
 
     return render_template("/groups/single-group.html", group=group)
 
+@group_bp.route("/group/create", methods=['GET', 'POST'])
+@jwt_required()
+def create_group_page():
 
+    new_group : Group
+
+    if request.method == 'GET':
+        form = GroupForm()
+        return render_template('/groups/create-group.html', form=form)
+
+    if request.method == 'POST':
+
+        name = request.form["name"]
+        description = request.form["description"]
+        invite_only = request.form["inviteOnly"].capitalize()
+
+        if invite_only == "No":
+            invite_only = False
+        else:
+            invite_only = True
+        
+
+        group = Group.query.filter_by(name=name).scalar()
+        
+        if group is None:
+            new_group = Group(
+                name=name,
+                description=description,
+                invite_only=invite_only
+            )
+
+            db.session.add(new_group)
+            db.session.commit()
+            new_group.make_owner(user=current_user, current_user=None)
+
+            return redirect(f'/group/{new_group.id}')
+
+@group_bp.route("/group/edit/<int:id>", methods=['GET', 'POST'])
+@jwt_required()
+def edit_group_page(id):
+
+    group : Group
+
+    if request.method == 'GET':
+        group = Group.query.get(id)
+        if group:
+            return render_template('/groups/edit-group.html', group=group)
+        return abort(404)
+
+    if request.method == 'POST':
+
+        group = Group.query.get(id)
+        
+        if group is None:
+            return abort(404)
+
+        name = request.form["name"]
+        description = request.form["description"]
+        remove_members = {}
+
+        for i in group.members:
+            remove_members[i] = request.form.get(f'remove-{i.username}')
+        
+        for member, value in remove_members.items():
+            if value == 'on':
+                member.leave_group(group)
+            
+        group.name = name
+        group.description = description
+        
+        db.session.commit()
+
+        return redirect(f'/group/{group.id}')
+
+@group_bp.route("/group/delete/<int:id>", methods=['POST'])
+@jwt_required()
+def delete_group_page(id):
+
+    group : Group
+
+    group = Group.query.get(id)
+
+    if group.check_role(current_user) == 'Owner':
+
+        db.session.delete(group)
+        db.session.commit()
+
+        return redirect('/group')
+    return abort(400)
 ######################################################### API BELOW, SERVER RENDERING ABOVE
 
 @group_bp.post("/api/group")

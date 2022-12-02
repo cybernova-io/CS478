@@ -306,15 +306,26 @@ def seed_db():
         db.session.commit()
 
     if Group.query.count() == 0:
-        group = Group(
+        group1 = Group(
             name="Computer Club",
             description="Group for people who like computers.",
             invite_only=False
         )
 
-        group.make_owner(user1)
-        db.session.add(group)
+        group1.make_owner(user=user1, current_user=None)
+        db.session.add(group1)
         db.session.commit()
 
-        user3.join_group(group)
-        user4.join_group(group)
+        user3.join_group(group1)
+        user4.join_group(group1)
+
+    if Post.query.count() == 7:
+        post8 = Post(
+            title="Computer Club First Post",
+            content="Computers are cool",
+            user_id=user5.id,
+            group_id=group1.id
+        )
+
+        db.session.add(post8)
+        db.session.commit()
