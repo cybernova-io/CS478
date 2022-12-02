@@ -312,6 +312,9 @@ def seed_db():
             invite_only=False
         )
 
+        group.make_owner(user1)
         db.session.add(group)
         db.session.commit()
-        group.make_owner(user1)
+
+        user3.join_group(group)
+        user4.join_group(group)

@@ -75,7 +75,7 @@ class Group(db.Model):
                     where(group_user.c.group_id == self.id).
                     values(role=1)
                 )
-                db.session.execute(stmt)
+                db.session.execute(stmt)    
                 db.session.commit()
                 stmt = (
                     update(group_user).

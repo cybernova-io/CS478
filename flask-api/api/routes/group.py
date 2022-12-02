@@ -5,10 +5,34 @@ from flask import (
     Blueprint,
     request,
     jsonify,
+    render_template,
+    redirect,
+    abort
 )
 from api.services.WebHelpers import WebHelpers
 
 group_bp = Blueprint("group_bp", __name__)
+
+
+@group_bp.get("/group")
+@jwt_required()
+def get_all_groups_page():
+
+    groups = Group.query.all()
+    return render_template('/groups/groups.html', groups=groups)
+
+@group_bp.get("/group/<int:id>")
+@jwt_required()
+def get_group_page(id):
+
+    group : Group
+
+    group = Group.query.get(id)
+
+    return render_template("/groups/single-group.html", group=group)
+
+
+######################################################### API BELOW, SERVER RENDERING ABOVE
 
 @group_bp.post("/api/group")
 @jwt_required()
