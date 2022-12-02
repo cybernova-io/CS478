@@ -15,12 +15,11 @@
         <div class="card-body">
           <div class="input-group">
             {{render_icon ('person-circle')}} {{post.user.username}}
-            {% if current_user.id == post.user_id %}
-              
-              <form method="POST" action="/post/delete/{{post.id}}"><button class="btn btn-primary f-s-12 rounded-corner" type="submit">Delete</button></form>
-              {% else %}
-
+            {% if current_user.id == post.user.id or current_user.is_admin() %}
+            <form method="GET" action="/post/edit/{{post.id}}"><button class="btn btn-success f-s-12 rounded-corner" type="submit">Edit</button></form>
+            <form method="POST" action="/post/delete/{{post.id}}"><button class="btn btn-danger f-s-12 rounded-corner" type="submit">Delete</button></form>
             {% endif %}
+            
           </div>
           <h5 class="card-title">{{ post.title }}</h5>
           <p class="card-text">{{ post.text }}</p>

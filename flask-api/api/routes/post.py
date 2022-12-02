@@ -6,7 +6,8 @@ from flask import (
     Response,
     render_template,
     flash,
-    redirect
+    redirect,
+    abort
 )
 from flask_jwt_extended import jwt_required, current_user
 from ..models.Posts import Post, PostLike, PostComment, db
@@ -28,6 +29,9 @@ def get_singlepost_page(id : int):
     """
     data = {}
     post = Post.query.get(id)
+
+    if post is None:
+        return abort(404)
 
     data = post.serialize()
 
@@ -54,7 +58,7 @@ def user_comment_post_page(post_id):
     post = Post.query.filter_by(id=post_id).first_or_404()
 
     if post is None:
-        return WebHelpers.EasyResponse("Specified post does not exist.", 404)
+        return abort(404)
     # post_comment = PostComment.query.filter(PostComment.user_id==current_user.id).filter(PostComment.post_id==post.id).first()
     text = request.form["text"]
     post_comment = PostComment(user_id=current_user.id, post_id=post.id, text=text)
@@ -86,7 +90,7 @@ def create_post_page():
         return redirect("/feed")
 
 # delete post
-@post_bp.route("/post/delete/", methods=["POST"])
+@post_bp.route("/post/delete/<int:id>", methods=["POST"])
 @jwt_required()
 def delete_post_page(id):
     """
@@ -94,13 +98,75 @@ def delete_post_page(id):
     """
     post : Post
 
-    if post.user_id == current_user.id: 
-        post = Post.query.get(id)
-        if post:
+    post = Post.query.get(id)
+    if post:
+        if post.user_id == current_user.id: 
             db.session.delete(post)
             db.session.commit()
 
             return redirect('/feed')
+
+#edit post
+@post_bp.route("/post/edit/<int:id>", methods=["GET", "POST"])
+@jwt_required()
+def edit_singlepost_page(id : int):
+    """
+    GET: return specific post of individual user
+    """
+    if request.method == 'GET':
+        data = {}
+        post = Post.query.get(id)
+
+        if post is None:
+            return abort(404)
+
+        data = post.serialize()
+
+        for x in data['comments']:
+            user : User
+            user = User.query.get(x['userId'])
+            x['name'] = f'{user.first_name} {user.last_name}'
+
+        post_user = User.query.get(data['userId'])
+
+        data["user"] = post_user.serialize()    
+
+        
+        return render_template('/posts/edit-post.html', post=data)
+    if request.method == 'POST':
+        data = {}
+        post = Post.query.get(id)
+
+        post.title = request.form['title']
+        post.content = request.form['content']
+
+        if post is None:
+            return abort(404)
+
+        db.session.commit()
+
+        data = post.serialize()
+
+        for x in data['comments']:
+            user : User
+            user = User.query.get(x['userId'])
+            x['name'] = f'{user.first_name} {user.last_name}'
+
+        post_user = User.query.get(data['userId'])
+
+        data["user"] = post_user.serialize()    
+
+        
+        return redirect(f'/post/{post.id}')
+
+@post_bp.get("/post/me")
+@jwt_required()
+def feed_page():
+    user_posts = []
+    
+    user_posts.append([x.serialize() for x in current_user.posts])
+    
+    return render_template("/posts/post-me.html", feed=user_posts)
     
 
 ######################################################### API BELOW, SERVER RENDERING ABOVE

@@ -5,19 +5,17 @@ from flask import (
     redirect,
     make_response
 )
-from flask_security.utils import verify_password, hash_password
-from ..models.Users import db, User, TokenBlocklist
-from flask_login import logout_user
+from passlib.hash import sha256_crypt
+from ..models.Users import db, User
 from ..services.WebHelpers import WebHelpers
 import logging
-from api import user_datastore
 from flask import current_app as app, jsonify
 from flask_cors import cross_origin
 import bcrypt
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required, get_jwt
-from flask_jwt_extended import current_user, set_access_cookies
+from flask_jwt_extended import current_user, set_access_cookies, unset_access_cookies, unset_jwt_cookies
 from datetime import datetime, timezone
 from api import jwt
 from api.forms.SigninForm import SigninForm
@@ -28,14 +26,14 @@ from api.routes.feed import create_feed
 auth_bp = Blueprint("auth_bp", __name__)
 
 @auth_bp.route("/signin", methods = ["GET", "POST"])
-@jwt_required()
+@jwt_required(True)
 def signin_page():
     form = SigninForm()
     if form.validate_on_submit():
 
         # Validate login attempt
         user = User.query.filter_by(email=form.email.data).one_or_none()
-        password_matches = verify_password(form.password.data, user.password)
+        password_matches = sha256_crypt.verify(form.password.data, user.password)
 
         if user:
             if user and password_matches:
@@ -64,8 +62,8 @@ def signup_page():
         existing_user = User.query.filter_by(email=email).scalar()
 
         if existing_user is None:
-            password = hash_password(password)
-            user = user_datastore.create_user(
+            password = sha256_crypt.encrypt(password)
+            user = User(
                 first_name=first_name,
                 last_name=last_name,
                 major=major,
@@ -85,22 +83,16 @@ def signup_page():
 
     return render_template('/auth/signup.html', form=form)
 
-# Endpoint for revoking the current users access token. Saved the unique
-# identifier (jti) for the JWT into our database.
+
 @auth_bp.route("/signout", methods=["GET"])
 @jwt_required()
 def signout_page():
-    jti = get_jwt()["jti"]
-    now = datetime.now(timezone.utc)
-    db.session.add(TokenBlocklist(jti=jti, created_at=now))
-    db.session.commit()
-
     resp = make_response(redirect('/signout-page'))
-    resp.set_cookie("access_token_cookie", '', expires=0)
-
+    unset_jwt_cookies(resp)
     return resp
 
 @auth_bp.route("/signout-page", methods=["GET"])
+@jwt_required(True)
 def signout():
    
     return render_template("/auth/signout.html")
@@ -125,8 +117,8 @@ def signup():
     existing_user = User.query.filter_by(email=email).scalar()
 
     if existing_user is None:
-        password = hash_password(password)
-        user = user_datastore.create_user(
+        password = sha256_crypt(password)
+        user = User(
             first_name=first_name,
             last_name=last_name,
             major=major,
@@ -166,7 +158,7 @@ def login():
 
     # Validate login attempt
     user = User.query.filter_by(email=email).one_or_none()
-    password_matches = verify_password(password, user.password)
+    password_matches = sha256_crypt.verify(password, user.password)
 
     if user:
         if user and password_matches:
@@ -217,15 +209,6 @@ def user_identity_lookup(user):
 def user_lookup_callback(_jwt_header, jwt_data):
     identity = jwt_data["sub"]
     return User.query.filter_by(id=identity).one_or_none()
-
-
-# Callback function to check if a JWT exists in the database blocklist
-@jwt.token_in_blocklist_loader
-def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
-    jti = jwt_payload["jti"]
-    token = db.session.query(TokenBlocklist.id).filter_by(jti=jti).scalar()
-
-    return token is not None
 
 
 #

@@ -3,14 +3,14 @@
 {% block title %}Feed{% endblock %}
 
 {% block header %}
-<h1>Feed</h1>
+<h1>My Posts</h1>
 {% endblock %}
 
 {% block content %}
 <div>
-  <div class="d-flex justify-content-center">
-    <a href="/post/create" class="btn btn-primary" role="button">Create New Post</a><a href="/post/me" class="">My Posts</a>
-  </div>
+    <div class="d-flex justify-content-center">
+        <a href="/post/create" class="btn btn-primary" role="button">Create New Post</a>
+    </div>
     {% for friend in feed %}
         {% for post in friend %}
         <div class="card" style="width: 18rem;">

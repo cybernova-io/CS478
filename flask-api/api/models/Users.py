@@ -9,7 +9,6 @@ from .Messages import Message
 from .Notifications import Notification
 import json
 from .Posts import PostLike
-from flask_security import UserMixin, RoleMixin, Security
 from sqlalchemy import insert, values, select, update
 
 # engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
@@ -135,19 +134,14 @@ class Group(db.Model):
             #user is not in the group
             return None
 
-class Role(db.Model, RoleMixin):
+class Role(db.Model):
     __tablename__ = "Role"
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(80), unique=True)
     description = db.Column(db.String(255))
 
-class TokenBlocklist(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    jti = db.Column(db.String(36), nullable=False, index=True)
-    created_at = db.Column(db.DateTime, nullable=False)
 
-
-class User(UserMixin, db.Model):
+class User(db.Model):
     """User account model."""
 
     __tablename__ = "Users"
@@ -362,6 +356,12 @@ class User(UserMixin, db.Model):
                 )
             db.session.execute(stmt)
             db.session.commit()
+
+    def is_admin(self):
+        if 'Admin' in [x.name for x in self.roles]:
+            return True
+        else:
+            return False
 
 
     def serialize(self):

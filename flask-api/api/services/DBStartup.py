@@ -1,10 +1,9 @@
 from api.models.Users import User, Role, Group
 from api.models.Posts import Post, PostLike, PostComment
-from api import user_datastore
 from api.models.db import db
 from api.models.Messages import Message
 import logging
-from flask_security.utils import hash_password
+from passlib.hash import sha256_crypt
 
 
 def seed_db():
@@ -23,8 +22,8 @@ def seed_db():
         logging.warning(f"No roles found, default roles created.")
 
     if User.query.count() == 0:
-        password = hash_password("password")
-        admin = user_datastore.create_user(
+        password = sha256_crypt.encrypt("password")
+        admin = User(
             first_name="ADMIN",
             last_name="ADMIN",
             grad_year="2024",
@@ -33,8 +32,8 @@ def seed_db():
             email="admin@email.com",
             password=password,
         )
-
-        user_datastore.add_role_to_user(admin, "Admin")
+        admin.roles.append(admin_role)
+        #user_datastore.add_role_to_user(admin, "Admin")
         db.session.add(admin)
         db.session.commit()
         logging.warning(
@@ -43,8 +42,8 @@ def seed_db():
     #everything past here is extra for testing
 
     if User.query.count() == 1:
-        password = hash_password("password")
-        user1 = user_datastore.create_user(
+        password = sha256_crypt.encrypt("password")
+        user1 = User(
             first_name="Bob",
             last_name="Smith",
             grad_year="2026",
@@ -57,8 +56,8 @@ def seed_db():
         db.session.commit()
 
     if User.query.count() == 2:
-        password = hash_password("password")
-        user2 = user_datastore.create_user(
+        password = sha256_crypt.encrypt("password")
+        user2 = User(
             first_name="John",
             last_name="Second",
             grad_year="2027",
@@ -71,8 +70,8 @@ def seed_db():
         db.session.commit()
 
     if User.query.count() == 3:
-        password = hash_password("password")
-        user3 = user_datastore.create_user(
+        password = sha256_crypt.encrypt("password")
+        user3 = User(
             first_name="Josh",
             last_name="Third",
             grad_year="2024",
@@ -85,8 +84,8 @@ def seed_db():
         db.session.commit()
 
     if User.query.count() == 4:
-        password = hash_password("password")
-        user4 = user_datastore.create_user(
+        password = sha256_crypt.encrypt("password")
+        user4 = User(
             first_name="Mike",
             last_name="Fourth",
             grad_year="2025",
@@ -99,8 +98,8 @@ def seed_db():
         db.session.commit()
 
     if User.query.count() == 5:
-        password = hash_password("password")
-        user5 = user_datastore.create_user(
+        password = sha256_crypt.encrypt("password")
+        user5 = User(
             first_name="Walter",
             last_name="Fifth",
             grad_year="2025",

@@ -1,9 +1,7 @@
 """Initialize app."""
 from flask import Flask, abort
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
 import logging
-from flask_security import SQLAlchemyUserDatastore, Security
 from api.models.Users import User, Role
 from api.models.db import db
 from flask_jwt_extended import JWTManager
@@ -14,10 +12,8 @@ from flask_bootstrap import Bootstrap5
 PROFILE_PICS = "api/static/profile-pics"
 UPLOADS = "api/uploads"
 
-user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-login_manager = LoginManager()
 jwt = JWTManager()
-security = Security()
+
 
 
 def create_app(config):
@@ -52,11 +48,7 @@ def create_app(config):
     db.init_app(app)
     jwt.init_app(app, add_context_processor=True)
     bootstrap = Bootstrap5(app)
-    security_ctx = security.init_app(app, user_datastore)
 
-    @security_ctx.context_processor
-    def security_context_processor():
-        return abort(404)
 
     # Set up logging
     logging.basicConfig(
