@@ -36,6 +36,12 @@ friend = db.Table(
     db.Column("friend1_id", db.Integer, db.ForeignKey("Users.id")),
 )
 
+suggested_friend = db.Table(
+    "suggested_friends",
+    db.Column("suggested_friend0_id", db.Integer, db.ForeignKey("Users.id")),
+    db.Column("suggested_friend1_id", db.Integer, db.ForeignKey("Users.id")),
+)
+
 pending_friend = db.Table(
     "pending_friends",
     db.Column("pending_friend0_id", db.Integer, db.ForeignKey("Users.id")),
@@ -198,6 +204,15 @@ class User(UserMixin, db.Model):
         lazy="dynamic",
     )
 
+    suggested_friends = db.relationship(
+        "User",
+        secondary=suggested_friend,
+        primaryjoin=(suggested_friend.c.suggested_friend0_id == id),
+        secondaryjoin=(suggested_friend.c.suggested_friend1_id == id),
+        backref=db.backref("suggested_friend", lazy="dynamic"),
+        lazy="dynamic",
+    )
+
     friends = db.relationship(
         "User",
         secondary=friend,
@@ -273,6 +288,9 @@ class User(UserMixin, db.Model):
 
     def get_pending_friends(self):
         return [user.serialize() for user in pending_friend]
+
+    def get_suggested_friends(self):
+        return [user.serialize() for user in suggested_friend]
 
     def is_friend(self, user):
         return self.friends.filter(friend.c.friend1_id == user.id).count() > 0
