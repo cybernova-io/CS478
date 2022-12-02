@@ -3,7 +3,10 @@ from flask import (
     Blueprint,
     request,
     jsonify,
-    Response
+    Response,
+    render_template,
+    flash,
+    redirect
 )
 from flask_jwt_extended import jwt_required, current_user
 from ..models.Posts import Post, PostLike, PostComment, db
@@ -11,11 +14,80 @@ from flask_login import logout_user
 from flask import current_app as app
 from sqlalchemy import engine, create_engine
 from ..services.WebHelpers import WebHelpers
-from api.models.Users import Group
+from api.models.Users import Group, User
+from api.forms.PostForm import PostForm
 
 post_bp = Blueprint("post_bp", __name__)
 
 
+# get specific post
+@post_bp.route("/post/<int:id>", methods=["GET"])
+@jwt_required()
+def get_singlepost_page(id : int):
+    """
+    GET: return specific post of individual user
+    """
+    data = {}
+    post = Post.query.get(id)
+
+    data = post.serialize()
+
+    for x in data['comments']:
+        user : User
+        user = User.query.get(x['userId'])
+        x['name'] = f'{user.first_name} {user.last_name}'
+
+    post_user = User.query.get(data['userId'])
+
+    data["user"] = post_user.serialize()    
+
+    if post:
+        return render_template('/posts/single-post.html', post=data)
+    return flash('Sorry, that post could not be found!')
+
+#comment on post
+@post_bp.route("/post/comment/<int:post_id>", methods=["POST"])
+@jwt_required()
+def user_comment_post_page(post_id):
+    """
+    comment on a post
+    """
+    post = Post.query.filter_by(id=post_id).first_or_404()
+
+    if post is None:
+        return WebHelpers.EasyResponse("Specified post does not exist.", 404)
+    # post_comment = PostComment.query.filter(PostComment.user_id==current_user.id).filter(PostComment.post_id==post.id).first()
+    text = request.form["text"]
+    post_comment = PostComment(user_id=current_user.id, post_id=post.id, text=text)
+    db.session.add(post_comment)
+    db.session.commit()
+    return redirect(f'/post/{post_id}')
+
+# create new post
+@post_bp.route("/post/create", methods = ['GET', 'POST'])
+@jwt_required()
+def create_post_page():
+    if request.method == 'GET':
+        form = PostForm()
+        return render_template('/posts/create-post.html', form=form)
+
+    if request.method == 'POST':
+        title = request.form["title"]
+        content = request.form["content"]
+
+        post = Post(
+            title=title,
+            content=content,
+            user_id = current_user.id
+        )
+
+        db.session.add(post)
+        db.session.commit()
+
+        return redirect("/feed")
+    
+
+######################################################### API BELOW, SERVER RENDERING ABOVE
 @post_bp.route("/api/posts/", methods=["GET"])
 @jwt_required()
 def get_post():

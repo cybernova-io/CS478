@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block header %}
+<h1>Search Results</h1>
+{% endblock %}
+
+{% block content %}
+<div>
+    <form class="" method="POST" action="/search">
+        <input class="form-control" name="search-term" type="search" placeholder="Search" aria-label="Search">
+        <hr/>
+        <div class="d-flex justify-content-center">
+            <select class="form-select" name="category" aria-label="Default select example">
+                <option value="Users" selected>Users</option>
+                <option value="Friends">Friends</option>
+                <option value="Posts">Posts</option>
+                <option value="Groups">Groups</option>
+            </select>
+            <select class="form-select" name="category" aria-label="Default select example">
+                <option value="Users" selected>Users</option>
+                <option value="Friends">Friends</option>
+                <option value="Posts">Posts</option>
+                <option value="Groups">Groups</option>
+            </select>
+            <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+    </div>
+</div>
+
+<div>
+    
+</div>
+{% endblock %}

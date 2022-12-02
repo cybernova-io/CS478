@@ -6,10 +6,47 @@ from api.models.Users import User
 from flask import (
     Blueprint,
     jsonify,
-    render_template
+    render_template,
+    flash
 )
 
 feed_bp = Blueprint("feed_bp", __name__)
+
+@feed_bp.get("/feed")
+@jwt_required()
+def feed_page():
+    user_feed = []
+    friends = current_user.friends
+    for i in friends:
+        user_feed.append([x.serialize() for x in i.posts])
+    
+
+    return render_template("/feed/feed.html", feed=user_feed)
+
+@feed_bp.post("/search")
+@jwt_required()
+def search_page():
+
+    category = request.form.get('category')
+    search_term = request.form.get('search-term')
+
+    if category == 'Users':
+        users = User.query.filter(User.username.like("%" + search_term + "%")).all()
+        data = jsonify([x.serialize_search() for x in users])
+    elif category == 'Friends':
+        pass
+    elif category == 'Posts':
+        pass
+    elif category == 'Groups':
+        pass
+    else:
+        return None
+    
+
+    return render_template("/feed/search.html", data=data)
+
+
+######################################################### API BELOW, SERVER RENDERING ABOVE
 
 @jwt_required()
 def create_feed():
@@ -29,16 +66,6 @@ def display_user_feed():
 
     return jsonify(user_feed)
 
-@feed_bp.get("/feed")
-@jwt_required()
-def feed_page():
-    user_feed = []
-    friends = current_user.friends
-    for i in friends:
-        user_feed.append([x.serialize() for x in i.posts])
-    
-
-    return render_template("feed.html", feed=user_feed)
 
 
 @feed_bp.get("/api/search/user/username")

@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
 {% from 'bootstrap5/form.html' import render_form %}
-{% block title %}Login{% endblock %}
+
+{% block title %}New Post{% endblock %}
 
 {% block header %}
-<h1>Sign Up</h1>
+Create New Post
 {% endblock %}
 
 {% block content %}
-
-{{ render_form(form) }}
-
+<div>
+    {{ render_form(form) }}
+</div>
 {% endblock %}

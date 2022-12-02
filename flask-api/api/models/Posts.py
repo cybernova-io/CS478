@@ -53,7 +53,8 @@ class Post(db.Model):
             "comments": [x.serialize() for x in self.comments],
             "replies": [x.serialize_replies() for x in self.replies],
             #"comment_likes": [x.serialize_comment_likes() for x in self.comment_likes],
-            "createdAt": self.date_created
+            "createdAt": self.date_created,
+            "userId": self.user_id
         }
 
     def serialize_search(self):
@@ -152,6 +153,7 @@ class PostComment(db.Model):
         return {"id": self.id, 
                 "userId": self.user_id, 
                 "text": self.text,
+                "createdAt": self.timestamp
             }
 
    

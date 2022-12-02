@@ -147,6 +147,11 @@ class Role(db.Model, RoleMixin):
     name = db.Column(db.String(80), unique=True)
     description = db.Column(db.String(255))
 
+class TokenBlocklist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String(36), nullable=False, index=True)
+    created_at = db.Column(db.DateTime, nullable=False)
+
 
 class User(UserMixin, db.Model):
     """User account model."""
@@ -381,6 +386,8 @@ class User(UserMixin, db.Model):
         return {
             "id": self.id,
             "username": self.username,
+            "firstName": self.first_name,
+            "lastName": self.last_name
         }
 
     def serialize_search(self):
