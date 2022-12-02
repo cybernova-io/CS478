@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Feed{% endblock %}
+{% block title %}Friend Requests{% endblock %}
 
 {% block header %}
 <h1>Friends</h1>
@@ -9,14 +9,14 @@
 {% block content %}
 <div>
     <div>
-        <p class="d-flex justify-content-center"><a href="/friends/pending-friends">Friend Requests</a> | Recommendations</p>
+        <p class="d-flex justify-content-center"><a href="/friends">All Friends</a> | Recommendations</p>
     </div>
-    {% if friends|length == 0 %}
-    <div>
-        <p>You currently have no friends. Check your recommendations for people to add.</p>
-    </div>
-    {% else %}
-        {% for friend in friends %}
+    {% if pending_friends|length == 0 %}
+        <div>
+            <p>You currently have no friend requests. Check your recommendations for people to add.</p>
+        </div>
+        {% else %}
+        {% for friend in pending_friends %}
         <div class="card" style="width: 30rem;">
             <div class="card-body">
                 <p class="card-text">{{render_icon ('person-circle')}} {{friend.firstName}} {{friend.lastName}}</p>
@@ -27,6 +27,5 @@
         </div>
         {% endfor %}
     {% endif %}
-
 </div>
 {% endblock %}

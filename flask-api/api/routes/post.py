@@ -15,6 +15,7 @@ from flask import current_app as app
 from sqlalchemy import engine, create_engine
 from ..services.WebHelpers import WebHelpers
 from api.models.Users import Group, User
+from api.forms.PostForm import PostForm
 
 post_bp = Blueprint("post_bp", __name__)
 
@@ -44,6 +45,7 @@ def get_singlepost_page(id : int):
         return render_template('/posts/single-post.html', post=data)
     return flash('Sorry, that post could not be found!')
 
+#comment on post
 @post_bp.route("/post/comment/<int:post_id>", methods=["POST"])
 @jwt_required()
 def user_comment_post_page(post_id):
@@ -61,6 +63,28 @@ def user_comment_post_page(post_id):
     db.session.commit()
     return redirect(f'/post/{post_id}')
 
+# create new post
+@post_bp.route("/post/create", methods = ['GET', 'POST'])
+@jwt_required()
+def create_post_page():
+    if request.method == 'GET':
+        form = PostForm()
+        return render_template('/posts/create-post.html', form=form)
+
+    if request.method == 'POST':
+        title = request.form["title"]
+        content = request.form["content"]
+
+        post = Post(
+            title=title,
+            content=content,
+            user_id = current_user.id
+        )
+
+        db.session.add(post)
+        db.session.commit()
+
+        return redirect("/feed")
     
 
 ######################################################### API BELOW, SERVER RENDERING ABOVE

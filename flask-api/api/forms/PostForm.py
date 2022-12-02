@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, EmailField, SubmitField
+from wtforms import PasswordField, EmailField, SubmitField, StringField
 from wtforms.validators import DataRequired
 
 class PostForm(FlaskForm):
-    email = EmailField('Email', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Sign In')
+    title = StringField('Post Title', validators=[DataRequired()])
+    content = StringField('Post Description', validators=[DataRequired()])
+    submit = SubmitField('Create Post')

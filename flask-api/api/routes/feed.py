@@ -6,7 +6,8 @@ from api.models.Users import User
 from flask import (
     Blueprint,
     jsonify,
-    render_template
+    render_template,
+    flash
 )
 
 feed_bp = Blueprint("feed_bp", __name__)

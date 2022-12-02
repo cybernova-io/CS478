@@ -27,7 +27,20 @@ def get_friends_page():
     data = [x.serialize() for x in friends]
 
     return render_template('/friends/friends-main.html', friends=data)
-    
+
+@friend_bp.route("/friends/pending-friends", methods=["GET"])
+@jwt_required()
+def get_pending_friends_page():
+    """
+    GET: Returns all pending friends of current user.
+    """
+
+    pending_friends = current_user.pending_friends
+    data = {}
+
+    data = [x.serialize() for x in pending_friends]
+
+    return render_template('/friends/friends-requests.html', pending_friends = data)  
 
 
 ######################################################### API BELOW, SERVER RENDERING ABOVE

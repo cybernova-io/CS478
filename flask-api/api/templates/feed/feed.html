@@ -8,6 +8,7 @@
 
 {% block content %}
 <div>
+  <a href="/post/create" class="btn btn-primary" role="button">Create New Post</a>
     {% for friend in feed %}
         {% for post in friend %}
         <div class="card" style="width: 18rem;">
