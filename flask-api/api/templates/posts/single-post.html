@@ -13,7 +13,15 @@
         <!--Card content-->
 
         <div class="card-body">
-        {{render_icon ('person-circle')}} {{post.user.username}}
+          <div class="input-group">
+            {{render_icon ('person-circle')}} {{post.user.username}}
+            {% if current_user.id == post.user_id %}
+              
+              <form method="POST" action="/post/delete/{{post.id}}"><button class="btn btn-primary f-s-12 rounded-corner" type="submit">Delete</button></form>
+              {% else %}
+
+            {% endif %}
+          </div>
           <h5 class="card-title">{{ post.title }}</h5>
           <p class="card-text">{{ post.text }}</p>
           <p class="card-text">{{ post.createdAt}}</p>

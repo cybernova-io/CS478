@@ -28,6 +28,7 @@ from api.routes.feed import create_feed
 auth_bp = Blueprint("auth_bp", __name__)
 
 @auth_bp.route("/signin", methods = ["GET", "POST"])
+@jwt_required()
 def signin_page():
     form = SigninForm()
     if form.validate_on_submit():

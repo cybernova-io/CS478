@@ -10,7 +10,6 @@ from flask import (
 )
 from flask_jwt_extended import jwt_required, current_user
 from ..models.Posts import Post, PostLike, PostComment, db
-from flask_login import logout_user
 from flask import current_app as app
 from sqlalchemy import engine, create_engine
 from ..services.WebHelpers import WebHelpers
@@ -85,6 +84,23 @@ def create_post_page():
         db.session.commit()
 
         return redirect("/feed")
+
+# delete post
+@post_bp.route("/post/delete/", methods=["POST"])
+@jwt_required()
+def delete_post_page(id):
+    """
+    Deletes Post
+    """
+    post : Post
+
+    if post.user_id == current_user.id: 
+        post = Post.query.get(id)
+        if post:
+            db.session.delete(post)
+            db.session.commit()
+
+            return redirect('/feed')
     
 
 ######################################################### API BELOW, SERVER RENDERING ABOVE

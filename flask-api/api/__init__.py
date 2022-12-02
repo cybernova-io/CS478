@@ -50,7 +50,7 @@ def create_app(config):
 
     # Initialize Plugins
     db.init_app(app)
-    jwt.init_app(app)
+    jwt.init_app(app, add_context_processor=True)
     bootstrap = Bootstrap5(app)
     security_ctx = security.init_app(app, user_datastore)
 
