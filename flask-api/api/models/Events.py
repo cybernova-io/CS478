@@ -25,6 +25,8 @@ class Event(db.Model):
     def in_event(self, user):
         if user in self.attendees:
             return True
+        else:
+            return False
 
     def join_event(self, user):
         if not self.in_event(user):
@@ -41,9 +43,9 @@ class Event(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "event_owner": self.owner_id,
-            "event_name": self.name,
-            "event_description": self.description,
-            "event_scheduled_time": self.time,
-            "event_attendes": [x.serialize() for x in self.attendees],
+            "owner_id": self.owner_id,
+            "name": self.name,
+            "description": self.description,
+            "scheduled_time": self.time,
+            "attendees": [x.serialize() for x in self.attendees],
         }

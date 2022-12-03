@@ -89,6 +89,40 @@ def create_post_page():
 
         return redirect("/feed")
 
+#create group post
+@post_bp.route("/group/<int:id>/post", methods= ['GET', 'POST'])
+@jwt_required()
+def create_group_post_page(id : int) -> Response:
+
+    if request.method == 'GET':
+        group = Group.query.get(id)
+        if group:
+            if group.check_role(current_user) is not None:
+                form = PostForm()
+                return render_template('/posts/create-post.html', form=form)
+            return abort(400, "You must be in this group to make a post.")
+
+    if request.method == 'POST':
+        group = Group.query.get(id)
+        if group:
+            if group.check_role(current_user) is not None:
+                title = request.form["title"]
+                content = request.form["content"]
+
+                post = Post(
+                    title=title,
+                    content=content,
+                    user_id = current_user.id,
+                    group_id=group.id
+                )
+
+                db.session.add(post)
+                db.session.commit()
+
+                return redirect(f"/post/{post.id}")
+        return abort(400)
+    return abort(400)
+
 # delete post
 @post_bp.route("/post/delete/<int:id>", methods=["POST"])
 @jwt_required()
