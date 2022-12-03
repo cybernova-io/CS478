@@ -1,10 +1,11 @@
 from api.models.Users import User, Role, Group
 from api.models.Posts import Post, PostLike, PostComment
 from api.models.db import db
+from api.models.Events import Event
 from api.models.Messages import Message
 import logging
 from passlib.hash import sha256_crypt
-
+from datetime import datetime
 
 def seed_db():
     """Initial seeding of database on application start up."""
@@ -329,3 +330,21 @@ def seed_db():
 
         db.session.add(post8)
         db.session.commit()
+
+    if Event.query.count() == 0:
+
+        event_time = "02/15/2023 5:00"
+        
+        timestamp = datetime.strptime(event_time, "%m/%d/%Y %H:%M")
+        event1 = Event(
+            name="End of the world",
+            description="The scripture foretold of the ending of our world on this day. Join for the doomsday party!",
+            time=timestamp,
+            owner_id=2
+        )
+
+        db.session.add(event1)
+        db.session.commit()
+        event1.join_event(user3)
+        event1.join_event(user5)
+

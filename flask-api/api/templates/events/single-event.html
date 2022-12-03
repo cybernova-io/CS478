@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Post{% endblock %}
+
+{% block header %}
+
+{% endblock %}
+
+{% block content %}
+<div>
+    <div class="card" style="width: 30rem;">
+        <!--<img src="..." class="card-img-top" alt="..."> IMAGE CAN GO HERE IF IMPLEMENTED-->
+        <!--Card content-->
+        <div class="card-body">
+          <div class="input-group">
+            <div class="">
+                {{render_icon ('person-circle')}}
+            </div>
+            Organizer {{event.user.username}}
+            {% if current_user.id == event.event.owner_id or current_user.is_admin() %}
+            <form method="GET" action="/event/edit/{{event.event.id}}"><button class="btn btn-success f-s-12 rounded-corner" type="submit">Edit Event</button></form>
+            <form method="POST" action="/event/delete/{{event.event.id}}"><button class="btn btn-danger f-s-12 rounded-corner" type="submit">Delete Event</button></form>
+            {% else %}
+                {% if event.event.in_event(current_user) == False %}
+                    <form method="POST" action="/event/join/{{event.event.id}}"><button class="btn btn-success f-s-12 rounded-corner" type="submit">Join Event</button></form>
+                    {% else %}
+                    <form method="POST" action="/event/leave/{{event.event.id}}"><button class="btn btn-danger f-s-12 rounded-corner" type="submit">Leave Event</button></form>
+                {% endif %}
+            {% endif %}
+            
+          </div>
+          <h5 class="card-title">{{ event.event.name }}</h5>
+          <p class="card-text">{{ event.event.description }}</p>
+          <p class="card-text">{{ event.event.scheduled_time }}</p>
+          <hr/>
+          <div>
+        </div>
+    </div>
+</div>
+<div class="d-flex justify-content-center">
+    <h3>Event Attendees</h3>
+</div>
+<div class="d-flex justify-content-center">
+    {% for user in event.event.attendees %}
+    <div class="card" style="width: 30rem;">
+        <div class="card-body">
+            <p class="card-text">{{render_icon ('person-circle')}} {{user.username}}</p>
+            <div class="input-group">
+                <form action="/profile/{{user.id}}" method="GET">
+                    <button class="btn btn-success f-s-12 rounded-corner" type="submit">View Profile</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+</div>
+{% endblock %}

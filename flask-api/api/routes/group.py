@@ -121,6 +121,42 @@ def delete_group_page(id):
 
         return redirect('/group')
     return abort(400)
+
+@group_bp.post("/group/<int:id>/join")
+@jwt_required()
+def join_group_page(id):
+
+    #functionality for users to join groups
+    group = Group.query.get(id)
+    if group:
+            if group.check_role(current_user) == None:
+                if group.invite_only == False:
+                    current_user.join_group(group)
+                    return redirect(f'/group/{id}')
+                return abort(400)
+            return abort(400)
+        
+    return abort(404)
+
+@group_bp.post("/group/<int:id>/leave")
+@jwt_required()
+def leave_group_page(id):
+
+    #functionality for users to leave groups
+    group = Group.query.get(id)
+
+    if group:
+        status = group.check_role(current_user)
+        if status:
+            if status != 'Owner':
+                current_user.leave_group(group)
+                return redirect(f'/group/{id}')
+            return abort(400)
+        return abort(400)
+    return abort(400)
+
+
+
 ######################################################### API BELOW, SERVER RENDERING ABOVE
 
 @group_bp.post("/api/group")

@@ -16,6 +16,12 @@
             {% if group.check_role(current_user) == 'Owner' or current_user.is_admin() %}
                 <form method="GET" action="/group/edit/{{group.id}}"><button class="btn btn-success f-s-12 rounded-corner" type="submit">Edit Group</button></form>
                 <form method="POST" action="/group/delete/{{group.id}}"><button class="btn btn-danger f-s-12 rounded-corner" type="submit">Delete Group</button></form>
+            {% else %}
+                {% if group.check_role(current_user) == None %}
+                    <form method="POST" action="/group/{{group.id}}/join"><button class="btn btn-success f-s-12 rounded-corner" type="submit">Join Group</button></form>
+                    {% else %}
+                    <form method="POST" action="/group/{{group.id}}/leave"><button class="btn btn-danger f-s-12 rounded-corner" type="submit">Leave Group</button></form>
+                {% endif %}
             {% endif %}
         </div>
         <hr/>
@@ -41,7 +47,7 @@
             <h5>Group Posts</h5>
         </div>
         <div class="d-flex justify-content-center">
-            <form method="GET" action="/group/edit/{{group.id}}"><button class="btn btn-success f-s-12 rounded-corner" type="submit">New Post</button></form>
+            <form method="GET" action="/group/{{group.id}}/post"><button class="btn btn-success f-s-12 rounded-corner" type="submit">New Group Post</button></form>
         </div>
         {% for post in group.posts %}
         <div class="d-flex justify-content-center">
