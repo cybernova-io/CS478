@@ -5,8 +5,6 @@ from flask import (
     redirect
 )
 from ..models.Users import db, User
-from .. import login_manager
-from flask_security import login_required
 from sqlalchemy import create_engine, MetaData
 import json
 from flask import current_app as app, jsonify
@@ -29,7 +27,8 @@ app_bp = Blueprint("app_bp", __name__)
 
 @app.before_first_request
 def start_up():
-    seed_db()
+    if User.query.get(1) == None:
+        seed_db()
 
 
 @app.after_request

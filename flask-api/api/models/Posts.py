@@ -1,9 +1,7 @@
 from datetime import datetime
 from os import abort
 from flask import Blueprint
-from flask_login import login_required, logout_user, current_user, login_user
 from api.models.db import db
-from flask_login import logout_user
 from flask import current_app as app
 from sqlalchemy import engine, create_engine
 import logging

@@ -2,7 +2,8 @@ from flask import (
     Blueprint,
     request,
     jsonify,
-    render_template
+    render_template,
+    redirect
 )
 from flask_jwt_extended import current_user, jwt_required
 from ..models.Users import db, User, pending_friend
@@ -40,7 +41,48 @@ def get_pending_friends_page():
 
     data = [x.serialize() for x in pending_friends]
 
-    return render_template('/friends/friends-requests.html', pending_friends = data)  
+    return render_template('/friends/friends-requests.html', pending_friends = data)
+
+@friend_bp.route("/friends/unfriend", methods=["POST"])
+@jwt_required()
+def remove_friend_page():
+    """
+    POST: Allows user to delete a user that is currently their friend.
+
+    Form:
+
+    friend_id = id of friend being deleted from current_user
+    """
+
+    data = {}
+    friend_id = request.form["friend_id"]
+    friend = User.query.get(friend_id)
+
+    # check for no id passed for friend
+    if friend is None:
+        return WebHelpers.EasyResponse("Specified user does not exist.", 404)
+    # check if id passed is current user
+    if friend.id == current_user.id:
+        return WebHelpers.EasyResponse("You cannot remove yourself as friend.", 400)
+
+    removed = current_user.remove_friend(friend)
+    friend_removed = friend.remove_friend(current_user)
+    # check to make sure friend was added to user object
+    if removed is None:
+        return WebHelpers.EasyResponse(
+            "You are not currently friends with this user.", 400
+        )
+    if friend_removed is None:
+        return WebHelpers.EasyResponse(
+            "You are not currently friends with this user.", 400
+        )
+
+    # not sure if i need the add
+    db.session.add(removed)
+    db.session.add(friend_removed)
+    db.session.commit()
+
+    return redirect('/friends')
 
 
 ######################################################### API BELOW, SERVER RENDERING ABOVE

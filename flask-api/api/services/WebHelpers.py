@@ -1,6 +1,6 @@
 from flask import jsonify, request
 from werkzeug.utils import secure_filename
-from flask_login import current_user
+from flask_jwt_extended import current_user
 import os
 from flask import current_app as app
 from ..models.Users import db

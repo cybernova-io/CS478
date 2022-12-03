@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Groups{% endblock %}
+
+{% block header %}
+<h1>Groups</h1>
+{% endblock %}
+
+{% block content %}
+<div>
+  <div class="d-flex justify-content-center">
+    <a href="/group/create" class="btn btn-success" role="button">Create New Group</a>
+  </div>
+    {% for group in groups %}
+    <div class="card" style="width: 18rem;">
+        <!--<img src="..." class="card-img-top" alt="..."> IMAGE CAN GO HERE IF IMPLEMENTED-->
+        <!--Card content-->
+        <div class="card-body">
+          <h5 class="card-title">{{ group.name }}</h5>
+          <p class="card-text">{{ group.description }}</p>
+          
+           <form method="get" action="/group/{{group.id}}">
+            <input type="submit" value="Expand Group" class="btn btn-primary">
+            </form>
+            <hr/>
+
+        </div>
+      </div>
+    {% endfor %}
+</div>
+{% endblock %}
