@@ -13,18 +13,20 @@
         <p>You currently have no messages.</p>
     </div>
     {% else %}
-        {% for user in users %}
-        <div class="card" style="width: 30rem;">
-            <div class="card-body">
-                <p class="card-text">{{render_icon ('person-circle')}} {{user.username}}</p>
-                <div class="input-group">
-                    <form action="/messages/conversation/{{user.id}}" method="GET">
-                        <button class="btn btn-success f-s-12 rounded-corner" type="submit">View Conversation</button>
-                    </form>
+        <div class="vstack gap-3"> 
+            {% for user in users %}
+            <div class="card" style="width: 30rem;">
+                <div class="card-body">
+                    <p class="card-text">{{render_icon ('person-circle')}} {{user.username}}</p>
+                    <div class="input-group">
+                        <form action="/messages/conversation/{{user.id}}" method="GET">
+                            <button class="btn btn-success f-s-12 rounded-corner" type="submit">View Conversation</button>
+                        </form>
+                    </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     {% endif %}
 
 </div>

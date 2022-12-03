@@ -11,9 +11,11 @@
   <div class="d-flex justify-content-center">
     <a href="/post/create" class="btn btn-success" role="button">Create New Post</a><a href="/post/me" class="">My Posts</a>
   </div>
+  <div class="vstack gap-3">
+
     {% for friend in feed %}
-        {% for post in friend %}
-        <div class="card" style="width: 18rem;">
+    {% for post in friend %}
+    <div class="card" style="width: 18rem;">
             <!--<img src="..." class="card-img-top" alt="..."> IMAGE CAN GO HERE IF IMPLEMENTED-->
             <!--Card content-->
             <div class="card-body">
@@ -22,10 +24,11 @@
               <!--Like/unlike and counter  <form action="/api/post/like/{{post.id}}" method="post">-->
               {{ render_icon('hand-thumbs-up') }} {{post.likes|length}} <form method="get" action="/post/{{post.id}}"><input class="btn btn-primary" type="submit" value="Expand Post"> </input></form>
               
-                <hr/>
+              <hr/>
             </div>
           </div>
-        {% endfor %}
-    {% endfor %}
-</div>
+          {% endfor %}
+          {% endfor %}
+        </div>
+    </div>
 {% endblock %}

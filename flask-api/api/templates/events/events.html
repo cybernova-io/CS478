@@ -11,22 +11,24 @@
   <div class="d-flex justify-content-center">
     <a href="/event/create" class="btn btn-success" role="button">Create New Event</a><a href="/event/me" class="">My Events</a>
   </div>
-        {% for event in events %}
-        <div class="card" style="width: 30rem;">
-            <!--<img src="..." class="card-img-top" alt="..."> IMAGE CAN GO HERE IF IMPLEMENTED-->
-            <!--Card content-->
-            <div class="card-body">
-              <h5 class="card-title">{{ event.name }}</h5>
-              <p class="card-text">{{ event.description }}</p>
-              <p class="card-text">{{ event.time }}</p> 
-              <form method="get" action="/event/{{event.id}}">
-                <input type="submit" value="View Event" class="btn btn-primary">
-              </form> 
-                <hr/>
-
-            </div>
-          </div>
-        {% endfor %}
+  <div class="vstack gap-3">
+    {% for event in events %}
+    <div class="card" style="width: 30rem;">
+      <!--<img src="..." class="card-img-top" alt="..."> IMAGE CAN GO HERE IF IMPLEMENTED-->
+      <!--Card content-->
+      <div class="card-body">
+        <h5 class="card-title">{{ event.name }}</h5>
+        <p class="card-text">{{ event.description }}</p>
+        <p class="card-text">{{ event.time }}</p> 
+        <form method="get" action="/event/{{event.id}}">
+          <input type="submit" value="View Event" class="btn btn-primary">
+        </form> 
+        <hr/>
+        
+      </div>
+    </div>
+    {% endfor %}
+  </div>
     
 </div>
 {% endblock %}

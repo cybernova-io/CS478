@@ -3,7 +3,8 @@ from flask import (
     request,
     jsonify,
     render_template,
-    redirect
+    redirect,
+    flash
 )
 from flask_jwt_extended import current_user, jwt_required
 from ..models.Users import db, User, pending_friend
@@ -21,10 +22,6 @@ def get_friends_page():
 
     friends = current_user.friends
     data = {}
-
-    if friends.count() == 0:
-        return WebHelpers.EasyResponse(current_user.username + "has no friends.", 400)
-
     data = [x.serialize() for x in friends]
 
     return render_template('/friends/friends-main.html', friends=data)
@@ -39,7 +36,8 @@ def get_pending_friends_page():
     pending_friends = current_user.pending_friends
     data = {}
 
-    data = [x.serialize() for x in pending_friends]
+    data = [x.serialize_friend() for x in pending_friends]
+    print(data)
 
     return render_template('/friends/friends-requests.html', pending_friends = data)
 
@@ -83,6 +81,58 @@ def remove_friend_page():
     db.session.commit()
 
     return redirect('/friends')
+
+@friend_bp.route("/friends/request/", methods=["POST"])
+@jwt_required()
+def add_friend_page_search():
+    """
+    POST: Allows a user to send a friend request to another user. The users then have a relationship in pending_friends.
+
+    Form:
+
+    friend_id = id of user being added as a friend.
+    """
+
+    data = {}
+    friend_id = int(request.form["friend_id"])
+    friend = User.query.get(friend_id)
+
+    added = current_user.add_friend(friend)
+    friend_added = friend.add_friend(current_user)
+    
+    # dont think i need the add here
+    db.session.add(added)
+    db.session.add(friend_added)
+    db.session.commit()
+    logging.info(f"{current_user.id} sent friend request to {friend.id}.")
+
+    
+    return redirect("/friends/pending-friends")
+
+@friend_bp.route("/friends/accept/<int:id>", methods=["POST"])
+@jwt_required()
+def accept_friend_page(id):
+ 
+    data = {}
+
+    pending_friends = current_user.pending_friends
+    pending_friend = User.query.get(id)
+
+    if id in map(lambda pending_friend: pending_friend.id, pending_friends):
+
+        added = current_user.add_pending_friend(pending_friend)
+        friend_added = pending_friend.add_pending_friend(current_user)
+
+        if added is None:
+            return WebHelpers.EasyResponse("Error in adding friend.", 400)
+
+        # not sure if add is needed
+        db.session.add(added)
+        db.session.add(friend_added)
+        db.session.commit()
+
+        
+    return redirect("/friends/pending-friends")
 
 
 ######################################################### API BELOW, SERVER RENDERING ABOVE

@@ -7,7 +7,16 @@
 {% endblock %}
 
 {% block content %}
-<div>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+<div style="width: 32rem;">
     <form class="" method="POST" action="/search">
         <input class="form-control" name="search-term" type="search" placeholder="Search" aria-label="Search">
         <hr/>
@@ -17,16 +26,34 @@
                 <option value="Friends">Friends</option>
                 <option value="Posts">Posts</option>
                 <option value="Groups">Groups</option>
-            </select>
-            <select class="form-select" name="category" aria-label="Default select example">
-                <option value="Users" selected>Users</option>
-                <option value="Friends">Friends</option>
-                <option value="Posts">Posts</option>
-                <option value="Groups">Groups</option>
+                <option value="Events">Events</option>
             </select>
             <button class="btn btn-outline-success" type="submit">Search</button>
         </form>
     </div>
+    <hr/>
+    {% if data_type == "Users" %}
+        {% for user in data %}
+        <div class="vstack gap-3">
+            <div class="card" style="width: 30rem;">
+                <div class="card-body">
+                    <p class="card-text">{{render_icon ('person-circle')}} {{user.username}}</p>
+                    <div class="input-group">
+                        <form action="/profile/{{user.id}}" method="GET">
+                            <button class="btn btn-primary f-s-12 rounded-corner" type="submit">View Profile</button>
+                        </form>
+                        {% if user.friend != True and user.is_requestor == False %}
+                        <form action="/friends/request/" method="POST">
+                            <button class="btn btn-outline-success f-s-12 rounded-corner" type="submit">Send Friend Request</button>
+                            <input type="hidden" name="friend_id" value="{{user.id}}"/>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
 </div>
 
 <div>
