@@ -61,6 +61,41 @@ class Post(db.Model):
     def serialize_search(self):
         return {"id": self.id, "title": self.title, "text": self.content}
 
+    def serialize(self):
+
+        time = self.date_created.strftime("%A, %d. %B %Y %I:%M%p")
+
+        return {
+            "id": self.id,
+            "title": self.title,
+            "text": self.content,
+            "likes": [x.serialize() for x in self.likes],
+            "comments": [x.serialize() for x in self.comments],
+            #"comment_responses": [x.serialize() for x in self.comments.replies],
+            "createdAt": time,
+            "replies": [x.serialize_replies() for x in self.replies],
+            #"comment_likes": [x.serialize_comment_likes() for x in self.comment_likes],
+            "userId": self.user_id
+        }
+
+    def serialize_feed(self):
+
+        time = self.date_created.strftime("%A, %d. %B %Y %I:%M%p")
+
+        return {
+            "id": self.id,
+            "title": self.title,
+            "text": self.content,
+            "likes": [x.serialize() for x in self.likes],
+            "comments": [x.serialize() for x in self.comments],
+            #"comment_responses": [x.serialize() for x in self.comments.replies],
+            "createdAt": time,
+            "replies": [x.serialize_replies() for x in self.replies],
+            #"comment_likes": [x.serialize_comment_likes() for x in self.comment_likes],
+            "userId": self.user_id,
+            "type": "post"
+        }
+
 
 class PostLike(db.Model):
     __tablename__ = "post_like"

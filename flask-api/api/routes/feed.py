@@ -2,13 +2,17 @@ from flask import Blueprint
 from flask_jwt_extended import current_user, jwt_required
 from flask import request
 from ..models.Posts import Post
+from api.models.Events import Event
+from api.models.Users import Group
 from api.models.Users import User
+from api.services.WebUtils import WebUtils
 from flask import (
     Blueprint,
     jsonify,
     render_template,
     flash
 )
+import random
 
 feed_bp = Blueprint("feed_bp", __name__)
 
@@ -17,11 +21,21 @@ feed_bp = Blueprint("feed_bp", __name__)
 def feed_page():
     user_feed = []
     friends = current_user.friends
-    for i in friends:
-        user_feed.append([x.serialize() for x in i.posts])
-    
+    events = Event.query.all()
+    suggested_events = []
+    data = []
+    #could be list comprehension
+    for friend in friends:
+        for event in events:
+            if event.owner_id == friend.id or friend in event.attendees:
+                if WebUtils.time_in_range_one_week(event.time): 
+                    data.append(event.serialize_feed())
 
-    return render_template("/feed/feed.html", feed=user_feed)
+    for i in friends:
+        [data.append(x.serialize_feed()) for x in i.posts]
+    
+    random.shuffle(data)
+    return render_template("/feed/feed.html", data=data)
 
 @feed_bp.post("/search")
 @jwt_required()
@@ -42,9 +56,11 @@ def search_page():
         posts = Post.query.filter(Post.title.like("%" + search_term + "%")).all()
         data = [x.serialize() for x in posts]
     elif category == 'Groups':
-        pass
+        groups = Group.query.filter(Group.name.like("%" + search_term + "%")).all()
+        data = groups
     elif category == 'Events':
-        pass
+        events = Event.query.filter(Event.name.like("%" + search_term + "%")).all()
+        data = events
     else:
         return None
     
@@ -67,6 +83,8 @@ def create_feed():
 def display_user_feed():
     user_feed = []
     friends = current_user.friends
+    
+
     for i in friends:
         user_feed.append([x.serialize() for x in i.posts])
 
