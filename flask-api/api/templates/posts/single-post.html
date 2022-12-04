@@ -24,10 +24,18 @@
           <h5 class="card-title">{{ post.title }}</h5>
           <p class="card-text">{{ post.text }}</p>
           <p class="card-text">{{ post.createdAt}}</p>
-          {{ render_icon('hand-thumbs-up') }} {{post.likes|length}}
+          <form action="/post/like/{{post.id}}" method="post">
+            <a href="/post/like/{{post.id}}" style="color: #fb3f00; text-decoration: none;">{{ render_icon('hand-thumbs-up') }} {{post.likes|length}}</a>
+          </form>
+
+
         <hr/>
         <div>
             <!--Comments-->
+            <div class="d-flex justify-content-center">
+              <h5>Comments</h5>
+              <hr/>
+            </div>
             {% for comment in post.comments %}
             {{comment.name}} {{comment.createdAt}}
             <p class="card-text">{{ comment.text }}</p>

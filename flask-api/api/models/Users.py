@@ -10,6 +10,7 @@ from .Notifications import Notification
 import json
 from .Posts import PostLike
 from sqlalchemy import insert, values, select, update
+from flask_jwt_extended import current_user
 
 # engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
 #role = 1 = owner of group
@@ -195,7 +196,7 @@ class User(db.Model):
         primaryjoin=(pending_friend.c.pending_friend0_id == id),
         secondaryjoin=(pending_friend.c.pending_friend1_id == id),
         backref=db.backref("pending_friend", lazy="dynamic"),
-        lazy="dynamic",
+        lazy="dynamic"
     )
 
     suggested_friends = db.relationship(
@@ -213,7 +214,7 @@ class User(db.Model):
         primaryjoin=(friend.c.friend0_id == id),
         secondaryjoin=(friend.c.friend1_id == id),
         backref=db.backref("friend", lazy="dynamic"),
-        lazy="dynamic",
+        lazy="dynamic"
     )
 
     messages_sent = db.relationship(
@@ -296,6 +297,23 @@ class User(db.Model):
             pending_friend.select(pending_friend.c.requestor).where(
                 pending_friend.c.pending_friend0_id == self.id,
                 pending_friend.c.pending_friend1_id == friend.id,
+            )
+        ).fetchall()
+        try:
+            if user_who_sent_request[0][2] == 1:
+                return True
+            else:
+                return False
+        except IndexError as e:
+            return False
+
+    def is_requestor_reverse(self, friend):
+        # Retrieves the value from db to see if current user is requestor, looking for 1 in requestor column
+        engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
+        user_who_sent_request = engine.execute(
+            pending_friend.select(pending_friend.c.requestor).where(
+                pending_friend.c.pending_friend0_id == friend.id,
+                pending_friend.c.pending_friend1_id == self.id,
             )
         ).fetchall()
         try:
@@ -389,6 +407,15 @@ class User(db.Model):
             "firstName": self.first_name,
             "lastName": self.last_name
         }
+    
+    def serialize_friend(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "firstName": self.first_name,
+            "lastName": self.last_name,
+            "is_requestor": self.is_requestor(current_user)
+        }
 
     def serialize_search(self):
         return {
@@ -396,6 +423,8 @@ class User(db.Model):
             "username": self.username,
             "major": self.major,
             "gradYear": self.grad_year,
+            "friend": self.is_friend(current_user),
+            "is_requestor": self.is_requestor_reverse(current_user)
         }
 
     def serialize_id(self):

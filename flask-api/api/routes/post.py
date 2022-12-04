@@ -201,6 +201,31 @@ def feed_page():
     user_posts.append([x.serialize() for x in current_user.posts])
     
     return render_template("/posts/post-me.html", feed=user_posts)
+
+@post_bp.route("/post/like/<int:id>", methods=["GET"])
+@jwt_required()
+def like_post(id):
+    """
+    Like a post
+    """
+
+    post = Post.query.filter_by(id=id).first_or_404()
+
+    if post is None:
+        return WebHelpers.EasyResponse("Specified post does not exist.", 404)
+    post_like = (
+        PostLike.query.filter(PostLike.user_id == current_user.id)
+        .filter(PostLike.post_id == post.id)
+        .first()
+    )
+    if post_like is None:
+        post_like = PostLike(user_id=current_user.id, post_id=id)
+        db.session.add(post_like)
+        db.session.commit()
+
+        return redirect(f'/post/{id}')
+    else:
+        return redirect(f'/post/{id}')
     
 
 ######################################################### API BELOW, SERVER RENDERING ABOVE

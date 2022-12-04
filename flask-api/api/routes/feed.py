@@ -31,19 +31,25 @@ def search_page():
     search_term = request.form.get('search-term')
 
     if category == 'Users':
+
         users = User.query.filter(User.username.like("%" + search_term + "%")).all()
-        data = jsonify([x.serialize_search() for x in users])
+        data = [x.serialize_search() for x in users]
+        print(data)
+
     elif category == 'Friends':
         pass
     elif category == 'Posts':
-        pass
+        posts = Post.query.filter(Post.title.like("%" + search_term + "%")).all()
+        data = [x.serialize() for x in posts]
     elif category == 'Groups':
+        pass
+    elif category == 'Events':
         pass
     else:
         return None
     
 
-    return render_template("/feed/search.html", data=data)
+    return render_template("/feed/search.html", data=data, data_type=category)
 
 
 ######################################################### API BELOW, SERVER RENDERING ABOVE

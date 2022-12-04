@@ -155,7 +155,11 @@ def leave_group_page(id):
         return abort(400)
     return abort(400)
 
+@group_bp.get("/group/me")
+@jwt_required()
+def get_my_groups():
 
+    return render_template("/groups/group-me.html", groups=current_user.groups)
 
 ######################################################### API BELOW, SERVER RENDERING ABOVE
 

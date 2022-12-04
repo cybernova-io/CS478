@@ -2,6 +2,8 @@ from flask import (
     Blueprint,
     request,
     jsonify,
+    render_template,
+    redirect
 )
 from flask_jwt_extended import jwt_required, current_user
 from ..models.Users import db, User, pending_friend, Message
@@ -13,6 +15,77 @@ from .message import Message
 
 message_bp = Blueprint("message_bp", __name__)
 
+@message_bp.get("/messages")
+@jwt_required()
+def messages_page():
+    messages = Message.query.filter(
+        (Message.sender_id == current_user.id)
+        | (Message.recipient_id == current_user.id)
+    ).all()
+    conversations = []
+    for message in messages:
+        if message.sender_id != current_user.id:
+            conversations.append(message.sender_id)
+        if message.recipient_id != current_user.id:
+            conversations.append(message.recipient_id)
+    
+    conversations = set(conversations)
+
+    users = []
+    for i in conversations:
+        users.append(User.query.get(i).serialize())
+    
+
+    return render_template("/messages/messages.html", users=users)
+
+@message_bp.route("/messages/conversation/<int:id>", methods = ['GET', 'POST'])
+@jwt_required()
+def conversations_page(id):
+
+    if request.method == 'GET':
+        messages = Message.query.filter((Message.sender_id == id) | (Message.recipient_id == id)).filter((Message.sender_id == current_user.id) | (Message.recipient_id == current_user.id)).all()
+
+        user = User.query.get(id).serialize()
+        cur_user = current_user.serialize()
+
+        for i in messages:
+            if i.sender_id == id:
+                i.user = user
+            else:
+                i.user = cur_user
+
+        return render_template("/messages/conversation.html", messages=messages, conv=user)
+
+@message_bp.post("/messages/delete/<int:id>/<int:convId>")
+@jwt_required()
+def delete_message_page(id, convId):
+
+    message = Message.query.get(id)
+
+    if message.sender_id == current_user.id or current_user.is_admin():
+        db.session.delete(message)
+        db.session.commit()
+        return redirect(f'/messages/conversation/{convId}')
+
+@message_bp.post("/messages/send/<int:id>")
+@jwt_required()
+def send_message_page(id):
+
+    text = request.form.get("msg")
+
+    message = Message(
+        sender_id=current_user.id,
+        recipient_id=id,
+        body=text
+    )
+    db.session.add(message)
+    db.session.commit()
+
+    return redirect(f'/messages/conversation/{id}')
+    
+
+
+######################################################### API BELOW, SERVER RENDERING ABOVE
 
 @message_bp.get("/api/messages")
 @jwt_required()

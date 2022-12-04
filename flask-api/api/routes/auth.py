@@ -47,6 +47,7 @@ def signin_page():
     return render_template("/auth/signin.html", form=form)
 
 @auth_bp.route("/signup", methods = ["GET", "POST"])
+@jwt_required(True)
 def signup_page():
     form = SignupForm()
 

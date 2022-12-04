@@ -12,7 +12,7 @@
   <div class="vstack gap-3">
     <div class="d-flex justify-content-center">
       <a href="/group/create" class="btn btn-success" role="button">Create New Group</a>
-      <a href="/group/me" class="btn btn-outline-success" role="button">My Groups</a>
+      <a href="/group" class="btn btn-outline-success" role="button">All Groups</a>
     </div>
     {% for group in groups %}
     {% if group.check_role(current_user) != None or group.invite_only == False %}
