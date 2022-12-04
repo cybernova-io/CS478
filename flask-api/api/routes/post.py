@@ -522,10 +522,10 @@ def user_comment_post(post_id):
     return WebHelpers.EasyResponse("success", 200)
 
 # when comments are retrieved it grabs any replies that have been made as well
-@post_bp.route("/api/post/comment_response/<int:id>/", methods=["POST"])
+@post_bp.route("/api/post/comment_response/<int:parent_id>/", methods=["POST"])
 @jwt_required()
-def user_comment_response(id):
-    comment = PostComment.query.filter_by(id=id).first_or_404()
+def user_comment_response(parent_id):
+    comment = PostComment.query.filter_by(id=parent_id).first_or_404()
 
     if comment is None:
         return WebHelpers.EasyResponse("Specified comment does not exist.", 404)
@@ -535,21 +535,21 @@ def user_comment_response(id):
     db.session.commit()
     return WebHelpers.EasyResponse("success", 200)
 
-@post_bp.route("/api/post/comment_like_response/<int:id>/", methods=["POST"])
+@post_bp.route("/api/post/comment_like_response/<int:parent_id>/", methods=["POST"])
 @jwt_required()
-def user_like_comment_response(id):
-    comment = PostComment.query.filter_by(id=id).first_or_404()
+def user_like_comment_response(parent_id):
+    comment = PostComment.query.filter_by(id=parent_id).first_or_404()
 
     if comment is None:
         return WebHelpers.EasyResponse("Specified comment does not exist.", 404)
     comment_like = (
         PostComment.query.filter(PostComment.user_id == current_user.id)
-        .filter(PostComment.id == id)
+        .filter(parent_id == comment.id)
         .first()
     )
     if comment_like is None:
 
-        comment_like = PostComment(user_id=current_user.id, id=PostComment.id)
+        comment_like = PostComment(user_id=current_user.id, parent_id=comment.id)
 
         db.session.add(comment_like)
         db.session.commit()

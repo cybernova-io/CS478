@@ -37,7 +37,8 @@ class Post(db.Model):
 
     likes = db.relationship("PostLike", backref="Posts", lazy="dynamic")
     comments = db.relationship("PostComment", backref="Posts", lazy="dynamic")
-    
+    replies = db.relationship("PostComment", backref="CommentReply", lazy="dynamic")
+    #comment_likes = db.relationship("PostLike", backref="CommentLike", lazy="dynamic")
     # feed = db.relationship("Users", backref="Posts", lazy="dynamic")
 
     def serialize(self):
@@ -52,6 +53,8 @@ class Post(db.Model):
             "comments": [x.serialize() for x in self.comments],
             #"comment_responses": [x.serialize() for x in self.comments.replies],
             "createdAt": time,
+            "replies": [x.serialize_replies() for x in self.replies],
+            #"comment_likes": [x.serialize_comment_likes() for x in self.comment_likes],
             "userId": self.user_id
         }
 
@@ -85,6 +88,13 @@ class PostLike(db.Model):
 
     def serialize(self):
         return {"userId": self.user_id}
+    
+    def serialize_comment_likes(self):
+        return {
+            "userId": self.user_id, 
+            "parent_id": self.parent_id,
+        }
+
 
 
 class PostComment(db.Model):
@@ -101,23 +111,10 @@ class PostComment(db.Model):
     path = db.Column(db.Text, index=True)
     parent_id = db.Column(db.Integer, db.ForeignKey('post_comment.id'))
 
-    replies = db.relationship(
+    reply = db.relationship(
         'PostComment', backref=db.backref('parent', remote_side=[id]),
         lazy='dynamic')
 
-
-    """
-    comment_replies = db.relationship(
-        "PostComment",
-        secondary=user_comment,
-        primaryjoin=(user_comment.c.user_comment_id == id),
-        secondaryjoin=(user_comment.c.user_comment_response_id == id),
-        backref=db.backref("user_comment", lazy="dynamic"),
-        remote_side=[id],
-        lazy="dynamic")
-    """
-    
-    
     def comment_post(self, user, post):
         if not self.has_commented_post(post):
             comment = PostComment(user_id=user.id, post_id=post.id)
@@ -135,20 +132,24 @@ class PostComment(db.Model):
             > 0
         )
 
-    def comment_reply(self, text):
-        return PostComment(text=text, user_comment=self)
+    def comment_replies(self):
+        return PostComment.objects.filter_by(parent_id=self)
 
-    def save(self):
-        db.session.add(self)
-        db.session.commit()
-        prefix = self.user_comment.path + '.' if self.user_comment else ''
-        self.path = prefix + '{:0{}d}'.format(self.id, self._N)
-        db.session.commit()
+    
+    def is_parent_comment(self):
+        if self.parent_id is not None:
+            return False
+        return True
 
-    # returns the indentation lvl of any given comment
-    def level(self):
-        return len(self.path) // self._N - 1
+    def serialize_replies(self):
+        return {
+            "id": self.id,
+            "userId": self.user_id, 
+            "parent_id": self.parent_id,
+            "text": self.text,
+        }
 
+   
     def serialize(self):
         time = self.timestamp.strftime("%A, %d. %B %Y %I:%M%p")
         return {"id": self.id, 
