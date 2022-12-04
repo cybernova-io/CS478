@@ -16,7 +16,7 @@
             <div class="">
                 {{render_icon ('person-circle')}}
             </div>
-            Organizer {{event.user.username}}
+            Organizer <a href="/profile/{{event.user.id}}">{{event.user.username}}</a> 
             {% if current_user.id == event.event.owner_id or current_user.is_admin() %}
             <form method="GET" action="/event/edit/{{event.event.id}}"><button class="btn btn-success f-s-12 rounded-corner" type="submit">Edit Event</button></form>
             <form method="POST" action="/event/delete/{{event.event.id}}"><button class="btn btn-danger f-s-12 rounded-corner" type="submit">Delete Event</button></form>
@@ -31,7 +31,7 @@
           </div>
           <h5 class="card-title">{{ event.event.name }}</h5>
           <p class="card-text">{{ event.event.description }}</p>
-          <p class="card-text">{{ event.event.scheduled_time }}</p>
+          <p class="card-text">{{ event.event.time }}</p>
           <hr/>
           <div>
         </div>

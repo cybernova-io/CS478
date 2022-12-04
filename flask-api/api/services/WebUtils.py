@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 import os
 from os import listdir
 import re
+from datetime import datetime, timedelta
 
 
 class WebUtils:
@@ -73,3 +74,11 @@ class WebUtils:
             file_path = "app/uploads/" + filename
             os.remove(file_path)
             return filename + " successfully deleted."
+
+    def time_in_range_one_week(time):
+        """Returns whether current is within a week of now."""
+        current = datetime.utcnow()
+
+        end = current + timedelta(days=10)
+
+        return current <= time <= end

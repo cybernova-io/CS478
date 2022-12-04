@@ -408,6 +408,14 @@ class User(db.Model):
             "lastName": self.last_name
         }
     
+    def serialize(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "firstName": self.first_name,
+            "lastName": self.last_name
+        }
+    
     def serialize_friend(self):
         return {
             "id": self.id,

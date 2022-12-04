@@ -52,3 +52,16 @@ class Event(db.Model):
             "time": sched_time,
             "attendees": [x.serialize() for x in self.attendees],
         }
+    def serialize_feed(self):
+
+        sched_time = self.time.strftime("%A, %d. %B %Y %I:%M%p")
+
+        return {
+            "type": "event",
+            "id": self.id,
+            "owner_id": self.owner_id,
+            "name": self.name,
+            "description": self.description,
+            "time": sched_time,
+            "attendees": [x.serialize() for x in self.attendees],
+        }

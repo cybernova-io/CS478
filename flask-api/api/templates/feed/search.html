@@ -23,7 +23,6 @@
         <div class="d-flex justify-content-center">
             <select class="form-select" name="category" aria-label="Default select example">
                 <option value="Users" selected>Users</option>
-                <option value="Friends">Friends</option>
                 <option value="Posts">Posts</option>
                 <option value="Groups">Groups</option>
                 <option value="Events">Events</option>
@@ -77,6 +76,46 @@
             </div>
         </div>
         {% endif %}
+
+    {% if data_type == "Groups" %}
+        {% for group in data %}
+            {% if group.check_role(current_user) != None or group.invite_only == False %}
+            
+
+                <div class="card" style="width: 30rem;">
+                    <!--<img src="..." class="card-img-top" alt="..."> IMAGE CAN GO HERE IF IMPLEMENTED-->
+            <!--Card content-->
+            <div class="card-body">
+                <h5 class="card-title">{{ group.name }}</h5>
+                <p class="card-text">{{ group.description }}</p>
+                
+                <form method="get" action="/group/{{group.id}}">
+                    <input type="submit" value="Expand Group" class="btn btn-primary">
+                </form>
+                <hr/>
+                
+            
+            </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    {% if data_type == "Events" %}
+        {% for event in data %}
+        <div class="card" style="width: 30rem;">
+        <!--<img src="..." class="card-img-top" alt="..."> IMAGE CAN GO HERE IF IMPLEMENTED-->
+        <!--Card content-->
+        <div class="card-body">
+            <h5 class="card-title">{{ event.name }}</h5>
+            <p class="card-text">{{ event.description }}</p>
+            <p class="card-text">{{ event.time }}</p> 
+            <form method="get" action="/event/{{event.id}}">
+            <input type="submit" value="View Event" class="btn btn-primary">
+            </form> 
+        </div>
+        </div>
+        {% endfor %}
+    {% endif %}
 </div>
 
 <div>
