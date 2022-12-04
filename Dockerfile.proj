@@ -1,0 +1,10 @@
+FROM python:3.10
+
+COPY flask-api /app
+WORKDIR /app
+
+#COPY flask-api/requirements.txt flask-api/wsgi.py flask-api/.env ./
+RUN pip install -r ./requirements.txt
+
+EXPOSE 5000
+CMD ["gunicorn", "-b", ":5000", "wsgi:app"] 
