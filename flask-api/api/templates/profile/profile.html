@@ -3,16 +3,31 @@
 {% block title %}Profile{% endblock %}
 
 {% block header %}
-<h3>My Profile</h3>
+<h3>{{data.username}} Profile</h3>
 {% endblock %}
 
 {% block content %}
 <div>
 
   <div class="vstack gap-3">
+
+    {% if data.friend == True %}
     <div>
-        <a class="btn btn-outline-success" href="/friends/pending-friends">My Friends</a>
+        <a class="btn btn-outline-success" href="/messages/conversation/{{data.id}}">Message</a>
+        <a class="btn btn-outline-danger" href="/friends/unfriend/{{data.id}}">Unfriend</a>
     </div>
+    {% endif %}
+    {% if data.friend == False and data.pending_friend == False %}
+    <div>
+        <a class="btn btn-outline-success" href="/friends/request/{{data.id}}">Send Friend Request</a>
+    </div>
+    {% endif %}
+    {% if data.is_requestor == True %}
+    <div>
+        <p>Waiting for {{data.username}} to accept your friend request.</p>
+    </div>
+    {% endif %}
+    {% if data.friend == True %}
     <div class="card" style="width: 30rem;">
         <form method="POST" action="/profile">
             <div class="card-body">
@@ -20,33 +35,26 @@
                     <h6 class="mt-2">First Name</h6>
                 </div>
                 <div class="d-flex justify-content-center">
-                    <input type="text" name="first_name" id="first_name" value="{{data.first_name}}" class="form-control">
+                    <input disabled type="text" name="first_name" id="first_name" value="{{data.first_name}}" class="form-control">
                 </div>
             <div class="d-flex justify-content-center">
                 <h6 class="mt-2">Last Name</h6>
             </div>
             <div class="d-flex justify-content-center">
-                <input type="text" name="last_name" id="last_name" value="{{data.last_name}}" class="form-control">
+                <input disabled type="text" name="last_name" id="last_name" value="{{data.last_name}}" class="form-control">
             </div>
             <div class="d-flex justify-content-center">
                 <h6 class="mt-2">Major</h6>
             </div>
             <div class="d-flex justify-content-center">
-                <input type="text" name="major" id="major" value="{{data.major}}" class="form-control">
+                <input disabled type="text" name="major" id="major" value="{{data.major}}" class="form-control">
             </div>
             <div class="d-flex justify-content-center">
                 <h6 class="mt-2">Graduation Year</h6>
             </div>
             <div class="d-flex justify-content-center">
-                <input type="text" name="grad_year" id="major" value="{{data.grad_year}}" class="form-control">
+                <input disabled type="text" name="grad_year" id="major" value="{{data.grad_year}}" class="form-control">
             </div>
-            <div class="d-flex justify-content-center">
-                <h6 class="mt-2">Email</h6>
-            </div>
-            <div class="d-flex justify-content-center">
-                <input type="text" name="email" id="email" value="{{data.email}}" class="form-control">
-            </div>
-            <input class="btn btn-primary" type="submit" value="Update Profile">
         </form>
     </div>
     </hr>
@@ -57,26 +65,23 @@
     <h3>Posts</h3>
 </div>
 <div class="d-flex justify-content-center">
-    <a href="/post/create" class="btn btn-success" role="button">Create New Post</a>
-    <a href="/post/me" class="btn btn-outline-success" role="button">My Posts</a>
+    <a href="/post/user/{{data.id}}" class="btn btn-outline-success" role="button">{{data.username}} Posts</a>
   </div>
   <hr/>
   <div class="d-flex justify-content-center">
     <h3>Groups</h3>
 </div>
   <div class="d-flex justify-content-center">
-    <a href="/group/create" class="btn btn-success" role="button">Create New Group</a>
-    <a href="/group/me" class="btn btn-outline-success" role="button">My Groups</a>
+    <a href="/group/user/{{data.id}}" class="btn btn-outline-success" role="button">{{data.username}} Groups</a>
   </div>
   <hr/>
   <div class="d-flex justify-content-center">
     <h3>Events</h3>
 </div>
 <div class="d-flex justify-content-center">
-    <a href="/event/create" class="btn btn-success" role="button">Create New Event</a>
-    <a href="/event/me" class="btn btn-outline-success">My Events</a>
+    <a href="/event/user/{{data.id}}" class="btn btn-outline-success">{{data.username}} Events</a>
   </div>
-  
+  {% endif %}
 
   
 </div>

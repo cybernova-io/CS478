@@ -44,17 +44,17 @@ def conversations_page(id):
 
     if request.method == 'GET':
         messages = Message.query.filter((Message.sender_id == id) | (Message.recipient_id == id)).filter((Message.sender_id == current_user.id) | (Message.recipient_id == current_user.id)).all()
-
+        data = [x.serialize() for x in messages]
         user = User.query.get(id).serialize()
         cur_user = current_user.serialize()
 
-        for i in messages:
-            if i.sender_id == id:
-                i.user = user
+        for i in data:
+            if i['sender_id'] == id:
+                i['user'] = user
             else:
-                i.user = cur_user
+                i['user'] = cur_user
 
-        return render_template("/messages/conversation.html", messages=messages, conv=user)
+        return render_template("/messages/conversation.html", messages=data, conv=user)
 
 @message_bp.post("/messages/delete/<int:id>/<int:convId>")
 @jwt_required()

@@ -15,10 +15,11 @@ class Message(db.Model):
         return "<Message {}>".format(self.body)
 
     def serialize(self):
+        time = self.timestamp.strftime("%A, %d. %B %Y %I:%M%p")
         return {
             "id": self.id,
             "sender_id": self.sender_id,
             "recipient_id": self.recipient_id,
             "body": self.body,
-            "timestamp": self.timestamp,
+            "timestamp": time
         }

@@ -161,6 +161,14 @@ def get_my_groups():
 
     return render_template("/groups/group-me.html", groups=current_user.groups)
 
+@group_bp.get("/group/user/<int:id>")
+@jwt_required()
+def get_my_groups_profile(id):
+
+    user = User.query.get_or_404(id)
+
+    return render_template("/groups/group-not-me.html", groups=user.groups, user=user)
+
 ######################################################### API BELOW, SERVER RENDERING ABOVE
 
 @group_bp.post("/api/group")

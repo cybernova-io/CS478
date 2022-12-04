@@ -202,6 +202,18 @@ def feed_page():
     
     return render_template("/posts/post-me.html", feed=user_posts)
 
+@post_bp.get("/post/user/<int:id>")
+@jwt_required()
+def feed_page_user(id):
+
+    user = User.query.get_or_404(id)
+
+    user_posts = []
+    
+    user_posts.append([x.serialize() for x in user.posts])
+    
+    return render_template("/posts/post-not-me.html", feed=user_posts, user=user)
+
 @post_bp.route("/post/like/<int:id>", methods=["GET"])
 @jwt_required()
 def like_post(id):

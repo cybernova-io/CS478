@@ -44,7 +44,7 @@
         {% for user in event.event.attendees %}
         <div class="card" style="width: 30rem;">
             <div class="card-body">
-                <p class="card-text">{{render_icon ('person-circle')}} {{user.username}}</p>
+                <p class="card-text">{{render_icon ('person-circle')}}<a href="/profile/{{user.id}}">{{user.username}}</a></p>
                 <div class="input-group">
                     <form action="/profile/{{user.id}}" method="GET">
                         <button class="btn btn-success f-s-12 rounded-corner" type="submit">View Profile</button>
