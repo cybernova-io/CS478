@@ -8,12 +8,12 @@
 
 {% block content %}
 <div>
-    <div>
-        <p class="d-flex justify-content-center"><a href="/friends/pending-friends">Friend Requests</a> | Recommendations</p>
+    <div class="d-flex justify-content-center">
+        <a class="btn btn-outline-success" href="/friends/pending-friends">Friend Requests</a></p>
     </div>
     {% if friends|length == 0 %}
     <div>
-        <p>You currently have no friends. Check your recommendations for people to add.</p>
+        <p>You currently have no friends.</p>
     </div>
     {% else %}
     <div class="vstack gap-3">

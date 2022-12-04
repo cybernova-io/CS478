@@ -66,25 +66,51 @@ def friend_profile_page(id):
 
     user : User
 
-    user = User.query.get(id)
+    user = User.query.get_or_404(id)
+
+    if user.id == current_user.id:
+        return redirect('/profile')
+
+    events = Event.query.filter_by(owner_id = current_user.id).all()
+
+    if current_user.is_friend(user):
+        friend = True
+    else:
+        friend = False
+
+    if user in current_user.pending_friends:
+        pending_friend = True
+    else:
+        pending_friend = False
+
+    if pending_friend == True:
+        if current_user.is_requestor(user):
+            is_requestor = True
+        else:
+            is_requestor = False
+    else:
+        is_requestor = False
 
     data = {
-        "user_username": user.username,
-        "user_first_name": user.first_name,
-        "user_last_name": user.last_name,
-        "user_major": user.major,
-        "user_grad_year": user.grad_year,
-        "user_email": user.email,
-        "user_creation_date": user.created_on,
-        "user_last_login": user.last_login,
-        "pending_friends": [x.username for x in user.pending_friends],
+        "username": user.username,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "major": user.major,
+        "grad_year": user.grad_year,
+        "email": user.email,
+        "creation_date": user.created_on,
+        "last_login": user.last_login,
         "friends": [x.username for x in user.friends],
+        "events": events,
+        "posts": user.posts,
+        "groups": user.groups,
+        "friend": friend,
+        "id": user.id,
+        "pending_friend": pending_friend,
+        "is_requestor": is_requestor
     }
 
-    resp = jsonify(data)
-    resp.status_code = 200
-
-    return data
+    return render_template("/profile/profile.html", data=data)
 
 
 ######################################################### API BELOW, SERVER RENDERING ABOVE

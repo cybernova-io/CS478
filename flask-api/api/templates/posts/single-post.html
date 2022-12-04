@@ -14,7 +14,7 @@
 
         <div class="card-body">
           <div class="input-group">
-            {{render_icon ('person-circle')}} {{post.user.username}}
+            {{render_icon ('person-circle')}} <a href="/profile/{{post.user.id}}">{{post.user.username}}</a>
             {% if current_user.id == post.user.id or current_user.is_admin() %}
             <form method="GET" action="/post/edit/{{post.id}}"><button class="btn btn-success f-s-12 rounded-corner" type="submit">Edit</button></form>
             <form method="POST" action="/post/delete/{{post.id}}"><button class="btn btn-danger f-s-12 rounded-corner" type="submit">Delete</button></form>
@@ -37,7 +37,7 @@
               <hr/>
             </div>
             {% for comment in post.comments %}
-            {{comment.name}} {{comment.createdAt}}
+            {{render_icon ('person-circle') }}<a href="/profile/{{comment.userId}}">{{comment.name}}</a> {{comment.createdAt}}
             <p class="card-text">{{ comment.text }}</p>
             
             <hr/>

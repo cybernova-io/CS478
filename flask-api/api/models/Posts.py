@@ -5,7 +5,7 @@ from api.models.db import db
 from flask import current_app as app
 from sqlalchemy import engine, create_engine
 import logging
-
+from datetime import datetime
 
 post_bp = Blueprint("post_bp", __name__)
 
@@ -43,15 +43,18 @@ class Post(db.Model):
 
     def serialize(self):
 
+        time = self.date_created.strftime("%A, %d. %B %Y %I:%M%p")
+
         return {
             "id": self.id,
             "title": self.title,
             "text": self.content,
             "likes": [x.serialize() for x in self.likes],
             "comments": [x.serialize() for x in self.comments],
+            #"comment_responses": [x.serialize() for x in self.comments.replies],
+            "createdAt": time,
             "replies": [x.serialize_replies() for x in self.replies],
             #"comment_likes": [x.serialize_comment_likes() for x in self.comment_likes],
-            "createdAt": self.date_created,
             "userId": self.user_id
         }
 
@@ -148,10 +151,11 @@ class PostComment(db.Model):
 
    
     def serialize(self):
+        time = self.timestamp.strftime("%A, %d. %B %Y %I:%M%p")
         return {"id": self.id, 
                 "userId": self.user_id, 
                 "text": self.text,
-                "createdAt": self.timestamp
+                "createdAt": time
             }
 
    

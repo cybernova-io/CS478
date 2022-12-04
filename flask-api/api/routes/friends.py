@@ -134,6 +134,52 @@ def accept_friend_page(id):
         
     return redirect("/friends/pending-friends")
 
+@friend_bp.route("/friends/unfriend/<int:id>", methods=["GET"])
+@jwt_required()
+def remove_friend_profile(id):
+   
+    data = {}
+    friend = User.query.get(id)
+
+    # check for no id passed for friend
+    if friend is None:
+        return WebHelpers.EasyResponse("Specified user does not exist.", 404)
+    # check if id passed is current user
+    if friend.id == current_user.id:
+        return WebHelpers.EasyResponse("You cannot remove yourself as friend.", 400)
+
+    removed = current_user.remove_friend(friend)
+    friend_removed = friend.remove_friend(current_user)
+    
+    # not sure if i need the add
+    db.session.add(removed)
+    db.session.add(friend_removed)
+    db.session.commit()
+
+    return redirect(f'/profile/{id}')
+
+@friend_bp.route("/friends/request/<int:id>", methods=["GET"])
+@jwt_required()
+def add_friend_page_search_profile(id):
+    """
+    POST: Allows a user to send a friend request to another user. The users then have a relationship in pending_friends.
+
+    Form:
+
+    friend_id = id of user being added as a friend.
+    """
+
+    friend = User.query.get(id)
+
+    added = current_user.add_friend(friend)
+    friend_added = friend.add_friend(current_user)
+    
+    # dont think i need the add here
+    db.session.add(added)
+    db.session.add(friend_added)
+    db.session.commit()
+    
+    return redirect(f"/profile/{id}")
 
 ######################################################### API BELOW, SERVER RENDERING ABOVE
 @friend_bp.route("/api/friends/request/", methods=["POST"])

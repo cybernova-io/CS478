@@ -8,8 +8,8 @@
 
 {% block content %}
 <div>
-    <div>
-        <p class="d-flex justify-content-center"><a href="/friends">All Friends</a> | Recommendations</p>
+    <div class="d-flex justify-content-center">
+        <a class="btn btn-outline-success" href="/friends">All Friends</a></p>
     </div>
     {% if pending_friends|length == 0 %}
         <div>

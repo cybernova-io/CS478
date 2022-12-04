@@ -18,7 +18,8 @@ event_bp = Blueprint("event_bp", __name__)
 def get_events_page():
 
     events = Event.query.all()
-    return render_template("/events/events.html", events=events)
+    data = [x.serialize() for x in events]
+    return render_template("/events/events.html", events=data)
 
 @event_bp.get("/event/me")
 @jwt_required()
@@ -31,8 +32,9 @@ def get_my_events_page():
     for event in events:
         if event.owner_id == current_user.id or current_user in event.attendees:
             my_events.append(event)
+    data = [x.serialize() for x in my_events]
 
-    return render_template("/events/events-me.html", events=my_events)
+    return render_template("/events/events-me.html", events=data)
 
 
 @event_bp.get("/event/<int:id>")
@@ -43,7 +45,7 @@ def get_event_page(id):
     event = Event.query.get(id)
     data = {}
     user = User.query.get(event.owner_id)
-    data['event'] = event
+    data['event'] = event.serialize()
 
     data['user'] = user.serialize()
 
@@ -140,6 +142,20 @@ def update_event_page(id):
             return redirect(f'/event/{event.id}')
         abort(404)
 
+@event_bp.get("/event/user/<int:id>")
+@jwt_required()
+def get_events_page_profile(id):
+
+    user = User.query.get_or_404(id)
+    events = Event.query.all()
+
+    my_events = []
+    #could be list comprehension
+    for event in events:
+        if event.owner_id == user.id or user in event.attendees:
+            my_events.append(event)
+
+    return render_template("/events/events-not-me.html", events=my_events, user=user)
 
 
 ######################################################### API BELOW, SERVER RENDERING ABOVE

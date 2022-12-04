@@ -41,11 +41,14 @@ class Event(db.Model):
             return self
 
     def serialize(self):
+
+        sched_time = self.time.strftime("%A, %d. %B %Y %I:%M%p")
+
         return {
             "id": self.id,
             "owner_id": self.owner_id,
             "name": self.name,
             "description": self.description,
-            "scheduled_time": self.time,
+            "time": sched_time,
             "attendees": [x.serialize() for x in self.attendees],
         }
