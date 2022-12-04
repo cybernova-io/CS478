@@ -82,6 +82,24 @@ def remove_friend_page():
 
     return redirect('/friends')
 
+@friend_bp.route("/friends/suggestions", methods=["GET"])
+@jwt_required()
+def get_friend_suggestions_page():
+    """
+        RETURNS A LIST OF SUGGESTED FRIENDS
+    """ 
+    data = {}
+    users = User.query.filter(User.id != 1).all()
+    friends = current_user.friends
+
+    for x in friends: 
+        users.remove(x)
+    users.remove(current_user)
+    data = [x.serialize_search() for x in users]
+
+
+    return render_template('/friends/friend-suggestions.html', data=data)
+
 @friend_bp.route("/friends/request/", methods=["POST"])
 @jwt_required()
 def add_friend_page_search():
