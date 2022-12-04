@@ -40,7 +40,7 @@ def search_page():
         pass
     elif category == 'Posts':
         posts = Post.query.filter(Post.title.like("%" + search_term + "%")).all()
-        data = [x.serialize_search() for x in users]
+        data = [x.serialize() for x in posts]
     elif category == 'Groups':
         pass
     elif category == 'Events':

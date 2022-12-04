@@ -3,40 +3,59 @@ from flask import (
     request,
     send_from_directory,
     jsonify,
+    render_template,
+    redirect
 )
 from ..models.Users import db, User, pending_friend
 from flask_jwt_extended import jwt_required, current_user
 from flask import current_app as app
 from ..services.WebHelpers import WebHelpers
+from api.models.Events import Event, event_attendees
 import logging
 
 profile_bp = Blueprint("profile", __name__)
 
 
-@profile_bp.get("/profile")
+@profile_bp.route("/profile", methods = ['GET', 'POST'])
 @jwt_required()
 def profile_page():
     """
     GET: Returns all user attributes to be displayed in profile. This is how logged in users can view their profile.
     """
+    events = Event.query.filter_by(owner_id = current_user.id).all()
+    #attending 
+    if request.method == 'GET':
+        data = {
+            "username": current_user.username,
+            "first_name": current_user.first_name,
+            "last_name": current_user.last_name,
+            "major": current_user.major,
+            "grad_year": current_user.grad_year,
+            "email": current_user.email,
+            "creation_date": current_user.created_on,
+            "last_login": current_user.last_login,
+            "pending_friends": [x.username for x in current_user.pending_friends],
+            "friends": [x.username for x in current_user.friends],
+            "posts": current_user.posts,
+            "groups": current_user.groups,
+            "events": events
+        }
 
-    data = {
-        "user_username": current_user.username,
-        "user_first_name": current_user.first_name,
-        "user_last_name": current_user.last_name,
-        "user_major": current_user.major,
-        "user_grad_year": current_user.grad_year,
-        "user_email": current_user.email,
-        "user_creation_date": current_user.created_on,
-        "user_last_login": current_user.last_login,
-        "pending_friends": [x.username for x in current_user.pending_friends],
-        "friends": [x.username for x in current_user.friends],
-    }
+        return render_template("/profile/my-profile.html", data=data)
+    if request.method == 'POST':
+        user : User
 
-    resp = jsonify(data)
-    resp.status_code = 200
+        user = User.query.get(current_user.id)
 
-    return data
+        user.first_name = request.form['first_name']
+        user.last_name = request.form['last_name']
+        user.major = request.form['major']
+        user.grad_year = request.form['grad_year']
+        user.email = request.form['email']
+
+        db.session.commit()
+        return redirect('/profile')
+
 
 @profile_bp.get("/profile/<int:id>")
 @jwt_required()
