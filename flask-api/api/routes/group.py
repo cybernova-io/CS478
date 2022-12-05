@@ -1,5 +1,6 @@
 from api.models.db import db
 from api.models.Users import Group, User
+from api.models.Posts import Post
 from flask_jwt_extended import current_user, jwt_required
 from flask import (
     Blueprint,
@@ -29,8 +30,9 @@ def get_group_page(id):
     group : Group
 
     group = Group.query.get(id)
+    group_posts = Post.query.filter(Post.group_id == group.id).all()
 
-    return render_template("/groups/single-group.html", group=group)
+    return render_template("/groups/single-group.html", group=group, group_posts=group_posts)
 
 @group_bp.route("/group/create", methods=['GET', 'POST'])
 @jwt_required()
