@@ -20,7 +20,18 @@ def create_app(config):
     """Construct the core app object."""
     app = Flask(__name__)
 
-    if config == "dev":
+    # Application Configuration
+    if config == "production":
+        app.config.from_object("config.ProductionConfig")
+        # JWT Config
+        app.config["JWT_COOKIE_SECURE"] = False
+        app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+        app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this in your code!
+        app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=3)
+        app.config["JWT_COOKIE_CSRF_PROTECT"] = False
+        app.config["WTF_CSRF_ENABLED"] = True
+        logging.warning("Running production configuration.")
+    elif config == "dev":
         # Application Configuration
         app.config.from_object("config.DevConfig")
         app.config["PROFILE_PICS"] = PROFILE_PICS
@@ -34,12 +45,12 @@ def create_app(config):
         app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=3)
         app.config["JWT_COOKIE_CSRF_PROTECT"] = False
         app.config["WTF_CSRF_ENABLED"] = True
-
-    if config == "test":
+    elif config == "test":
         app.config.from_object("config.TestConfig")
-    else:
-        # change to prod for deployment
-        app.config.from_object("config.DevConfig")
+        logging.warning("Running test configuration.")
+
+    
+
 
     # authentication
     app.config["LOGIN_DISABLED"] = True

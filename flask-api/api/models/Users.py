@@ -12,10 +12,7 @@ from .Posts import PostLike
 from sqlalchemy import insert, values, select, update
 from flask_jwt_extended import current_user
 
-# engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
-#role = 1 = owner of group
-#role = 2 = moderator of group
-#role = 3 = member of group
+
 group_user = db.Table(
     "group_users",
     db.Column("group_id", db.Integer, db.ForeignKey("Group.id")),
@@ -61,7 +58,7 @@ class Group(db.Model):
     name = db.Column(db.String(), unique=True)
     description = db.Column(db.String())
     invite_only = db.Column(db.Boolean(), default=False, nullable=False)
-    members = db.relationship("User", secondary=group_user, back_populates="groups", lazy="dynamic")
+    members = db.relationship("User", secondary=group_user, back_populates="groups", lazy=False)
     posts = db.relationship("Post", backref="Posts", lazy="dynamic")
 
     def serialize(self):
@@ -96,16 +93,7 @@ class Group(db.Model):
             stmt = insert(group_user).values(group_id=self.id, user_id=user.id, role=1)
             db.session.execute(stmt)
             db.session.commit()
-            """
-            stmt = (
-                update(group_user).
-                where(group_user.c.user_id == current_user.id).
-                where(group_user.c.group_id == self.id).
-                values(role=2)
-            )
-            db.session.execute(stmt)
-            db.session.commit()
-            """
+            
 
     def make_moderator(self, user):
         if self.check_role(user):
@@ -124,21 +112,24 @@ class Group(db.Model):
         
 
     def check_role(self, user):
-        result = db.session.execute(group_user.select(group_user.c.role).where(group_user.c.group_id==self.id, group_user.c.user_id==user.id)).first()
-        if result:
-            if result[2] == 1:
-                #print('Owner')
-                return "Owner"
-            elif result[2] == 2:
-                #print('Moderator')
-                return "Moderator"
-            elif result[2] == 3:
-                #print('Member')
-                return "Member"
+        try:
+            result = db.session.execute(group_user.select(group_user.c.role).where(group_user.c.group_id==self.id, group_user.c.user_id==user.id)).first()
+            if result:
+                if result[2] == 1:
+                    #print('Owner')
+                    return "Owner"
+                elif result[2] == 2:
+                    #print('Moderator')
+                    return "Moderator"
+                elif result[2] == 3:
+                    #print('Member')
+                    return "Member"
+                else:
+                    return None
             else:
+                #user is not in the group
                 return None
-        else:
-            #user is not in the group
+        except:
             return None
 
 class Role(db.Model):
@@ -291,20 +282,23 @@ class User(db.Model):
         return self.friends.filter(friend.c.friend1_id == user.id).count() > 0
 
     def is_requestor(self, friend):
-        # Retrieves the value from db to see if current user is requestor, looking for 1 in requestor column
-        engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
-        user_who_sent_request = engine.execute(
-            pending_friend.select(pending_friend.c.requestor).where(
-                pending_friend.c.pending_friend0_id == self.id,
-                pending_friend.c.pending_friend1_id == friend.id,
-            )
-        ).fetchall()
         try:
-            if user_who_sent_request[0][2] == 1:
-                return True
-            else:
+            # Retrieves the value from db to see if current user is requestor, looking for 1 in requestor column
+            engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
+            user_who_sent_request = engine.execute(
+                pending_friend.select(pending_friend.c.requestor).where(
+                    pending_friend.c.pending_friend0_id == self.id,
+                    pending_friend.c.pending_friend1_id == friend.id,
+                )
+            ).fetchall()
+            try:
+                if user_who_sent_request[0][2] == 1:
+                    return True
+                else:
+                    return False
+            except IndexError as e:
                 return False
-        except IndexError as e:
+        except:
             return False
 
     def is_requestor_reverse(self, friend):
@@ -394,9 +388,12 @@ class User(db.Model):
             db.session.commit()
 
     def is_admin(self):
-        if 'Admin' in [x.name for x in self.roles]:
-            return True
-        else:
+        try:
+            if 'Admin' in [x.name for x in self.roles]:
+                return True
+            else:
+                return False
+        except:
             return False
 
 

@@ -51,7 +51,7 @@
         <div class="d-flex justify-content-center">
             <form method="GET" action="/group/{{group.id}}/post"><button class="btn btn-success f-s-12 rounded-corner" type="submit">New Group Post</button></form>
         </div>
-        {% for post in group.posts %}
+        {% for post in group_posts %}
         <div class="vstack gap-3">
             <div class="d-flex justify-content-center">
                 <div class="card" style="width: 30rem;">
