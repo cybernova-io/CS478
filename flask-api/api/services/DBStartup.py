@@ -25,11 +25,11 @@ def seed_db():
     if User.query.count() == 0:
         password = sha256_crypt.encrypt("password")
         admin = User(
-            first_name="ADMIN",
-            last_name="ADMIN",
+            first_name="Tom",
+            last_name="Admin",
             grad_year="2024",
             major="ADMINISTRATION",
-            username="ADMIN",
+            username="Myspace Tom",
             email="admin@email.com",
             password=password,
         )
@@ -333,14 +333,14 @@ def seed_db():
 
     if Event.query.count() == 0:
 
-        event_time = "02/15/2023 5:00"
+        event_time = "12/8/2022 5:00"
         
         timestamp = datetime.strptime(event_time, "%m/%d/%Y %H:%M")
         event1 = Event(
             name="End of the world",
-            description="The scripture foretold of the ending of our world on this day. Join for the doomsday party!",
+            description="The mayan calendar foretold the ending of our world on this day. Join for the doomsday party!",
             time=timestamp,
-            owner_id=2
+            owner_id=4
         )
 
         db.session.add(event1)

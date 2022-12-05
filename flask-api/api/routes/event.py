@@ -46,6 +46,7 @@ def get_event_page(id):
     data = {}
     user = User.query.get(event.owner_id)
     data['event'] = event.serialize()
+    data ['attendee'] = event.in_event(current_user)
 
     data['user'] = user.serialize()
 

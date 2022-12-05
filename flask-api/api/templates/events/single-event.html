@@ -21,7 +21,7 @@
             <form method="GET" action="/event/edit/{{event.event.id}}"><button class="btn btn-success f-s-12 rounded-corner" type="submit">Edit Event</button></form>
             <form method="POST" action="/event/delete/{{event.event.id}}"><button class="btn btn-danger f-s-12 rounded-corner" type="submit">Delete Event</button></form>
             {% else %}
-                {% if event.event.in_event(current_user) == False %}
+                {% if event.attendee == False %}
                     <form method="POST" action="/event/join/{{event.event.id}}"><button class="btn btn-success f-s-12 rounded-corner" type="submit">Join Event</button></form>
                     {% else %}
                     <form method="POST" action="/event/leave/{{event.event.id}}"><button class="btn btn-danger f-s-12 rounded-corner" type="submit">Leave Event</button></form>

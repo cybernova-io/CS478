@@ -64,6 +64,7 @@ class ProductionConfig:
     SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URL")
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    #SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://{user}:{pw}@{url}/{db}'.format(user="postgres",pw="",url="127.0.0.1:5432",db="cs478")
 
     #Flask-Session
     SESSION_TYPE = environ.get('SESSION_TYPE')
