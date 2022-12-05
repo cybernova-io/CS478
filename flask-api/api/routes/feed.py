@@ -27,13 +27,14 @@ def feed_page():
     #could be list comprehension
     for friend in friends:
         for event in events:
-            if event.owner_id == friend.id or friend in event.attendees:
-                if WebUtils.time_in_range_one_week(event.time): 
-                    data.append(event.serialize_feed())
+            if event.owner_id == friend.id or event.in_event(friend) == True:
+                if WebUtils.time_in_range_one_week(event.time):
+                    if event.in_event(current_user) == False:
+                        if event.serialize_feed() not in data:
+                            data.append(event.serialize_feed())
 
     for i in friends:
         [data.append(x.serialize_feed()) for x in i.posts]
-    
     random.shuffle(data)
     return render_template("/feed/feed.html", data=data)
 
